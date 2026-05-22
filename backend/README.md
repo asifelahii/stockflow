@@ -53,3 +53,11 @@ http://127.0.0.1:8000/docs
 Copy `.env.example` to `.env` and update values when needed.
 
 Do not commit `.env`.
+
+
+## Implemented API Endpoints
+
+### Health
+
+```txt
+GET /health
