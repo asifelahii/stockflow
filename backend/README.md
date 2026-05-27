@@ -4,7 +4,9 @@ This is the FastAPI backend for StockFlow: Inventory and Business Expense Manage
 
 ## Current Phase
 
-Phase 1: Backend Foundation
+- Phase 1: Backend Foundation
+- Phase 2: Authentication
+- Phase 3: Product Management
 
 ## Tech Stack
 
@@ -54,10 +56,21 @@ Copy `.env.example` to `.env` and update values when needed.
 
 Do not commit `.env`.
 
-
 ## Implemented API Endpoints
 
 ### Health
 
 ```txt
 GET /health
+```
+
+### Products
+
+```txt
+POST   /api/v1/products
+GET    /api/v1/products
+GET    /api/v1/products/low-stock
+GET    /api/v1/products/{product_id}
+PUT    /api/v1/products/{product_id}
+DELETE /api/v1/products/{product_id}
+```
