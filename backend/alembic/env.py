@@ -14,6 +14,7 @@ from app.models.product import Product  # noqa: F401
 from app.models.category import ProductCategory, ExpenseCategory  # noqa: F401
 from app.models.supplier import Supplier  # noqa: F401
 from app.models.stock_movement import StockMovement  # noqa: F401
+from app.models.financial_transaction import FinancialTransaction  # noqa: F401
 
 config = context.config
 
