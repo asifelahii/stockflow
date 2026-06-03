@@ -11,6 +11,8 @@ from app.db.base import Base
 # Import models here so Alembic can detect them.
 from app.models.user import User  # noqa: F401
 from app.models.product import Product  # noqa: F401
+from app.models.category import ProductCategory, ExpenseCategory  # noqa: F401
+from app.models.supplier import Supplier  # noqa: F401
 
 config = context.config
 
