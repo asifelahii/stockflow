@@ -7,6 +7,7 @@ This is the FastAPI backend for StockFlow: Inventory and Business Expense Manage
 - Phase 1: Backend Foundation
 - Phase 2: Authentication
 - Phase 3: Product Management
+- Phase 4: Category and Supplier Management
 
 ## Tech Stack
 
@@ -81,4 +82,34 @@ GET    /api/v1/products/low-stock
 GET    /api/v1/products/{product_id}
 PUT    /api/v1/products/{product_id}
 DELETE /api/v1/products/{product_id}
+```
+
+### Product Categories
+
+```txt
+POST   /api/v1/product-categories
+GET    /api/v1/product-categories
+GET    /api/v1/product-categories/{category_id}
+PUT    /api/v1/product-categories/{category_id}
+DELETE /api/v1/product-categories/{category_id}
+```
+
+### Expense Categories
+
+```txt
+POST   /api/v1/expense-categories
+GET    /api/v1/expense-categories
+GET    /api/v1/expense-categories/{category_id}
+PUT    /api/v1/expense-categories/{category_id}
+DELETE /api/v1/expense-categories/{category_id}
+```
+
+### Suppliers
+
+```txt
+POST   /api/v1/suppliers
+GET    /api/v1/suppliers
+GET    /api/v1/suppliers/{supplier_id}
+PUT    /api/v1/suppliers/{supplier_id}
+DELETE /api/v1/suppliers/{supplier_id}
 ```
