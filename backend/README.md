@@ -2,12 +2,13 @@
 
 This is the FastAPI backend for StockFlow: Inventory and Business Expense Management System.
 
-## Current Phase
+## Completed Backend Phases
 
 - Phase 1: Backend Foundation
 - Phase 2: Authentication
 - Phase 3: Product Management
 - Phase 4: Category and Supplier Management
+- Phase 5: Stock Management
 
 ## Tech Stack
 
@@ -16,6 +17,7 @@ This is the FastAPI backend for StockFlow: Inventory and Business Expense Manage
 - SQLAlchemy
 - Alembic
 - Pydantic Settings
+- JWT Authentication
 - Uvicorn
 
 ## Local Setup
@@ -113,3 +115,52 @@ GET    /api/v1/suppliers/{supplier_id}
 PUT    /api/v1/suppliers/{supplier_id}
 DELETE /api/v1/suppliers/{supplier_id}
 ```
+
+### Stock Management
+
+```txt
+POST /api/v1/stock/in
+POST /api/v1/stock/out
+POST /api/v1/stock/adjust
+GET  /api/v1/stock/movements
+```
+
+## Authentication Flow
+
+1. A user registers with full name, email, and password.
+2. The backend hashes the password before saving it.
+3. The user logs in with email and password.
+4. The backend returns a JWT access token.
+5. Protected routes require the JWT token using Bearer authentication.
+6. The `/api/v1/auth/me` endpoint returns the currently logged-in user.
+
+## Product Management Flow
+
+1. A logged-in user can create a product.
+2. Product SKU must be unique.
+3. Product price and stock values cannot be negative.
+4. Products can be searched by name or SKU.
+5. Low-stock products are detected when `current_stock <= low_stock_threshold`.
+6. Delete uses soft delete by setting `is_active = false`.
+7. Inactive products are hidden from normal product list and product details API.
+
+## Category and Supplier Management Flow
+
+1. A logged-in user can create product categories.
+2. Product category names must be unique.
+3. A logged-in user can create expense categories.
+4. Expense category names must be unique.
+5. A logged-in user can create suppliers.
+6. Suppliers can be searched by name.
+7. Categories and suppliers use soft delete by setting `is_active = false`.
+8. Inactive categories and suppliers are hidden from normal list APIs.
+9. Products can optionally reference a valid product category and supplier.
+
+## Stock Management Flow
+
+1. A logged-in user can add stock to an active product.
+2. A logged-in user can reduce stock from an active product.
+3. Stock-out is blocked if requested quantity is greater than current stock.
+4. A logged-in user can manually adjust product stock after physical stock count.
+5. Every stock operation creates a stock movement history record.
+6. Stock movement history can be filtered by product ID and movement type.
