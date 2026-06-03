@@ -9,6 +9,7 @@ This is the FastAPI backend for StockFlow: Inventory and Business Expense Manage
 - Phase 3: Product Management
 - Phase 4: Category and Supplier Management
 - Phase 5: Stock Management
+- Phase 6: Income and Expense Management
 
 ## Tech Stack
 
@@ -125,6 +126,18 @@ POST /api/v1/stock/adjust
 GET  /api/v1/stock/movements
 ```
 
+### Finance
+
+```txt
+POST   /api/v1/finance/income
+POST   /api/v1/finance/expenses
+GET    /api/v1/finance/transactions
+GET    /api/v1/finance/transactions/{transaction_id}
+PUT    /api/v1/finance/transactions/{transaction_id}
+DELETE /api/v1/finance/transactions/{transaction_id}
+GET    /api/v1/finance/summary
+```
+
 ## Authentication Flow
 
 1. A user registers with full name, email, and password.
@@ -164,3 +177,15 @@ GET  /api/v1/stock/movements
 4. A logged-in user can manually adjust product stock after physical stock count.
 5. Every stock operation creates a stock movement history record.
 6. Stock movement history can be filtered by product ID and movement type.
+
+## Income and Expense Management Flow
+
+1. A logged-in user can create income records.
+2. A logged-in user can create expense records.
+3. Expense records can optionally reference an active expense category.
+4. Invalid expense category IDs are rejected.
+5. Transactions can be listed and filtered by transaction type.
+6. A single transaction can be viewed by ID.
+7. Transactions can be updated or deleted.
+8. The financial summary calculates total income, total expense, and net balance.
+9. Summary values are returned with two-decimal money formatting.
