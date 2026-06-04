@@ -4,19 +4,18 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
 
-# engine = create_engine(settings.database_url, echo=settings.debug)
-# engine = create_engine(settings.database_url, echo=False)
-engine = create_engine(settings.database_url)
+engine = create_engine(settings.database_url, echo=False)
 
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
 
 def get_db():
     db = SessionLocal()
+
     try:
         yield db
     finally:
