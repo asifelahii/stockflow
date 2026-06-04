@@ -10,6 +10,7 @@ This is the FastAPI backend for StockFlow: Inventory and Business Expense Manage
 - Phase 4: Category and Supplier Management
 - Phase 5: Stock Management
 - Phase 6: Income and Expense Management
+- Phase 7: Dashboard and Reports
 
 ## Tech Stack
 
@@ -138,6 +139,13 @@ DELETE /api/v1/finance/transactions/{transaction_id}
 GET    /api/v1/finance/summary
 ```
 
+### Dashboard
+
+```txt
+GET /api/v1/dashboard/summary
+GET /api/v1/dashboard/recent-activity
+```
+
 ## Authentication Flow
 
 1. A user registers with full name, email, and password.
@@ -189,3 +197,12 @@ GET    /api/v1/finance/summary
 7. Transactions can be updated or deleted.
 8. The financial summary calculates total income, total expense, and net balance.
 9. Summary values are returned with two-decimal money formatting.
+
+## Dashboard and Reports Flow
+
+1. A logged-in user can view dashboard summary metrics.
+2. Dashboard summary includes total active products, low-stock products, active suppliers, total income, total expense, and net balance.
+3. A logged-in user can view recent stock movement activity.
+4. A logged-in user can view recent financial transaction activity.
+5. Recent activity can be limited using the `limit` query parameter.
+6. Dashboard data is calculated from existing product, supplier, stock movement, and financial transaction records.
