@@ -1,0 +1,30 @@
+﻿<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark">SF</div>
+    <div>
+      <h1>StockFlow</h1>
+      <p>Business dashboard</p>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav" aria-label="Main navigation">
+    @for (section of sections; track section.title) {
+      <div class="nav-section">
+        <p class="nav-section-title">{{ section.title }}</p>
+
+        <div class="nav-links">
+          @for (link of section.links; track link.route) {
+            <a
+              class="nav-link"
+              [routerLink]="link.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
+              {{ link.label }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </nav>
+</div>

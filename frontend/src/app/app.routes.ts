@@ -1,3 +1,144 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { authGuard } from './core/guards/auth.guard';
+import { AuthLayoutComponent } from './layout/auth-layout/auth-layout';
+import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout';
+import { LoginComponent } from './features/auth/login/login';
+import { RegisterComponent } from './features/auth/register/register';
+import { DashboardComponent } from './features/dashboard/dashboard';
+import { PlaceholderPageComponent } from './features/placeholder/placeholder-page';
+
+export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'auth/login'
+  },
+  {
+    path: 'auth',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'login'
+      },
+      {
+        path: 'login',
+        component: LoginComponent
+      },
+      {
+        path: 'register',
+        component: RegisterComponent
+      }
+    ]
+  },
+  {
+    path: 'app',
+    component: DashboardLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard'
+      },
+      {
+        path: 'dashboard',
+        component: DashboardComponent
+      },
+      {
+        path: 'products',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Products',
+          description: 'Manage inventory products, stock levels, SKUs, and pricing.'
+        }
+      },
+      {
+        path: 'product-categories',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Product Categories',
+          description: 'Organize products into clear business categories.'
+        }
+      },
+      {
+        path: 'suppliers',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Suppliers',
+          description: 'Manage supplier contacts and supplier-related product records.'
+        }
+      },
+      {
+        path: 'stock/movements',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Stock Movements',
+          description: 'Track stock in, stock out, and adjustment history.'
+        }
+      },
+      {
+        path: 'stock/in',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Stock In',
+          description: 'Record incoming stock from purchase, return, or correction.'
+        }
+      },
+      {
+        path: 'stock/out',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Stock Out',
+          description: 'Record outgoing stock from sales, damage, or usage.'
+        }
+      },
+      {
+        path: 'stock/adjustment',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Stock Adjustment',
+          description: 'Correct product stock after physical verification.'
+        }
+      },
+      {
+        path: 'finance/income',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Income',
+          description: 'Track business income and sales-related records.'
+        }
+      },
+      {
+        path: 'finance/expenses',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Expenses',
+          description: 'Track operational costs and business expenses.'
+        }
+      },
+      {
+        path: 'finance/expense-categories',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Expense Categories',
+          description: 'Organize expenses into meaningful categories.'
+        }
+      },
+      {
+        path: 'reports',
+        component: PlaceholderPageComponent,
+        data: {
+          title: 'Reports',
+          description: 'View summaries and export business records.'
+        }
+      }
+    ]
+  },
+  {
+    path: '**',
+    redirectTo: 'auth/login'
+  }
+];
