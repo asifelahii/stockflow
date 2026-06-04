@@ -4,344 +4,385 @@
 
 This document defines the testing checklist for StockFlow.
 
-The goal is to make sure each phase is tested before moving to the next phase. Since this is a beginner-friendly project, testing will start with manual testing using Swagger, Postman, browser checks, and basic validation. Automated tests can be added gradually later.
+The goal is to make sure each phase is tested before moving to the next phase. Testing will use Swagger UI, Postman, browser checks, Angular build checks, manual UI testing, and frontend-backend integration testing.
+
+Current project status:
+
+```txt
+Backend completed and manually tested.
+Angular frontend initialized and build verified.
+Frontend layout and authentication UI is currently in progress.
+```
 
 ---
 
 ## 2. Testing Strategy
 
-StockFlow will use a simple phase-wise testing strategy:
+StockFlow follows a phase-wise testing strategy.
 
-1. Build one module.
-2. Test backend APIs using Swagger/Postman.
-3. Test database changes.
-4. Test frontend UI manually.
-5. Test frontend-backend connection.
-6. Check edge cases.
-7. Update documentation.
-8. Commit only after the feature works.
+For each phase:
+
+- Build one focused feature or module.
+- Run the application locally.
+- Test the main success flow.
+- Test important error cases.
+- Check browser or API console errors.
+- Update documentation if needed.
+- Review Git diff.
+- Commit only after the feature works.
 
 A phase is not complete until its main flow works correctly.
 
 ---
 
-## 3. General Testing Rules
+## 3. Current Testing Status
+
+| Area                                 | Status    |
+| ------------------------------------ | --------- |
+| Backend health check                 | Completed |
+| Authentication APIs                  | Completed |
+| Product APIs                         | Completed |
+| Product category APIs                | Completed |
+| Expense category APIs                | Completed |
+| Supplier APIs                        | Completed |
+| Stock management APIs                | Completed |
+| Finance APIs                         | Completed |
+| Dashboard APIs                       | Completed |
+| Recent activity APIs                 | Completed |
+| Backend cleanup checks               | Completed |
+| Backend API test checklist           | Completed |
+| Angular frontend setup               | Completed |
+| Angular build check                  | Passed    |
+| Frontend layout/auth UI testing      | Pending   |
+| Frontend-backend integration testing | Pending   |
+| Deployment testing                   | Pending   |
+
+---
+
+## 4. General Testing Rules
 
 Before committing any feature:
 
-- Make sure the backend server runs without errors.
-- Make sure the frontend runs without errors.
-- Make sure database migrations work.
-- Test both success and failure cases.
-- Check if protected APIs require authentication.
-- Check if forms show useful validation messages.
-- Check if wrong input is handled properly.
-- Check if Git status is clean after commit.
+- [ ] Application runs without startup errors.
+- [ ] No unnecessary files are added.
+- [ ] `.env` file is not committed.
+- [ ] `.env.example` is updated if needed.
+- [ ] Backend APIs are tested if backend is changed.
+- [ ] Angular build passes if frontend is changed.
+- [ ] Browser console has no critical errors.
+- [ ] Documentation is updated if needed.
+- [ ] Git diff is reviewed.
+- [ ] Commit message is meaningful.
+
+Recommended commands:
+
+```bash
+git status
+git diff --stat
+```
 
 ---
 
-## 4. Backend Testing Checklist
+## 5. Backend Testing Checklist
 
-Use Swagger and Postman for backend testing.
+Backend testing was completed before frontend development started.
 
-### General Backend Checks
+Detailed backend testing is tracked in:
 
-- [ ] FastAPI server starts successfully.
-- [ ] Swagger UI opens.
-- [ ] API endpoint appears in Swagger.
-- [ ] Request body format is clear.
-- [ ] Response body format is correct.
-- [ ] Correct status code is returned.
-- [ ] Error cases are handled.
-- [ ] Protected routes reject unauthenticated requests.
-- [ ] Database data is saved correctly.
-- [ ] Database relationships work correctly.
+```txt
+backend/API_TEST_CHECKLIST.md
+```
 
-### Common Backend Error Cases
+### Completed Backend Checks
 
-Test these when relevant:
+- [x] FastAPI server starts successfully.
+- [x] Swagger UI opens.
+- [x] `/health` endpoint works.
+- [x] PostgreSQL connection works.
+- [x] Alembic migration is at head.
+- [x] Authentication flow works.
+- [x] Protected routes reject unauthenticated requests.
+- [x] Product APIs work.
+- [x] Category APIs work.
+- [x] Supplier APIs work.
+- [x] Stock APIs work.
+- [x] Finance APIs work.
+- [x] Dashboard APIs work.
+- [x] Recent activity APIs work.
+- [x] Backend cleanup completed.
+- [x] Git working tree was clean before frontend work.
 
-- [ ] Missing required field
-- [ ] Invalid data type
-- [ ] Duplicate email
-- [ ] Duplicate SKU
-- [ ] Invalid ID
-- [ ] Resource not found
-- [ ] Unauthorized request
-- [ ] Forbidden request
-- [ ] Negative quantity
-- [ ] Zero or negative amount
+### Backend Re-Test Triggers
 
----
+Re-test backend only if:
 
-## 5. Frontend Testing Checklist
-
-Use browser testing for Angular frontend.
-
-### General Frontend Checks
-
-- [ ] Page loads without console errors.
-- [ ] Routing works.
-- [ ] Form opens correctly.
-- [ ] Form validation works.
-- [ ] API request is sent correctly.
-- [ ] Success message is shown.
-- [ ] Error message is shown.
-- [ ] Loading state works where needed.
-- [ ] Table/list updates after create, update, or delete.
-- [ ] Search/filter works if added.
-- [ ] Protected pages are not accessible without login.
-- [ ] Layout is responsive enough for basic screen sizes.
+- Backend code changes.
+- Database models change.
+- API response structure changes.
+- Authentication behavior changes.
+- CORS configuration changes.
+- Deployment environment changes.
 
 ---
 
-## 6. Phase 1: Backend Foundation Testing
+## 6. Angular Setup Testing
 
-### Backend Checks
+### Completed Angular Setup Checks
 
-- [ ] Virtual environment works.
-- [ ] Required packages are installed.
-- [ ] FastAPI server starts.
-- [ ] `/health` endpoint works.
-- [ ] Swagger UI opens.
-- [ ] PostgreSQL connection works.
-- [ ] SQLAlchemy database session works.
-- [ ] Alembic migration setup works.
-- [ ] Environment variables are loaded correctly.
+- [x] Angular project initialized inside `frontend/`.
+- [x] Routing enabled.
+- [x] SCSS enabled.
+- [x] SSR/SSG disabled.
+- [x] Angular standalone-style structure confirmed.
+- [x] `npm run build` passed.
+- [x] Initial Angular setup committed.
 
-### Expected Output
+### Command
 
-- Backend runs locally.
-- Health check returns success.
-- Database connection is ready.
+```bash
+cd frontend
+npm run build
+```
 
----
+Expected result:
 
-## 7. Phase 2: Authentication Testing
-
-### Register API
-
-- [ ] User can register with valid data.
-- [ ] Duplicate email is rejected.
-- [ ] Missing email is rejected.
-- [ ] Missing password is rejected.
-- [ ] Password is stored as hashed password.
-- [ ] User role is assigned correctly.
-
-### Login API
-
-- [ ] User can login with correct credentials.
-- [ ] Wrong password is rejected.
-- [ ] Unknown email is rejected.
-- [ ] JWT token is returned after successful login.
-- [ ] Token type is `bearer`.
-
-### Protected Route
-
-- [ ] `/auth/me` works with valid token.
-- [ ] `/auth/me` fails without token.
-- [ ] `/auth/me` fails with invalid token.
+```txt
+Build completed successfully.
+```
 
 ---
 
-## 8. Phase 3: Product Management Testing
+## 7. Phase 10: Frontend Layout and Authentication UI Testing
 
-### Product Create
+This is the current active frontend testing scope.
 
-- [ ] Product can be created with valid data.
-- [ ] Product name is required.
-- [ ] SKU is required.
-- [ ] Duplicate SKU is rejected.
-- [ ] Purchase price cannot be negative.
-- [ ] Selling price cannot be negative.
-- [ ] Current stock cannot be negative.
-- [ ] Low-stock threshold cannot be negative.
+### Layout Structure
 
-### Product List
+- [ ] App shell loads correctly.
+- [ ] Auth layout displays correctly.
+- [ ] Dashboard layout displays correctly.
+- [ ] Sidebar displays correctly.
+- [ ] Topbar displays correctly.
+- [ ] Main content area displays correctly.
+- [ ] Layout does not break on common desktop screen sizes.
+- [ ] Basic responsive behavior works on smaller screens.
 
-- [ ] Product list loads correctly.
-- [ ] Search by product name works.
-- [ ] Search by SKU works.
-- [ ] Filter by category works if available.
-- [ ] Filter by supplier works if available.
-- [ ] Pagination works if available.
+### Routing
 
-### Product Update/Delete
+- [ ] `/` redirects correctly.
+- [ ] `/auth/login` loads login page.
+- [ ] `/auth/register` loads register page.
+- [ ] `/app/dashboard` loads protected dashboard placeholder.
+- [ ] Unknown routes are handled safely if added.
+- [ ] Navigation links work from sidebar.
+- [ ] Active sidebar link style works.
 
-- [ ] Product can be updated.
-- [ ] Invalid product ID returns not found.
-- [ ] Product can be deactivated/deleted.
-- [ ] Deleted/inactive products are handled properly.
+### Login UI
 
----
+- [ ] Login form displays email field.
+- [ ] Login form displays password field.
+- [ ] Login form displays submit button.
+- [ ] Required validation works.
+- [ ] Email format validation works if added.
+- [ ] Password field hides typed password.
+- [ ] Login page has link to register page.
+- [ ] Login page design matches StockFlow business style.
 
-## 9. Phase 4: Category and Supplier Testing
+### Register UI
 
-### Product Category
+- [ ] Register form displays full name field.
+- [ ] Register form displays email field.
+- [ ] Register form displays password field.
+- [ ] Register form displays submit button.
+- [ ] Required validation works.
+- [ ] Email format validation works if added.
+- [ ] Password field hides typed password.
+- [ ] Register page has link to login page.
+- [ ] Register page design matches StockFlow business style.
 
-- [ ] Product category can be created.
-- [ ] Product category list loads.
-- [ ] Product category can be updated.
-- [ ] Product category can be deleted/deactivated.
-- [ ] Category used by products is handled safely.
+### Auth Guard Structure
 
-### Expense Category
+- [ ] Auth guard file exists.
+- [ ] Protected route structure exists.
+- [ ] Unauthenticated access redirects to login after implementation.
+- [ ] Auth guard does not break Angular build.
 
-- [ ] Expense category can be created.
-- [ ] Expense category list loads.
-- [ ] Expense category can be updated.
-- [ ] Expense category can be deleted/deactivated.
+### Auth Service Structure
 
-### Supplier
+- [ ] Auth service file exists.
+- [ ] Login method placeholder or structure exists.
+- [ ] Register method placeholder or structure exists.
+- [ ] Logout method placeholder or structure exists.
+- [ ] Token helper methods are planned or added.
+- [ ] Auth service does not break Angular build.
 
-- [ ] Supplier can be created.
-- [ ] Supplier list loads.
-- [ ] Supplier can be updated.
-- [ ] Supplier can be deleted/deactivated.
-- [ ] Supplier can be selected in product form.
+### Build Check
 
----
+Angular build passes after layout/auth work.
 
-## 10. Phase 5: Stock Management Testing
+Command:
 
-### Stock In
-
-- [ ] Stock in increases product current stock.
-- [ ] Stock movement history is created.
-- [ ] Quantity must be greater than zero.
-- [ ] Invalid product ID is rejected.
-
-### Stock Out
-
-- [ ] Stock out decreases product current stock.
-- [ ] Stock movement history is created.
-- [ ] Quantity must be greater than zero.
-- [ ] Stock cannot go below zero.
-- [ ] Invalid product ID is rejected.
-
-### Stock Adjustment
-
-- [ ] Stock can be adjusted with reason.
-- [ ] Previous stock and new stock are stored.
-- [ ] Adjustment creates stock movement history.
-- [ ] New stock cannot be negative.
-
-### Low-Stock Alert
-
-- [ ] Low-stock products are shown when current stock is less than or equal to threshold.
-- [ ] Products above threshold are not shown as low stock.
-- [ ] Low-stock count appears correctly on dashboard.
+```bash
+cd frontend
+npm run build
+```
 
 ---
 
-## 11. Phase 6: Income and Expense Testing
+## 8. Phase 11: Frontend Feature Screens Testing
 
-### Income
+This phase is pending.
 
-- [ ] Income transaction can be created.
-- [ ] Amount must be greater than zero.
-- [ ] Income list loads correctly.
-- [ ] Income can be filtered by date.
+### Dashboard Screen
 
-### Expense
+- [ ] Dashboard page loads.
+- [ ] Summary card layout displays correctly.
+- [ ] Recent stock activity panel displays correctly.
+- [ ] Recent finance activity panel displays correctly.
+- [ ] Low-stock panel or placeholder displays correctly.
 
-- [ ] Expense transaction can be created.
-- [ ] Amount must be greater than zero.
-- [ ] Expense category is required.
-- [ ] Expense list loads correctly.
-- [ ] Expense can be filtered by category.
-- [ ] Expense can be filtered by date.
+### Product Screens
 
-### Monthly Summary
+- [ ] Product list page loads.
+- [ ] Product table displays correctly.
+- [ ] Add product form displays correctly.
+- [ ] Edit product form displays correctly.
+- [ ] Empty state displays correctly.
+- [ ] Product status badge displays correctly.
 
-- [ ] Monthly income is calculated correctly.
-- [ ] Monthly expense is calculated correctly.
-- [ ] Estimated profit is calculated correctly.
-- [ ] Date range filter works correctly.
+### Category and Supplier Screens
 
----
+- [ ] Product category page loads.
+- [ ] Expense category page loads.
+- [ ] Supplier page loads.
+- [ ] Tables display correctly.
+- [ ] Forms display correctly.
+- [ ] Empty states display correctly.
 
-## 12. Phase 7: Dashboard and Reports Testing
+### Stock Screens
 
-### Dashboard Cards
+- [ ] Stock movement page loads.
+- [ ] Stock in form displays correctly.
+- [ ] Stock out form displays correctly.
+- [ ] Stock adjustment form displays correctly.
+- [ ] Movement type badge displays correctly.
 
-- [ ] Total products count is correct.
-- [ ] Total suppliers count is correct.
-- [ ] Total stock value is correct.
-- [ ] Low-stock product count is correct.
-- [ ] Monthly income is correct.
-- [ ] Monthly expense is correct.
-- [ ] Estimated profit is correct.
+### Finance Screens
 
-### Charts
-
-- [ ] Income vs expense chart loads.
-- [ ] Expense by category chart loads.
-- [ ] Stock movement chart loads.
-- [ ] Chart data matches backend response.
-
-### Reports
-
-- [ ] Product report loads.
-- [ ] Low-stock report loads.
-- [ ] Stock movement report loads.
-- [ ] Finance report loads.
-- [ ] CSV export downloads correctly.
-- [ ] Exported CSV contains correct columns.
+- [ ] Income page loads.
+- [ ] Expense page loads.
+- [ ] Expense category page loads.
+- [ ] Transaction table displays correctly.
+- [ ] Income/expense styling is clear.
 
 ---
 
-## 13. Phase 8: Security and Professional Polish Testing
+## 9. Phase 12: Frontend-Backend Integration Testing
 
-### Role-Based Access
+This phase is pending.
 
-- [ ] Admin can access all allowed pages.
-- [ ] Manager has limited access.
-- [ ] Staff has limited access.
-- [ ] Unauthorized role is blocked from restricted API.
-- [ ] Unauthorized role is blocked from restricted frontend route.
+### API Configuration
 
-### Human Verification
+- [ ] API base URL is configured.
+- [ ] Local backend URL works.
+- [ ] Environment file is not exposing secrets.
 
-- [ ] Turnstile/CAPTCHA appears on selected public form.
-- [ ] Valid verification allows request.
-- [ ] Invalid verification blocks request.
-- [ ] Backend verifies token before accepting protected public form submission.
+### Authentication Integration
 
-### Activity Log
+- [ ] Register request reaches backend.
+- [ ] Login request reaches backend.
+- [ ] JWT token is stored after login.
+- [ ] Protected API requests include bearer token.
+- [ ] Logout removes token.
+- [ ] Invalid login shows readable error.
+- [ ] Unauthorized users are redirected to login.
 
-- [ ] Product creation creates activity log.
-- [ ] Stock movement creates activity log.
-- [ ] Finance transaction creates activity log.
-- [ ] User role update creates activity log.
+### Dashboard Integration
 
-### Pagination and Validation
+- [ ] Dashboard summary loads from backend.
+- [ ] Recent activity loads from backend.
+- [ ] Loading state appears while fetching data.
+- [ ] Error state appears if backend is unavailable.
 
-- [ ] Large lists support pagination.
-- [ ] Invalid page/limit values are handled.
-- [ ] Backend validation errors are readable.
-- [ ] Frontend validation messages are useful.
+### Product Integration
+
+- [ ] Products load from backend.
+- [ ] Product create works.
+- [ ] Product update works.
+- [ ] Product delete/soft delete works.
+- [ ] Low-stock data loads correctly.
+- [ ] Duplicate SKU error is shown clearly.
+
+### Category and Supplier Integration
+
+- [ ] Product categories load from backend.
+- [ ] Expense categories load from backend.
+- [ ] Suppliers load from backend.
+- [ ] Create/update/delete flows work.
+- [ ] Dropdown data loads in product forms.
+
+### Stock Integration
+
+- [ ] Stock movement history loads.
+- [ ] Stock in works.
+- [ ] Stock out works.
+- [ ] Stock adjustment works.
+- [ ] Negative stock prevention error is shown clearly.
+
+### Finance Integration
+
+- [ ] Income records load.
+- [ ] Expense records load.
+- [ ] Income create works.
+- [ ] Expense create works.
+- [ ] Transaction update works.
+- [ ] Transaction delete works.
+- [ ] Financial summary loads correctly.
 
 ---
 
-## 14. Documentation Testing
+## 10. UI/UX Testing Checklist
+
+Use this checklist for all frontend pages.
+
+- [ ] Page title is clear.
+- [ ] Page description is useful.
+- [ ] Primary action button is visible.
+- [ ] Forms are easy to understand.
+- [ ] Tables are readable.
+- [ ] Empty state is helpful.
+- [ ] Loading state is visible.
+- [ ] Error message is understandable.
+- [ ] Success message is understandable.
+- [ ] Button colors are consistent.
+- [ ] Danger actions are clearly marked.
+- [ ] Layout spacing is clean.
+- [ ] UI looks professional, not too fancy and not boring.
+- [ ] Browser console has no critical errors.
+
+---
+
+## 11. Documentation Testing
 
 Before final submission/showcase:
 
 - [ ] Root README is complete.
-- [ ] Backend setup guide is complete.
-- [ ] Frontend setup guide is complete.
-- [ ] Environment variable guide is complete.
-- [ ] API endpoint documentation is complete.
-- [ ] Database design documentation is complete.
+- [ ] Backend README is complete.
+- [ ] Frontend README is complete.
+- [ ] Tech stack document is updated.
+- [ ] Phase plan is updated.
+- [ ] API endpoint documentation is updated.
+- [ ] Database design documentation is updated.
+- [ ] Testing checklist is updated.
+- [ ] Deployment guide is updated.
 - [ ] Screenshots are added.
-- [ ] Postman collection is added.
-- [ ] Deployment guide is added.
 - [ ] Future improvements are listed.
 
 ---
 
-## 15. Deployment Testing
+## 12. Deployment Testing
+
+This phase is pending.
 
 After deployment:
 
@@ -352,37 +393,45 @@ After deployment:
 - [ ] Registration works.
 - [ ] Login works.
 - [ ] Protected APIs work with token.
-- [ ] Product CRUD works.
-- [ ] Stock movement works.
+- [ ] Product pages work.
+- [ ] Stock pages work.
+- [ ] Finance pages work.
 - [ ] Dashboard loads.
+- [ ] CORS allows frontend requests.
 - [ ] Environment variables are set correctly.
 - [ ] No secret keys are exposed in GitHub.
 
 ---
 
-## 16. Git Checklist Before Commit
+## 13. Git Checklist Before Commit
 
 Before every commit:
 
-- [ ] Feature is tested.
-- [ ] No unnecessary files are added.
-- [ ] `.env` file is not committed.
-- [ ] `.env.example` is updated if needed.
-- [ ] README/docs are updated if needed.
-- [ ] Commit message is meaningful.
-- [ ] `git status` is checked.
+- [ ] Check current branch.
+- [ ] Check changed files.
+- [ ] Review diff.
+- [ ] Confirm build/test command passed.
+- [ ] Stage only relevant files.
+- [ ] Use a meaningful commit message.
 
 Recommended commands:
 
-```powershell
+```bash
+git branch --show-current
 git status
-git add .
-git commit -m "type: short meaningful message"
+git diff --stat
+```
+
+Commit example:
+
+```bash
+git add docs
+git commit -m "docs: update project status before frontend development"
 ```
 
 ---
 
-## 17. Definition of Done
+## 14. Definition of Done
 
 A feature is considered done when:
 
@@ -390,6 +439,8 @@ A feature is considered done when:
 - Important error cases are tested.
 - API is tested if backend is involved.
 - UI is tested if frontend is involved.
+- Angular build passes if frontend is involved.
 - Documentation is updated if needed.
+- Git diff is reviewed.
 - Git commit is made.
-- Working tree is clean.
+- Working tree is clean after commit.

@@ -6,7 +6,13 @@ This document defines the planned deployment approach for StockFlow.
 
 The goal is to make the project publicly accessible so it can be shown in a portfolio, GitHub README, CV, and interviews.
 
-This guide is a planning document for now. Exact deployment commands and links will be updated during Phase 10 after the application is fully built.
+Current status:
+
+```txt
+Backend completed and manually tested locally.
+Angular frontend initialized and build verified.
+Frontend layout/auth UI and frontend-backend integration are pending before deployment.
+```
 
 ---
 
@@ -18,14 +24,36 @@ The final deployed project should include:
 - Live FastAPI backend
 - Cloud PostgreSQL database
 - Working frontend-backend connection
-- Environment variables configured securely
-- Public GitHub repository
-- Updated README with live demo link
-- Screenshots and setup instructions
+- Secure environment variable configuration
+- Proper CORS configuration
+- Updated README with live demo links
+- Screenshots for GitHub/portfolio
+- Public portfolio-ready project presentation
 
 ---
 
-## 3. Planned Deployment Architecture
+## 3. Current Deployment Readiness
+
+| Area                             | Status              |
+| -------------------------------- | ------------------- |
+| Backend local development        | Completed           |
+| Backend API functionality        | Completed           |
+| Backend API testing              | Completed           |
+| Backend README                   | Completed           |
+| Angular frontend setup           | Completed           |
+| Angular build check              | Passed              |
+| Frontend layout/auth UI          | Pending/In progress |
+| Frontend feature screens         | Pending             |
+| Frontend-backend integration     | Pending             |
+| Production environment variables | Pending             |
+| Cloud database                   | Pending             |
+| Backend deployment               | Pending             |
+| Frontend deployment              | Pending             |
+| Final live testing               | Pending             |
+
+---
+
+## 4. Planned Deployment Architecture
 
 The planned deployment structure is:
 
@@ -39,7 +67,7 @@ FastAPI Backend API
 PostgreSQL Database
 ```
 
-Example:
+Example production structure:
 
 ```txt
 Frontend: https://stockflow-frontend.example.com
@@ -47,23 +75,23 @@ Backend:  https://stockflow-api.example.com
 Database: Cloud PostgreSQL service
 ```
 
-The actual URLs will be added after deployment.
+Actual production URLs will be added after deployment.
 
 ---
 
-## 4. Possible Deployment Platforms
+## 5. Recommended Deployment Platforms
 
-The exact platform will be finalized later.
+The exact platform will be finalized during deployment.
 
-Possible options:
+Recommended beginner-friendly options:
 
-| Part     | Possible Platform                    |
-| -------- | ------------------------------------ |
-| Frontend | Vercel / Netlify                     |
-| Backend  | Render / Railway / Fly.io            |
-| Database | Neon / Supabase / Railway PostgreSQL |
+| Part     | Recommended Options                             |
+| -------- | ----------------------------------------------- |
+| Frontend | Vercel / Netlify                                |
+| Backend  | Render / Railway                                |
+| Database | Neon / Supabase PostgreSQL / Railway PostgreSQL |
 
-For the first deployment, the preferred beginner-friendly setup is:
+Preferred first deployment combination:
 
 ```txt
 Frontend: Vercel or Netlify
@@ -71,11 +99,22 @@ Backend: Render or Railway
 Database: Neon or Supabase PostgreSQL
 ```
 
+Selection criteria:
+
+- Easy setup
+- Free or low-cost tier
+- Good PostgreSQL support
+- Environment variable support
+- Simple GitHub integration
+- Reliable enough for portfolio demo
+
 ---
 
-## 5. Environment Variables
+## 6. Environment Variables
 
-Sensitive values must not be committed to GitHub.
+Sensitive values must never be committed to GitHub.
+
+### Backend Environment Variables
 
 The backend should use environment variables such as:
 
@@ -87,18 +126,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES=
 FRONTEND_URL=
 ```
 
+### Frontend Environment Variables
+
 The frontend may use:
 
 ```env
 API_BASE_URL=
 ```
 
-Actual values should be stored only in:
+Actual values should only be stored in:
 
 - Local `.env` file
 - Deployment platform environment variable settings
 
-The repository should include only:
+The repository should include only safe example files such as:
 
 ```txt
 .env.example
@@ -112,227 +153,298 @@ Never commit:
 
 ---
 
-## 6. Backend Deployment Plan
+## 7. Backend Deployment Plan
 
-The FastAPI backend deployment will include:
+Backend deployment will be done after frontend integration is ready.
 
-- Prepare backend dependencies.
-- Confirm `requirements.txt` is updated.
-- Configure production database URL.
-- Configure secret key and JWT settings.
-- Add CORS settings for the deployed frontend URL.
-- Run database migrations.
-- Start FastAPI using a production server command.
-- Test live `/health` endpoint.
-- Test Swagger/API docs if enabled.
-- Test authentication and protected APIs.
+### Backend Preparation Checklist
 
-Expected backend checks:
+- [ ] Confirm backend runs locally.
+- [ ] Confirm `/health` works.
+- [ ] Confirm Swagger UI works locally.
+- [ ] Confirm backend API test checklist is complete.
+- [ ] Confirm `requirements.txt` is updated.
+- [ ] Confirm `.env.example` is updated.
+- [ ] Confirm production `DATABASE_URL` is ready.
+- [ ] Confirm production `SECRET_KEY` is configured.
+- [ ] Confirm CORS allows deployed frontend URL.
+- [ ] Confirm Alembic migrations can run against production database.
 
-- Backend server starts successfully.
-- Database connection works.
-- `/health` endpoint works.
-- Authentication endpoints work.
-- Protected endpoints require JWT token.
-- CORS allows frontend requests.
+### Backend Deployment Steps
 
----
+1. Choose backend hosting platform.
+2. Connect GitHub repository if supported.
+3. Set backend project root.
+4. Configure build/start command.
+5. Add environment variables.
+6. Connect production PostgreSQL database.
+7. Run Alembic migrations.
+8. Start FastAPI app.
+9. Test live `/health`.
+10. Test live auth endpoints.
+11. Test protected endpoints with JWT.
 
-## 7. Frontend Deployment Plan
+### Expected Backend Checks
 
-The Angular frontend deployment will include:
-
-- Configure production API base URL.
-- Build Angular production version.
-- Deploy frontend to selected platform.
-- Test all public routes.
-- Test login/register flow.
-- Test protected routes.
-- Test product and stock pages.
-- Test dashboard pages.
-- Confirm frontend can communicate with backend.
-
-Expected frontend checks:
-
-- Frontend opens publicly.
-- No console errors.
-- Login works.
-- API calls reach deployed backend.
-- Protected pages work only after login.
-- Dashboard and tables load correctly.
+- [ ] Backend server starts successfully.
+- [ ] Database connection works.
+- [ ] `/health` endpoint works live.
+- [ ] Authentication endpoints work live.
+- [ ] Protected endpoints require JWT token.
+- [ ] CORS allows frontend requests.
 
 ---
 
-## 8. Database Deployment Plan
+## 8. Frontend Deployment Plan
 
-The PostgreSQL database deployment will include:
+Frontend deployment will be done after Angular UI and API integration are complete.
 
-- Create cloud PostgreSQL database.
-- Copy production database URL.
-- Add database URL to backend environment variables.
-- Run Alembic migrations.
-- Verify tables are created.
-- Test data creation from API.
-- Confirm database is not publicly exposed unnecessarily.
+### Frontend Preparation Checklist
 
-Expected database checks:
+- [ ] Angular app builds successfully.
+- [ ] Production API base URL is configured.
+- [ ] Login/register pages work locally.
+- [ ] Protected route structure works locally.
+- [ ] Dashboard layout works locally.
+- [ ] Feature screens work locally.
+- [ ] API requests reach backend locally.
+- [ ] Browser console has no critical errors.
 
-- Backend can connect to database.
-- Tables are created.
-- User registration saves data.
-- Product creation saves data.
-- Stock movement updates data correctly.
+### Frontend Deployment Steps
+
+1. Choose frontend hosting platform.
+2. Connect GitHub repository if supported.
+3. Set frontend project root as `frontend`.
+4. Configure Angular build command.
+5. Configure production output directory.
+6. Add frontend environment/API base URL if needed.
+7. Deploy frontend.
+8. Test live frontend URL.
+9. Test frontend-backend connection.
+10. Test login/register flow.
+11. Test protected pages.
+
+### Expected Frontend Checks
+
+- [ ] Frontend opens publicly.
+- [ ] No critical console errors.
+- [ ] Login page loads.
+- [ ] Register page loads.
+- [ ] Dashboard route works after login.
+- [ ] API calls reach deployed backend.
+- [ ] Protected pages work only after login.
 
 ---
 
-## 9. CORS Plan
+## 9. Database Deployment Plan
 
-The backend must allow requests from the deployed frontend.
+The production database will use cloud PostgreSQL.
 
-Local development:
+### Database Preparation Checklist
+
+- [ ] Cloud PostgreSQL database is created.
+- [ ] Production database URL is copied securely.
+- [ ] Database URL is added to backend deployment environment variables.
+- [ ] Alembic migrations are run.
+- [ ] Database tables are created correctly.
+- [ ] Backend can connect to production database.
+
+### Possible Database Providers
+
+| Provider           | Notes                                        |
+| ------------------ | -------------------------------------------- |
+| Neon               | Good free PostgreSQL option                  |
+| Supabase           | PostgreSQL with dashboard and extra services |
+| Railway PostgreSQL | Easy if backend also uses Railway            |
+
+---
+
+## 10. CORS Configuration
+
+The backend must allow requests from the deployed Angular frontend.
+
+Local frontend example:
 
 ```txt
 http://localhost:4200
 ```
 
-Production:
+Production frontend example:
 
 ```txt
-https://deployed-frontend-url.com
+https://stockflow-frontend.example.com
 ```
 
-CORS settings should not allow every origin permanently in production unless necessary.
+CORS should allow:
+
+- Local frontend during development
+- Production frontend after deployment
+
+Do not allow unrestricted origins in final production unless temporarily needed for debugging.
 
 ---
 
-## 10. Deployment Testing Checklist
+## 11. Production Migration Plan
 
-After deployment, test:
+Alembic should be used to apply database changes in production.
 
-- [ ] Live frontend opens.
-- [ ] Live backend `/health` works.
-- [ ] Database connection works.
+Expected command pattern:
+
+```powershell
+alembic upgrade head
+```
+
+Before running migrations:
+
+- Confirm production database URL is correct.
+- Confirm local `.env` is not accidentally used.
+- Confirm migration files are committed.
+- Confirm backup/export if needed.
+
+---
+
+## 12. Deployment Testing Checklist
+
+After deployment, test these flows:
+
+### Backend
+
+- [ ] Live `/health` works.
+- [ ] Live Swagger UI works if enabled.
 - [ ] User registration works.
 - [ ] User login works.
 - [ ] JWT token is returned.
-- [ ] Protected route works with token.
-- [ ] Product CRUD works.
-- [ ] Category CRUD works.
-- [ ] Supplier CRUD works.
-- [ ] Stock in/out works.
-- [ ] Low-stock alert works.
-- [ ] Dashboard loads.
-- [ ] Reports load.
-- [ ] CSV export works if available.
-- [ ] No secret values are exposed in GitHub.
-- [ ] README has live demo link.
-- [ ] README has deployment notes.
+- [ ] Protected endpoint rejects missing token.
+- [ ] Protected endpoint works with valid token.
+
+### Frontend
+
+- [ ] Live frontend opens.
+- [ ] Login page loads.
+- [ ] Register page loads.
+- [ ] User can log in.
+- [ ] User can access dashboard after login.
+- [ ] User cannot access protected pages without login.
+- [ ] Logout works.
+
+### Business Flows
+
+- [ ] Product list loads.
+- [ ] Product create/update/delete works.
+- [ ] Categories load.
+- [ ] Suppliers load.
+- [ ] Stock in works.
+- [ ] Stock out works.
+- [ ] Stock adjustment works.
+- [ ] Finance records load.
+- [ ] Dashboard summary loads.
+- [ ] Recent activity loads.
 
 ---
 
-## 11. Common Deployment Issues to Watch
+## 13. Common Deployment Errors and Fixes
 
-Possible issues:
+### Backend does not start
 
-| Issue                            | Possible Cause                                 |
-| -------------------------------- | ---------------------------------------------- |
-| Frontend cannot call backend     | Wrong API base URL or CORS issue               |
-| Backend cannot connect database  | Wrong `DATABASE_URL`                           |
-| Login works locally but not live | Missing production secret/environment variable |
-| Database tables missing          | Migrations were not run                        |
-| 404 on frontend route refresh    | Frontend routing configuration issue           |
-| 500 server error                 | Missing environment variable or database issue |
-| CORS error in browser            | Backend CORS origin not configured correctly   |
+Possible causes:
+
+- Missing environment variable
+- Wrong start command
+- Dependency missing from `requirements.txt`
+- Wrong Python version
+- Database URL issue
+
+### Database connection fails
+
+Possible causes:
+
+- Wrong `DATABASE_URL`
+- Database service is paused
+- SSL requirement issue
+- Migration not run
+- Network access restriction
+
+### Frontend cannot call backend
+
+Possible causes:
+
+- Wrong API base URL
+- CORS not configured
+- Backend not deployed
+- Mixed HTTP/HTTPS issue
+- Missing authorization header
+
+### Login works locally but not live
+
+Possible causes:
+
+- Wrong backend URL
+- CORS issue
+- JWT secret missing
+- Token not stored correctly
+- Frontend environment not configured
 
 ---
 
-## 12. GitHub README Deployment Updates
+## 14. README and Portfolio Update After Deployment
 
-After deployment, update root `README.md` with:
+After deployment, update:
+
+```txt
+README.md
+frontend/README.md
+backend/README.md
+docs/07-deployment-guide.md
+```
+
+Add:
 
 - Live frontend link
-- Live API link
+- Live backend link
+- Swagger/API docs link if public
 - Screenshots
-- Setup guide
-- Environment variable guide
+- Setup instructions
 - Deployment notes
-- Tech stack
-- Project features
+- Known limitations
 - Future improvements
 
-Example:
+---
 
-```markdown
-## Live Demo
+## 15. Portfolio Positioning
 
-Frontend: Coming soon  
-Backend API: Coming soon
-```
+StockFlow should be presented as:
 
-Later replace Coming soon with actual links.
+> A secure full-stack inventory and business expense management system for small businesses, built with Angular, FastAPI, and PostgreSQL. It includes JWT authentication, product and supplier management, stock movement tracking, income/expense tracking, dashboard summaries, and a modern business dashboard frontend.
 
 ---
 
-## 13. Portfolio Update Plan
+## 16. Deployment Timing
 
-After deployment, add this project to the portfolio website.
+Deployment should happen only after:
 
-Portfolio project section should include:
+- Frontend layout/auth UI is completed.
+- Main feature screens are completed.
+- Frontend-backend integration is completed.
+- Angular build passes.
+- Full local testing is completed.
+- Documentation is updated.
+- GitHub repository is clean.
 
-- Project title
-- Short problem statement
-- Key features
-- Tech stack
-- Screenshots
-- GitHub link
-- Live demo link
-- What was learned
-
-Example project title:
-
-```txt
-StockFlow: Inventory and Business Expense Management System
-```
-
-Example short description:
-
-```txt
-A secure full-stack inventory and expense management system for small businesses, built with Angular, FastAPI, and PostgreSQL.
-```
+Do not deploy before frontend-backend integration is stable.
 
 ---
 
-## 14. LinkedIn/GitHub Showcase Plan
-
-After final deployment, prepare a short post:
-
-```txt
-I built StockFlow, a full-stack inventory and business expense management system for small businesses.
-
-Tech stack:
-Angular, FastAPI, PostgreSQL, SQLAlchemy, Alembic, JWT authentication.
-
-Key features:
-Product management, supplier management, stock movement tracking, low-stock alerts, income/expense tracking, dashboard summaries, reports, and secure authentication.
-
-GitHub:
-Live demo:
-```
-
-This will be finalized after the project is complete.
-
----
-
-## 15. Final Deployment Definition of Done
+## 17. Final Deployment Definition of Done
 
 Deployment is complete when:
 
-- Frontend is live.
-- Backend is live.
-- Database is live.
-- Core features work in production.
-- README is updated.
+- Live frontend works.
+- Live backend works.
+- Live database works.
+- Frontend can communicate with backend.
+- Auth flow works live.
+- Core business flows work live.
+- README contains live links.
 - Screenshots are added.
-- Portfolio section is updated.
-- GitHub repository is clean.
 - No secrets are exposed.
+- GitHub repository is portfolio-ready.
