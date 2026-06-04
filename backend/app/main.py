@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 
 from app.core.config import settings
-from app.routers import auth, categories, finance, health, products, stock, suppliers
+from app.routers import (
+    auth,
+    categories,
+    dashboard,
+    finance,
+    health,
+    products,
+    stock,
+    suppliers,
+)
 
 
 app = FastAPI(
@@ -17,6 +26,8 @@ app.include_router(categories.router)
 app.include_router(suppliers.router)
 app.include_router(stock.router)
 app.include_router(finance.router)
+app.include_router(dashboard.router)
+
 
 @app.get("/")
 def root():
