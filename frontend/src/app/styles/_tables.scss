@@ -1,0 +1,30 @@
+﻿.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+}
+
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.app-table th,
+.app-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.app-table th {
+  color: #6b7280;
+  font-weight: 700;
+  background: #f9fafb;
+}
+
+.app-table tr:last-child td {
+  border-bottom: 0;
+}
