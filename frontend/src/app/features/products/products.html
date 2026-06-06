@@ -12,7 +12,7 @@
         id="productSearch"
         class="form-control"
         type="text"
-        placeholder="Search by product name, SKU, category, or supplier"
+        placeholder="Search by product name, SKU, category ID, or supplier ID"
         [(ngModel)]="searchTerm"
       />
     </div>
@@ -32,15 +32,22 @@
     </div>
   </section>
 
-  @if (filteredProducts.length > 0) {
+  @if (isLoading) {
+    <app-loading-state message="Loading products..." />
+  } @else if (errorMessage) {
+    <app-empty-state
+      title="Products could not be loaded"
+      [message]="errorMessage"
+    />
+  } @else if (filteredProducts.length > 0) {
     <section class="table-wrapper">
       <table class="app-table">
         <thead>
           <tr>
             <th>Name</th>
             <th>SKU</th>
-            <th>Category</th>
-            <th>Supplier</th>
+            <th>Category ID</th>
+            <th>Supplier ID</th>
             <th>Stock</th>
             <th>Selling Price</th>
             <th>Status</th>
@@ -49,16 +56,19 @@
         </thead>
 
         <tbody>
-          @for (product of filteredProducts; track product.sku) {
+          @for (product of filteredProducts; track product.id) {
             <tr>
               <td><strong>{{ product.name }}</strong></td>
               <td>{{ product.sku }}</td>
-              <td>{{ product.category }}</td>
-              <td>{{ product.supplier }}</td>
-              <td>{{ product.stock }}</td>
-              <td>{{ product.sellingPrice }}</td>
+              <td>{{ product.category_id || '—' }}</td>
+              <td>{{ product.supplier_id || '—' }}</td>
+              <td>{{ product.current_stock }}</td>
+              <td>{{ formatCurrency(product.selling_price) }}</td>
               <td>
-                <app-badge [label]="product.status" [tone]="product.tone" />
+                <app-badge
+                  [label]="getProductStatus(product)"
+                  [tone]="getProductTone(product)"
+                />
               </td>
               <td>
                 <div class="table-actions">
