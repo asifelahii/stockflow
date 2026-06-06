@@ -1,5 +1,5 @@
 ﻿<div class="stat-card" [class]="'tone-' + tone">
-  <div class="stat-icon"></div>
+  <ng-content select="[stat-icon]" />
 
   <div>
     <p class="stat-label">{{ label }}</p>

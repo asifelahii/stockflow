@@ -9,18 +9,21 @@
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 }
 
-.stat-icon {
-  width: 42px;
-  height: 42px;
+:host ::ng-deep [stat-icon] {
+  width: 46px;
+  height: 46px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border-radius: 14px;
-  background: #e5e7eb;
-  color: #374151;
-  font-size: 0.8rem;
-  font-weight: 900;
-  letter-spacing: 0.03em;
+  border-radius: 16px;
+}
+
+:host ::ng-deep [stat-icon] svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .stat-label {
@@ -41,29 +44,4 @@
   margin: 0.45rem 0 0;
   color: #6b7280;
   font-size: 0.82rem;
-}
-
-.tone-primary .stat-icon {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.tone-success .stat-icon {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.tone-danger .stat-icon {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.tone-warning .stat-icon {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.tone-neutral .stat-icon {
-  background: #e5e7eb;
-  color: #374151;
 }

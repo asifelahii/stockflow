@@ -11,51 +11,6 @@ import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
   styleUrl: './dashboard.scss'
 })
 export class DashboardComponent {
-  protected readonly summaryCards = [
-    {
-      label: 'Total Products',
-      icon: 'PRD',
-      value: '128',
-      hint: 'Active inventory items',
-      tone: 'primary' as const
-    },
-    {
-      label: 'Low Stock',
-      icon: 'LOW',
-      value: '9',
-      hint: 'Needs attention',
-      tone: 'warning' as const
-    },
-    {
-      label: 'Suppliers',
-      icon: 'SUP',
-      value: '24',
-      hint: 'Active supplier records',
-      tone: 'neutral' as const
-    },
-    {
-      label: 'Total Income',
-      icon: 'INC',
-      value: '৳ 82,500',
-      hint: 'This month',
-      tone: 'success' as const
-    },
-    {
-      label: 'Total Expenses',
-      icon: 'EXP',
-      value: '৳ 31,200',
-      hint: 'This month',
-      tone: 'danger' as const
-    },
-    {
-      label: 'Net Balance',
-      icon: 'NET',
-      value: '৳ 51,300',
-      hint: 'Estimated monthly balance',
-      tone: 'primary' as const
-    }
-  ];
-
   protected readonly stockMovements = [
     {
       product: 'Wireless Mouse',
@@ -119,4 +74,3 @@ export class DashboardComponent {
     }
   ];
 }
-

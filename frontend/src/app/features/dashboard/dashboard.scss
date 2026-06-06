@@ -105,6 +105,48 @@
   color: #92400e;
 }
 
+.dashboard-stat-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+}
+
+.dashboard-stat-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-primary {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1d4ed8;
+}
+
+.icon-success {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #15803d;
+}
+
+.icon-danger {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #b91c1c;
+}
+
+.icon-warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #b45309;
+}
+
+.icon-neutral {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #334155;
+}
+
 @media (max-width: 1100px) {
   .summary-grid,
   .low-stock-grid {
