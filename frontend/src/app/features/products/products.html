@@ -1,0 +1,81 @@
+﻿<section class="products-page">
+  <app-page-header
+    title="Products"
+    description="Manage inventory products, SKUs, stock levels, suppliers, and selling prices."
+    actionLabel="+ Add Product"
+  />
+
+  <section class="toolbar card">
+    <div>
+      <label class="form-label" for="productSearch">Search products</label>
+      <input
+        id="productSearch"
+        class="form-control"
+        type="text"
+        placeholder="Search by product name, SKU, category, or supplier"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <div>
+      <label class="form-label" for="productStatus">Status</label>
+      <select
+        id="productStatus"
+        class="form-control"
+        [(ngModel)]="statusFilter"
+      >
+        <option value="all">All products</option>
+        <option value="active">Active</option>
+        <option value="low-stock">Low stock</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+  </section>
+
+  @if (filteredProducts.length > 0) {
+    <section class="table-wrapper">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Supplier</th>
+            <th>Stock</th>
+            <th>Selling Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (product of filteredProducts; track product.sku) {
+            <tr>
+              <td><strong>{{ product.name }}</strong></td>
+              <td>{{ product.sku }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.supplier }}</td>
+              <td>{{ product.stock }}</td>
+              <td>{{ product.sellingPrice }}</td>
+              <td>
+                <app-badge [label]="product.status" [tone]="product.tone" />
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" title="View will be added later">View</button>
+                  <button type="button" title="Edit will be added later">Edit</button>
+                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <app-empty-state
+      title="No products found"
+      message="Try changing the search term or status filter."
+    />
+  }
+</section>

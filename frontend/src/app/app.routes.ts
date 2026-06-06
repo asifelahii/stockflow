@@ -6,6 +6,9 @@ import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-la
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { DashboardComponent } from './features/dashboard/dashboard';
+import { ProductsComponent } from './features/products/products';
+import { ProductCategoriesComponent } from './features/product-categories/product-categories';
+import { SuppliersComponent } from './features/suppliers/suppliers';
 import { PlaceholderPageComponent } from './features/placeholder/placeholder-page';
 
 export const routes: Routes = [
@@ -49,7 +52,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        component: PlaceholderPageComponent,
+        component: ProductsComponent,
         data: {
           title: 'Products',
           description: 'Manage inventory products, stock levels, SKUs, and pricing.'
@@ -57,7 +60,7 @@ export const routes: Routes = [
       },
       {
         path: 'product-categories',
-        component: PlaceholderPageComponent,
+        component: ProductCategoriesComponent,
         data: {
           title: 'Product Categories',
           description: 'Organize products into clear business categories.'
@@ -65,7 +68,7 @@ export const routes: Routes = [
       },
       {
         path: 'suppliers',
-        component: PlaceholderPageComponent,
+        component: SuppliersComponent,
         data: {
           title: 'Suppliers',
           description: 'Manage supplier contacts and supplier-related product records.'
@@ -142,3 +145,6 @@ export const routes: Routes = [
     redirectTo: 'auth/login'
   }
 ];
+
+
+

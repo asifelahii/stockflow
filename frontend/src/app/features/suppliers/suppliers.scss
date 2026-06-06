@@ -1,0 +1,42 @@
+﻿.suppliers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.toolbar {
+  padding: 1rem;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.table-actions button {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.table-actions button:hover {
+  background: #f9fafb;
+}
+
+.table-actions .danger {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+@media (max-width: 800px) {
+  .table-actions {
+    flex-wrap: wrap;
+  }
+}
