@@ -1,0 +1,15 @@
+﻿<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+
+    @if (description) {
+      <p class="page-description">{{ description }}</p>
+    }
+  </div>
+
+  @if (actionLabel) {
+    <button class="btn btn-primary" type="button">
+      {{ actionLabel }}
+    </button>
+  }
+</div>

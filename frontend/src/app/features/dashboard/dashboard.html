@@ -1,15 +1,95 @@
 ﻿<section class="dashboard-page">
-  <div>
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-description">
-      Overview of inventory, stock activity, suppliers, income, and expenses.
-    </p>
+  <app-page-header
+    title="Dashboard"
+    description="Overview of inventory, stock activity, suppliers, income, and expenses."
+  />
+
+  <div class="summary-grid">
+    @for (card of summaryCards; track card.label) {
+      <app-stat-card
+        [label]="card.label"
+        [value]="card.value"
+        [hint]="card.hint"`n        [icon]="card.icon"
+        [tone]="card.tone"
+      />
+    }
   </div>
 
-  <div class="placeholder-card card">
-    <h2>Frontend dashboard layout is ready</h2>
-    <p>
-      Summary cards, recent stock movements, finance activity, and low-stock alerts will be added in the next frontend phase.
-    </p>
+  <div class="dashboard-grid">
+    <section class="dashboard-panel card">
+      <div class="panel-header">
+        <div>
+          <h2>Recent Stock Movements</h2>
+          <p>Latest inventory activity</p>
+        </div>
+        <app-badge label="Inventory" tone="info" />
+      </div>
+
+      <div class="activity-list">
+        @for (movement of stockMovements; track movement.product) {
+          <div class="activity-item">
+            <div>
+              <h3>{{ movement.product }}</h3>
+              <p>{{ movement.time }}</p>
+            </div>
+
+            <div class="activity-meta">
+              <app-badge [label]="movement.type" [tone]="movement.tone" />
+              <strong>{{ movement.quantity }}</strong>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="dashboard-panel card">
+      <div class="panel-header">
+        <div>
+          <h2>Finance Activity</h2>
+          <p>Recent income and expense records</p>
+        </div>
+        <app-badge label="Finance" tone="success" />
+      </div>
+
+      <div class="activity-list">
+        @for (activity of financeActivities; track activity.title) {
+          <div class="activity-item">
+            <div>
+              <h3>{{ activity.title }}</h3>
+              <p>{{ activity.type }}</p>
+            </div>
+
+            <div class="activity-meta">
+              <app-badge [label]="activity.type" [tone]="activity.tone" />
+              <strong>{{ activity.amount }}</strong>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
   </div>
+
+  <section class="dashboard-panel card">
+    <div class="panel-header">
+      <div>
+        <h2>Low Stock Alerts</h2>
+        <p>Products that may need restocking soon</p>
+      </div>
+      <app-badge label="Needs review" tone="warning" />
+    </div>
+
+    <div class="low-stock-grid">
+      @for (product of lowStockProducts; track product.name) {
+        <div class="low-stock-item">
+          <div>
+            <h3>{{ product.name }}</h3>
+            <p>Threshold: {{ product.threshold }}</p>
+          </div>
+
+          <strong>{{ product.stock }} left</strong>
+        </div>
+      }
+    </div>
+  </section>
 </section>
+

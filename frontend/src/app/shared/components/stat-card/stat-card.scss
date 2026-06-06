@@ -1,0 +1,69 @@
+﻿.stat-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.2rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.stat-label {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.stat-card h3 {
+  margin: 0.25rem 0 0;
+  color: #111827;
+  font-size: 1.55rem;
+  line-height: 1.1;
+}
+
+.stat-hint {
+  margin: 0.45rem 0 0;
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.tone-primary .stat-icon {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.tone-success .stat-icon {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tone-danger .stat-icon {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.tone-warning .stat-icon {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tone-neutral .stat-icon {
+  background: #e5e7eb;
+  color: #374151;
+}
