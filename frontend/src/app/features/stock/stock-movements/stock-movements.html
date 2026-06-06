@@ -1,0 +1,74 @@
+﻿<section class="stock-movements-page">
+  <app-page-header
+    title="Stock Movements"
+    description="Track stock in, stock out, and adjustment history for inventory control."
+  />
+
+  <section class="toolbar card">
+    <div>
+      <label class="form-label" for="movementSearch">Search movements</label>
+      <input
+        id="movementSearch"
+        class="form-control"
+        type="text"
+        placeholder="Search by product, SKU, type, or reason"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <div>
+      <label class="form-label" for="movementType">Movement type</label>
+      <select
+        id="movementType"
+        class="form-control"
+        [(ngModel)]="typeFilter"
+      >
+        <option value="all">All movements</option>
+        <option value="stock-in">Stock In</option>
+        <option value="stock-out">Stock Out</option>
+        <option value="adjustment">Adjustment</option>
+      </select>
+    </div>
+  </section>
+
+  @if (filteredMovements.length > 0) {
+    <section class="table-wrapper">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Previous</th>
+            <th>New</th>
+            <th>Reason</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (movement of filteredMovements; track movement.product + movement.date) {
+            <tr>
+              <td><strong>{{ movement.product }}</strong></td>
+              <td>{{ movement.sku }}</td>
+              <td>
+                <app-badge [label]="movement.type" [tone]="movement.tone" />
+              </td>
+              <td>{{ movement.quantity }}</td>
+              <td>{{ movement.previousStock }}</td>
+              <td>{{ movement.newStock }}</td>
+              <td>{{ movement.reason }}</td>
+              <td>{{ movement.date }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <app-empty-state
+      title="No stock movements found"
+      message="Try changing the search term or movement type filter."
+    />
+  }
+</section>

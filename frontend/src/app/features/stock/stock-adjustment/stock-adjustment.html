@@ -1,0 +1,51 @@
+﻿<section class="stock-form-page">
+  <app-page-header
+    title="Stock Adjustment"
+    description="Correct product stock after physical count, mismatch, or manual verification."
+  />
+
+  <section class="notice-card">
+    <strong>Adjustment note:</strong>
+    Use stock adjustment only when the actual physical stock does not match the system stock.
+  </section>
+
+  <section class="stock-form-card card">
+    <form class="stock-form">
+      <div class="form-group">
+        <label class="form-label" for="product">Product</label>
+        <select id="product" class="form-control">
+          <option>Select product</option>
+          <option>Wireless Mouse</option>
+          <option>USB Keyboard</option>
+          <option>HDMI Cable</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="newStock">New stock quantity</label>
+        <input
+          id="newStock"
+          class="form-control"
+          type="number"
+          min="0"
+          placeholder="Enter corrected stock"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="reason">Adjustment reason</label>
+        <textarea
+          id="reason"
+          class="form-control"
+          rows="4"
+          placeholder="Example: Physical stock count correction"
+        ></textarea>
+      </div>
+
+      <div class="form-actions full-width">
+        <button class="btn btn-primary" type="button">Save Adjustment</button>
+        <button class="btn btn-secondary" type="button">Cancel</button>
+      </div>
+    </form>
+  </section>
+</section>

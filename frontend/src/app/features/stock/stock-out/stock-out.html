@@ -1,0 +1,51 @@
+﻿<section class="stock-form-page">
+  <app-page-header
+    title="Stock Out"
+    description="Record outgoing stock from sales, damage, usage, or manual removal."
+  />
+
+  <section class="notice-card">
+    <strong>Important:</strong>
+    Stock out will reduce the selected product quantity. Use this carefully to keep inventory records accurate.
+  </section>
+
+  <section class="stock-form-card card">
+    <form class="stock-form">
+      <div class="form-group">
+        <label class="form-label" for="product">Product</label>
+        <select id="product" class="form-control">
+          <option>Select product</option>
+          <option>Wireless Mouse</option>
+          <option>USB Keyboard</option>
+          <option>HDMI Cable</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="quantity">Quantity to remove</label>
+        <input
+          id="quantity"
+          class="form-control"
+          type="number"
+          min="1"
+          placeholder="Enter quantity"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="reason">Reason / Note</label>
+        <textarea
+          id="reason"
+          class="form-control"
+          rows="4"
+          placeholder="Example: Customer sale or damaged item"
+        ></textarea>
+      </div>
+
+      <div class="form-actions full-width">
+        <button class="btn btn-danger" type="button">Record Stock Out</button>
+        <button class="btn btn-secondary" type="button">Cancel</button>
+      </div>
+    </form>
+  </section>
+</section>

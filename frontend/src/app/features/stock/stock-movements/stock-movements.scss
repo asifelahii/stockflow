@@ -1,0 +1,18 @@
+﻿.stock-movements-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 220px;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 800px) {
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+}

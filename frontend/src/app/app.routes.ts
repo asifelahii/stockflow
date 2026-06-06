@@ -9,6 +9,10 @@ import { DashboardComponent } from './features/dashboard/dashboard';
 import { ProductsComponent } from './features/products/products';
 import { ProductCategoriesComponent } from './features/product-categories/product-categories';
 import { SuppliersComponent } from './features/suppliers/suppliers';
+import { StockMovementsComponent } from './features/stock/stock-movements/stock-movements';
+import { StockInComponent } from './features/stock/stock-in/stock-in';
+import { StockOutComponent } from './features/stock/stock-out/stock-out';
+import { StockAdjustmentComponent } from './features/stock/stock-adjustment/stock-adjustment';
 import { PlaceholderPageComponent } from './features/placeholder/placeholder-page';
 
 export const routes: Routes = [
@@ -76,7 +80,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock/movements',
-        component: PlaceholderPageComponent,
+        component: StockMovementsComponent,
         data: {
           title: 'Stock Movements',
           description: 'Track stock in, stock out, and adjustment history.'
@@ -84,7 +88,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock/in',
-        component: PlaceholderPageComponent,
+        component: StockInComponent,
         data: {
           title: 'Stock In',
           description: 'Record incoming stock from purchase, return, or correction.'
@@ -92,7 +96,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock/out',
-        component: PlaceholderPageComponent,
+        component: StockOutComponent,
         data: {
           title: 'Stock Out',
           description: 'Record outgoing stock from sales, damage, or usage.'
@@ -100,7 +104,7 @@ export const routes: Routes = [
       },
       {
         path: 'stock/adjustment',
-        component: PlaceholderPageComponent,
+        component: StockAdjustmentComponent,
         data: {
           title: 'Stock Adjustment',
           description: 'Correct product stock after physical verification.'
@@ -145,6 +149,10 @@ export const routes: Routes = [
     redirectTo: 'auth/login'
   }
 ];
+
+
+
+
 
 
 

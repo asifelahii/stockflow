@@ -1,0 +1,46 @@
+﻿<section class="stock-form-page">
+  <app-page-header
+    title="Stock In"
+    description="Record incoming stock from purchases, returns, or corrections."
+  />
+
+  <section class="stock-form-card card">
+    <form class="stock-form">
+      <div class="form-group">
+        <label class="form-label" for="product">Product</label>
+        <select id="product" class="form-control">
+          <option>Select product</option>
+          <option>Wireless Mouse</option>
+          <option>USB Keyboard</option>
+          <option>HDMI Cable</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="quantity">Quantity to add</label>
+        <input
+          id="quantity"
+          class="form-control"
+          type="number"
+          min="1"
+          placeholder="Enter quantity"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="reason">Reason / Note</label>
+        <textarea
+          id="reason"
+          class="form-control"
+          rows="4"
+          placeholder="Example: Purchase received from supplier"
+        ></textarea>
+      </div>
+
+      <div class="form-actions full-width">
+        <button class="btn btn-primary" type="button">Record Stock In</button>
+        <button class="btn btn-secondary" type="button">Cancel</button>
+      </div>
+    </form>
+  </section>
+</section>
