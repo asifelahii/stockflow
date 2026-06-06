@@ -5,14 +5,22 @@
     <p>Access your inventory, stock movement, and finance dashboard.</p>
   </div>
 
-  <form class="auth-form">
+  @if (errorMessage) {
+    <div class="auth-alert">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <form class="auth-form" (ngSubmit)="handleLogin()">
     <div class="form-group">
       <label class="form-label" for="email">Email address</label>
       <input
         id="email"
         class="form-control"
         type="email"
+        name="email"
         placeholder="admin@example.com"
+        [(ngModel)]="email"
       />
     </div>
 
@@ -22,11 +30,15 @@
         id="password"
         class="form-control"
         type="password"
+        name="password"
         placeholder="Enter your password"
+        [(ngModel)]="password"
       />
     </div>
 
-    <button class="btn btn-primary auth-submit" type="button" (click)="handleDemoLogin()">Sign in</button>
+    <button class="btn btn-primary auth-submit" type="submit" [disabled]="isLoading">
+      {{ isLoading ? 'Signing in...' : 'Sign in' }}
+    </button>
   </form>
 
   <p class="auth-switch">
@@ -34,8 +46,3 @@
     <a routerLink="/auth/register">Create one</a>
   </p>
 </div>
-
-
-
-
-

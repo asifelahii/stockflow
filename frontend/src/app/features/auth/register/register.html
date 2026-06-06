@@ -5,14 +5,28 @@
     <p>Create an account to manage products, stock activity, suppliers, and business finance.</p>
   </div>
 
-  <form class="auth-form">
+  @if (errorMessage) {
+    <div class="auth-alert auth-alert-error">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="auth-alert auth-alert-success">
+      {{ successMessage }}
+    </div>
+  }
+
+  <form class="auth-form" (ngSubmit)="handleRegister()">
     <div class="form-group">
       <label class="form-label" for="fullName">Full name</label>
       <input
         id="fullName"
         class="form-control"
         type="text"
+        name="fullName"
         placeholder="Admin User"
+        [(ngModel)]="fullName"
       />
     </div>
 
@@ -22,7 +36,9 @@
         id="email"
         class="form-control"
         type="email"
+        name="email"
         placeholder="admin@example.com"
+        [(ngModel)]="email"
       />
     </div>
 
@@ -32,12 +48,14 @@
         id="password"
         class="form-control"
         type="password"
+        name="password"
         placeholder="Create a secure password"
+        [(ngModel)]="password"
       />
     </div>
 
-    <button class="btn btn-primary auth-submit" type="button">
-      Create account
+    <button class="btn btn-primary auth-submit" type="submit" [disabled]="isLoading">
+      {{ isLoading ? 'Creating account...' : 'Create account' }}
     </button>
   </form>
 
