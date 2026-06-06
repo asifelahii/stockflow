@@ -1,0 +1,63 @@
+﻿<section class="finance-page">
+  <app-page-header
+    title="Income"
+    description="Track business income, sales payments, and received amounts."
+    actionLabel="+ Add Income"
+  />
+
+  <section class="toolbar card">
+    <div>
+      <label class="form-label" for="incomeSearch">Search income</label>
+      <input
+        id="incomeSearch"
+        class="form-control"
+        type="text"
+        placeholder="Search by description, payment method, or date"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+  </section>
+
+  @if (filteredIncomeRecords.length > 0) {
+    <section class="table-wrapper">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (record of filteredIncomeRecords; track record.description + record.date) {
+            <tr>
+              <td><strong>{{ record.description }}</strong></td>
+              <td>{{ record.amount }}</td>
+              <td>{{ record.paymentMethod }}</td>
+              <td>{{ record.date }}</td>
+              <td>
+                <app-badge [label]="record.type" [tone]="record.tone" />
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" title="View will be added later">View</button>
+                  <button type="button" title="Edit will be added later">Edit</button>
+                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <app-empty-state
+      title="No income records found"
+      message="Try changing the search term."
+    />
+  }
+</section>

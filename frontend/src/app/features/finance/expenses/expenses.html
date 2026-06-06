@@ -1,0 +1,65 @@
+﻿<section class="finance-page">
+  <app-page-header
+    title="Expenses"
+    description="Track operational costs, supplier payments, rent, bills, and business expenses."
+    actionLabel="+ Add Expense"
+  />
+
+  <section class="toolbar card">
+    <div>
+      <label class="form-label" for="expenseSearch">Search expenses</label>
+      <input
+        id="expenseSearch"
+        class="form-control"
+        type="text"
+        placeholder="Search by category, description, payment method, or date"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+  </section>
+
+  @if (filteredExpenseRecords.length > 0) {
+    <section class="table-wrapper">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (record of filteredExpenseRecords; track record.description + record.date) {
+            <tr>
+              <td>{{ record.category }}</td>
+              <td><strong>{{ record.description }}</strong></td>
+              <td>{{ record.amount }}</td>
+              <td>{{ record.paymentMethod }}</td>
+              <td>{{ record.date }}</td>
+              <td>
+                <app-badge [label]="record.type" [tone]="record.tone" />
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" title="View will be added later">View</button>
+                  <button type="button" title="Edit will be added later">Edit</button>
+                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <app-empty-state
+      title="No expense records found"
+      message="Try changing the search term."
+    />
+  }
+</section>

@@ -13,6 +13,9 @@ import { StockMovementsComponent } from './features/stock/stock-movements/stock-
 import { StockInComponent } from './features/stock/stock-in/stock-in';
 import { StockOutComponent } from './features/stock/stock-out/stock-out';
 import { StockAdjustmentComponent } from './features/stock/stock-adjustment/stock-adjustment';
+import { IncomeComponent } from './features/finance/income/income';
+import { ExpensesComponent } from './features/finance/expenses/expenses';
+import { ExpenseCategoriesComponent } from './features/finance/expense-categories/expense-categories';
 import { PlaceholderPageComponent } from './features/placeholder/placeholder-page';
 
 export const routes: Routes = [
@@ -112,7 +115,7 @@ export const routes: Routes = [
       },
       {
         path: 'finance/income',
-        component: PlaceholderPageComponent,
+        component: IncomeComponent,
         data: {
           title: 'Income',
           description: 'Track business income and sales-related records.'
@@ -120,7 +123,7 @@ export const routes: Routes = [
       },
       {
         path: 'finance/expenses',
-        component: PlaceholderPageComponent,
+        component: ExpensesComponent,
         data: {
           title: 'Expenses',
           description: 'Track operational costs and business expenses.'
@@ -128,7 +131,7 @@ export const routes: Routes = [
       },
       {
         path: 'finance/expense-categories',
-        component: PlaceholderPageComponent,
+        component: ExpenseCategoriesComponent,
         data: {
           title: 'Expense Categories',
           description: 'Organize expenses into meaningful categories.'
@@ -149,6 +152,9 @@ export const routes: Routes = [
     redirectTo: 'auth/login'
   }
 ];
+
+
+
 
 
 

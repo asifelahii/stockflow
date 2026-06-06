@@ -1,0 +1,58 @@
+﻿<section class="finance-page">
+  <app-page-header
+    title="Expense Categories"
+    description="Organize business expenses into clear accounting categories."
+    actionLabel="+ Add Expense Category"
+  />
+
+  <section class="toolbar card">
+    <div>
+      <label class="form-label" for="expenseCategorySearch">Search categories</label>
+      <input
+        id="expenseCategorySearch"
+        class="form-control"
+        type="text"
+        placeholder="Search by category name, description, or status"
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+  </section>
+
+  @if (filteredCategories.length > 0) {
+    <section class="table-wrapper">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (category of filteredCategories; track category.name) {
+            <tr>
+              <td><strong>{{ category.name }}</strong></td>
+              <td>{{ category.description }}</td>
+              <td>
+                <app-badge [label]="category.status" [tone]="category.tone" />
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" title="Edit will be added later">Edit</button>
+                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <app-empty-state
+      title="No expense categories found"
+      message="Try changing the search term."
+    />
+  }
+</section>
