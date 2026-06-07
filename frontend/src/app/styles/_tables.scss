@@ -3,28 +3,50 @@
   overflow-x: auto;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  border-radius: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.055);
 }
 
 .app-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
 .app-table th,
 .app-table td {
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #edf2f7;
   text-align: left;
   font-size: 0.9rem;
+  vertical-align: middle;
 }
 
 .app-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   color: #6b7280;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   background: #f9fafb;
+}
+
+.app-table tbody tr {
+  transition: background 0.16s ease;
+}
+
+.app-table tbody tr:hover {
+  background: #f8fafc;
 }
 
 .app-table tr:last-child td {
   border-bottom: 0;
+}
+
+.app-table strong {
+  color: #111827;
+  font-weight: 800;
 }
