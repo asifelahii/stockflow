@@ -11,7 +11,7 @@
         id="movementSearch"
         class="form-control"
         type="text"
-        placeholder="Search by product, SKU, type, or reason"
+        placeholder="Search by product ID, type, quantity, or reason"
         [(ngModel)]="searchTerm"
       />
     </div>
@@ -24,20 +24,26 @@
         [(ngModel)]="typeFilter"
       >
         <option value="all">All movements</option>
-        <option value="stock-in">Stock In</option>
-        <option value="stock-out">Stock Out</option>
+        <option value="stock_in">Stock In</option>
+        <option value="stock_out">Stock Out</option>
         <option value="adjustment">Adjustment</option>
       </select>
     </div>
   </section>
 
-  @if (filteredMovements.length > 0) {
+  @if (isLoading) {
+    <app-loading-state message="Loading stock movements..." />
+  } @else if (errorMessage) {
+    <app-empty-state
+      title="Stock movements could not be loaded"
+      [message]="errorMessage"
+    />
+  } @else if (filteredMovements.length > 0) {
     <section class="table-wrapper">
       <table class="app-table">
         <thead>
           <tr>
-            <th>Product</th>
-            <th>SKU</th>
+            <th>Product ID</th>
             <th>Type</th>
             <th>Quantity</th>
             <th>Previous</th>
@@ -48,18 +54,20 @@
         </thead>
 
         <tbody>
-          @for (movement of filteredMovements; track movement.product + movement.date) {
+          @for (movement of filteredMovements; track movement.id) {
             <tr>
-              <td><strong>{{ movement.product }}</strong></td>
-              <td>{{ movement.sku }}</td>
+              <td><strong>#{{ movement.product_id }}</strong></td>
               <td>
-                <app-badge [label]="movement.type" [tone]="movement.tone" />
+                <app-badge
+                  [label]="formatMovementType(movement.movement_type)"
+                  [tone]="getMovementTone(movement.movement_type)"
+                />
               </td>
               <td>{{ movement.quantity }}</td>
-              <td>{{ movement.previousStock }}</td>
-              <td>{{ movement.newStock }}</td>
-              <td>{{ movement.reason }}</td>
-              <td>{{ movement.date }}</td>
+              <td>{{ movement.previous_stock }}</td>
+              <td>{{ movement.new_stock }}</td>
+              <td>{{ movement.reason || '—' }}</td>
+              <td>{{ movement.created_at }}</td>
             </tr>
           }
         </tbody>

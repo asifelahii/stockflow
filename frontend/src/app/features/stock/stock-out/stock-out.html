@@ -9,15 +9,35 @@
     Stock out will reduce the selected product quantity. Use this carefully to keep inventory records accurate.
   </section>
 
+  @if (errorMessage) {
+    <section class="form-alert form-alert-error">
+      {{ errorMessage }}
+    </section>
+  }
+
+  @if (successMessage) {
+    <section class="form-alert form-alert-success">
+      {{ successMessage }}
+    </section>
+  }
+
   <section class="stock-form-card card">
-    <form class="stock-form">
+    <form class="stock-form" (ngSubmit)="handleSubmit()">
       <div class="form-group">
         <label class="form-label" for="product">Product</label>
-        <select id="product" class="form-control">
-          <option>Select product</option>
-          <option>Wireless Mouse</option>
-          <option>USB Keyboard</option>
-          <option>HDMI Cable</option>
+        <select
+          id="product"
+          class="form-control"
+          name="productId"
+          [(ngModel)]="productId"
+          [disabled]="isLoading || isSubmitting"
+        >
+          <option value="">{{ isLoading ? 'Loading products...' : 'Select product' }}</option>
+          @for (product of products; track product.id) {
+            <option [value]="product.id">
+              {{ product.name }} — Current stock: {{ product.current_stock }}
+            </option>
+          }
         </select>
       </div>
 
@@ -28,7 +48,10 @@
           class="form-control"
           type="number"
           min="1"
+          name="quantity"
           placeholder="Enter quantity"
+          [(ngModel)]="quantity"
+          [disabled]="isSubmitting"
         />
       </div>
 
@@ -38,13 +61,20 @@
           id="reason"
           class="form-control"
           rows="4"
+          name="reason"
           placeholder="Example: Customer sale or damaged item"
+          [(ngModel)]="reason"
+          [disabled]="isSubmitting"
         ></textarea>
       </div>
 
       <div class="form-actions full-width">
-        <button class="btn btn-danger" type="button">Record Stock Out</button>
-        <button class="btn btn-secondary" type="button">Cancel</button>
+        <button class="btn btn-danger" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Recording...' : 'Record Stock Out' }}
+        </button>
+        <button class="btn btn-secondary" type="button" routerLink="/app/stock/movements">
+          Cancel
+        </button>
       </div>
     </form>
   </section>
