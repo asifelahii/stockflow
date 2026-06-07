@@ -1,202 +1,121 @@
-# StockFlow
+﻿# StockFlow
 
 ## Inventory and Business Expense Management System
 
-StockFlow is a beginner-friendly but professional-grade full-stack web application for small businesses. The goal of the project is to help business owners and staff manage products, suppliers, stock movements, income, expenses, low-stock alerts, and dashboard summaries from one secure web application.
+StockFlow is a full-stack inventory and business expense management web application for small businesses. It helps users manage products, suppliers, product categories, stock movements, income, expenses, dashboard summaries, and reports from one secure web application.
 
-This project is being built as a real-world portfolio project using Angular, FastAPI, and PostgreSQL with clean project structure, phase-wise development, meaningful Git commits, API documentation, and manual testing evidence.
+The project is built as a professional portfolio project using Angular, FastAPI, PostgreSQL, SQLAlchemy, Alembic, JWT authentication, and clean Git-based phase-wise development.
 
 ---
 
-## Project Status
+## Current Status
 
-Current status: **Backend completed and Angular frontend initialized**
+Status: **MVP completed locally**
 
-Completed backend modules:
+Completed major modules:
 
-- Backend foundation
-- Authentication with JWT
-- Product management
-- Product category management
-- Expense category management
-- Supplier management
+- Backend API with FastAPI
+- PostgreSQL database integration
+- JWT authentication
+- Angular frontend layout
+- Protected frontend routes
+- Dashboard API integration
+- Product category CRUD
+- Supplier CRUD
+- Product CRUD
 - Stock in, stock out, and stock adjustment
 - Stock movement history
-- Income and expense management
-- Financial summary
-- Dashboard summary and recent activity APIs
-- Backend cleanup, validation, and API test checklist
-
-Current frontend status:
-
-- Angular project initialized
-- Routing enabled
-- SCSS enabled
-- Production build verified
-
-Next development focus:
-
-- Frontend layout and routing
-- Login page
-- Dashboard UI
-- Product, supplier, stock, and finance screens
-- Frontend-backend API integration
+- Expense category CRUD
+- Income CRUD
+- Expense CRUD
+- Reports dashboard
+- CSV export for products, finance records, and stock movements
+- Global UI polish
+- Manual build verification
 
 ---
 
-## Real-World Problem
-
-Many small businesses still manage inventory and expenses using notebooks, spreadsheets, or disconnected tools. This can create problems such as:
-
-- Stock mismatch
-- Missing stock movement history
-- Late low-stock detection
-- Poor supplier tracking
-- Unclear income and expense records
-- No quick business summary
-- Weak access control for staff
-- Limited reporting for decision-making
-
-StockFlow aims to solve these issues with a simple, organized, and secure inventory and business management system.
-
----
-
-## Implemented Backend Features
+## Key Features
 
 ### Authentication
 
 - User registration
-- Duplicate email protection
 - User login
-- JWT access token generation
-- Protected API routes
-- Current logged-in user endpoint
+- JWT access token handling
+- Protected backend routes
+- Protected frontend routes
+- Persistent login after page refresh
+- Dynamic topbar user information
+- Logout support
 
-### Product Management
+### Dashboard
 
-- Create, list, view, update, and soft-delete products
-- Unique SKU validation
-- Product search by name or SKU
-- Low-stock product filtering
-- Product relation with category and supplier
-
-### Category and Supplier Management
-
-- Product category CRUD
-- Expense category CRUD
-- Supplier CRUD
-- Duplicate category protection
-- Supplier search
-- Soft delete for categories and suppliers
-
-### Stock Management
-
-- Stock-in operation
-- Stock-out operation
-- Insufficient stock protection
-- Manual stock adjustment
-- Stock movement history
-- Stock movement filtering by product and movement type
-
-### Finance Management
-
-- Income transaction creation
-- Expense transaction creation
-- Expense category validation
-- Transaction listing
-- Transaction filtering by income or expense
-- Transaction view, update, and delete
-- Financial summary with total income, total expense, and net balance
-
-### Dashboard and Reports
-
-- Dashboard summary metrics
-- Total active products
+- Total product count
 - Low-stock product count
-- Active supplier count
+- Supplier count
 - Total income
 - Total expense
 - Net balance
-- Recent stock movements
-- Recent financial transactions
+- Recent stock activity
+- Recent financial activity
 
-### Backend Cleanup and Quality
+### Inventory Management
 
-- Alembic migration history maintained
-- API test checklist added
-- JWT secret key warning fixed
-- SQLAlchemy verbose query logs disabled
-- Old commented/debug code removed
-- Compile checks passed
-- Git working tree kept clean after each phase
+- Add, edit, deactivate, and restore product categories
+- Add, edit, deactivate, and restore suppliers
+- Add, edit, deactivate, and restore products
+- Unique SKU validation
+- Product category and supplier assignment
+- Low-stock status detection
+- Active, low-stock, and inactive product filters
+- Search by product name, SKU, category, and supplier
 
----
+### Stock Management
 
-## Planned Frontend Features
+- Stock in
+- Stock out
+- Insufficient stock protection
+- Manual stock adjustment
+- Stock movement history
+- Movement type filtering
+- Stock search by product ID, quantity, reason, and movement type
 
-### Core UI
+### Finance Management
 
-- Login screen
-- Main dashboard layout
-- Sidebar navigation
-- Protected frontend routes
-- Reusable form and table components
+- Add, edit, and delete income records
+- Add, edit, and delete expense records
+- Expense category assignment
+- Expense category CRUD
+- Finance transaction filtering
+- Financial summary with income, expense, and net balance
 
-### Inventory Screens
+### Reports
 
-- Product list
-- Product create/edit form
-- Low-stock product view
-- Product category management
-- Supplier management
-
-### Stock Screens
-
-- Stock-in form
-- Stock-out form
-- Stock adjustment form
-- Stock movement history table
-
-### Finance Screens
-
-- Income entry form
-- Expense entry form
-- Transaction list
-- Financial summary cards
-
-### Dashboard Screens
-
-- Product and stock summary cards
-- Finance summary cards
-- Recent stock movement panel
-- Recent financial transaction panel
+- Summary report cards
+- Low-stock report
+- Recent finance records
+- Recent stock activity
+- Export products CSV
+- Export finance CSV
+- Export stock movements CSV
 
 ---
 
 ## Tech Stack
 
-| Layer            | Technology           |
-| ---------------- | -------------------- |
-| Frontend         | Angular + TypeScript |
-| Styling          | SCSS                 |
-| Backend          | FastAPI              |
-| Backend Language | Python               |
-| Database         | PostgreSQL           |
-| ORM              | SQLAlchemy           |
-| Migration        | Alembic              |
-| Validation       | Pydantic             |
-| Authentication   | JWT                  |
-| API Testing      | Swagger UI           |
-| Version Control  | Git                  |
-
-Planned or optional additions:
-
-| Area                   | Possible Technology                        |
-| ---------------------- | ------------------------------------------ |
-| UI Components          | Angular Material                           |
-| Charts                 | Chart.js / ng2-charts                      |
-| API Testing Collection | Postman                                    |
-| Deployment             | Vercel / Netlify / Render / Railway / Neon |
+| Layer | Technology |
+| --- | --- |
+| Frontend | Angular, TypeScript |
+| Styling | SCSS |
+| Backend | FastAPI |
+| Backend Language | Python |
+| Database | PostgreSQL |
+| ORM | SQLAlchemy |
+| Migration | Alembic |
+| Validation | Pydantic |
+| Authentication | JWT |
+| API Documentation | Swagger UI |
+| Version Control | Git |
 
 ---
 
@@ -228,53 +147,6 @@ stockflow/
 
 ---
 
-## Development Roadmap
-
-| Phase    | Name                                    | Status    |
-| -------- | --------------------------------------- | --------- |
-| Phase 1  | Backend Foundation                      | Completed |
-| Phase 2  | Authentication                          | Completed |
-| Phase 3  | Product Management                      | Completed |
-| Phase 4  | Category and Supplier Management        | Completed |
-| Phase 5  | Stock Management                        | Completed |
-| Phase 6  | Income and Expense Management           | Completed |
-| Phase 7  | Dashboard and Reports API               | Completed |
-| Phase 8  | Backend Polish, Validation, and Cleanup | Completed |
-| Phase 9  | Angular Frontend Setup                  | Completed |
-| Phase 10 | Frontend Layout and Authentication UI   | Next      |
-| Phase 11 | Frontend Feature Screens                | Planned   |
-| Phase 12 | Frontend-Backend Integration            | Planned   |
-| Phase 13 | Final Testing and Documentation         | Planned   |
-| Phase 14 | Deployment                              | Planned   |
-
----
-
-## Documentation
-
-Detailed planning and development documents are available in the `docs/` folder:
-
-```txt
-docs/
-├── 00-project-overview.md
-├── 01-tech-stack.md
-├── 02-database-design.md
-├── 03-api-endpoints.md
-├── 04-phase-plan.md
-├── 05-testing-checklist.md
-├── 06-git-commit-guide.md
-├── 07-deployment-guide.md
-└── prompts/
-```
-
-Backend-specific documentation is available in:
-
-```txt
-backend/README.md
-backend/API_TEST_CHECKLIST.md
-```
-
----
-
 ## Local Setup
 
 ### Backend Setup
@@ -285,10 +157,15 @@ Go to the backend folder:
 cd backend
 ```
 
-Create and activate a virtual environment:
+Create a virtual environment:
 
 ```powershell
 python -m venv .venv
+```
+
+Activate the virtual environment:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
@@ -298,7 +175,18 @@ Install backend dependencies:
 pip install -r requirements.txt
 ```
 
-Create a local `.env` file from `.env.example` and update the database URL and secret key.
+Create a `.env` file from `.env.example` and update the database settings:
+
+```env
+APP_NAME=StockFlow API
+APP_ENV=development
+DEBUG=True
+API_V1_PREFIX=/api/v1
+DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/stockflow
+SECRET_KEY=change-this-secret-key-in-production-use-at-least-32-characters
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
 
 Run database migrations:
 
@@ -312,7 +200,7 @@ Start the backend server:
 python -m uvicorn app.main:app --reload
 ```
 
-Backend API:
+Backend URL:
 
 ```txt
 http://127.0.0.1:8000
@@ -358,7 +246,7 @@ Frontend URL:
 http://localhost:4200
 ```
 
-Build frontend:
+Build the frontend:
 
 ```powershell
 npm run build
@@ -366,15 +254,38 @@ npm run build
 
 ---
 
+## Quick Run Commands
+
+### Backend
+
+From project root:
+
+```powershell
+.\backend\.venv\Scripts\Activate.ps1
+cd backend
+python -m uvicorn app.main:app --reload
+```
+
+### Frontend
+
+Open another terminal from project root:
+
+```powershell
+cd frontend
+npm start
+```
+
+---
+
 ## API Documentation
 
-FastAPI Swagger UI is available locally at:
+FastAPI Swagger UI is available at:
 
 ```txt
 http://127.0.0.1:8000/docs
 ```
 
-Implemented API groups include:
+Implemented API groups:
 
 - Health
 - Authentication
@@ -388,73 +299,139 @@ Implemented API groups include:
 
 ---
 
-## Testing
+## Testing Status
 
-Manual backend testing has been tracked in:
+The project has been manually tested for:
 
-```txt
-backend/API_TEST_CHECKLIST.md
+- Register, login, logout
+- Protected frontend routes
+- Dashboard API loading
+- Product category CRUD
+- Supplier CRUD
+- Product CRUD
+- Stock in
+- Stock out
+- Stock adjustment
+- Stock movement history
+- Expense category CRUD
+- Income CRUD
+- Expense CRUD
+- Reports dashboard
+- CSV exports
+- Frontend production build
+
+Build command:
+
+```powershell
+cd frontend
+npm run build
 ```
 
-The backend has been manually verified for:
+Expected result:
 
-- Authentication
-- Protected routes
-- Product CRUD
-- Category and supplier CRUD
-- Stock movement operations
-- Finance operations
-- Dashboard summary
-- Recent activity APIs
-- Cleanup and migration status
+```txt
+Application bundle generation complete.
+```
 
 ---
 
 ## Screenshots
 
-Screenshots will be added after the frontend screens are implemented.
+Screenshots can be added in the `screenshots/` folder.
 
-Planned screenshots:
+Recommended screenshots:
 
 - Login page
 - Dashboard
-- Product management
-- Supplier management
-- Stock movement
-- Income and expense management
-- Reports
+- Products page
+- Product form
+- Suppliers page
+- Stock movements
+- Stock in/out forms
+- Income page
+- Expenses page
+- Reports page
+- CSV export evidence
 
 ---
 
-## Deployment
+## Known MVP Limitations
 
-Deployment will be completed after frontend-backend integration and final testing.
+This version is a completed local MVP, but some production-level features are intentionally left for future improvement:
 
-Planned deployment options:
+- Data is not yet isolated by company/workspace.
+- No role-based permission system yet.
+- No dedicated user profile page yet.
+- Finance transaction delete is currently hard delete instead of void/cancel.
+- Some stock activity views show product ID instead of product name.
+- No chart library has been added yet.
+- No production deployment has been completed yet.
+- No automated test suite has been added yet.
 
-| Part     | Possible Platform          |
-| -------- | -------------------------- |
-| Frontend | Vercel / Netlify           |
-| Backend  | Render / Railway           |
-| Database | Neon / Supabase PostgreSQL |
+---
 
-Live demo link will be added after deployment.
+## Future Improvements
+
+Recommended next improvements:
+
+- Company/workspace-based data isolation
+- Role-based access control
+- User profile page
+- Finance transaction void/cancel workflow
+- Product-name mapping in stock movement views
+- Date-range filters in reports
+- Dashboard charts
+- Dark mode
+- Automated tests
+- Production deployment with hosted database
+
+---
+
+## Documentation
+
+Additional project documentation is available in the `docs/` folder:
+
+```txt
+docs/
+├── 00-project-overview.md
+├── 01-tech-stack.md
+├── 02-database-design.md
+├── 03-api-endpoints.md
+├── 04-phase-plan.md
+├── 05-testing-checklist.md
+├── 06-git-commit-guide.md
+├── 07-deployment-guide.md
+├── 08-frontend-architecture.md
+├── 09-ui-ux-guidelines.md
+├── 10-frontend-phase-plan.md
+└── prompts/
+```
+
+Backend-specific documentation:
+
+```txt
+backend/README.md
+backend/API_TEST_CHECKLIST.md
+```
 
 ---
 
 ## Learning Goals
 
-This project is designed to practice:
+This project demonstrates:
 
 - Full-stack project planning
 - Angular frontend development
 - FastAPI backend development
 - PostgreSQL relational database design
-- API development and testing
-- Authentication and protected routes
+- REST API development
+- JWT authentication
+- Protected frontend routing
+- CRUD workflow implementation
+- Stock and finance business logic
+- CSV export
 - Clean Git workflow
-- Professional documentation
-- Deployment-ready project structure
+- Professional project documentation
 
 ---
 
