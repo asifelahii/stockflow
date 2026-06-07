@@ -1,3 +1,4 @@
+﻿from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.supplier import Supplier
@@ -18,11 +19,18 @@ def get_supplier_by_id(
 
 
 def get_suppliers(db: Session, search: str | None = None) -> list[Supplier]:
-    query = db.query(Supplier).filter(Supplier.is_active.is_(True))
+    query = db.query(Supplier)
 
     if search:
         search_term = f"%{search}%"
-        query = query.filter(Supplier.name.ilike(search_term))
+        query = query.filter(
+            or_(
+                Supplier.name.ilike(search_term),
+                Supplier.contact_person.ilike(search_term),
+                Supplier.phone.ilike(search_term),
+                Supplier.email.ilike(search_term),
+            )
+        )
 
     return query.order_by(Supplier.id.desc()).all()
 

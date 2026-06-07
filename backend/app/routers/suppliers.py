@@ -1,4 +1,4 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -37,7 +37,7 @@ def get_supplier(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    supplier = supplier_service.get_supplier_by_id(db, supplier_id)
+    supplier = supplier_service.get_supplier_by_id(db, supplier_id, include_inactive=True)
 
     if supplier is None:
         raise HTTPException(
@@ -55,7 +55,7 @@ def update_supplier(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    supplier = supplier_service.get_supplier_by_id(db, supplier_id)
+    supplier = supplier_service.get_supplier_by_id(db, supplier_id, include_inactive=True)
 
     if supplier is None:
         raise HTTPException(
@@ -72,7 +72,7 @@ def delete_supplier(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    supplier = supplier_service.get_supplier_by_id(db, supplier_id)
+    supplier = supplier_service.get_supplier_by_id(db, supplier_id, include_inactive=True)
 
     if supplier is None:
         raise HTTPException(

@@ -2,7 +2,6 @@
   <app-page-header
     title="Suppliers"
     description="Manage supplier contacts and supplier-related inventory records."
-    actionLabel="+ Add Supplier"
   />
 
   <section class="toolbar card">
@@ -12,11 +11,120 @@
         id="supplierSearch"
         class="form-control"
         type="text"
-        placeholder="Search by supplier name, contact, phone, email, or status"
+        placeholder="Search by supplier name, contact, phone, email, address, or status"
         [(ngModel)]="searchTerm"
       />
     </div>
+
+    <button class="btn btn-primary" type="button" (click)="openCreateForm()">
+      + Add Supplier
+    </button>
   </section>
+
+  @if (isFormOpen) {
+    <section class="supplier-form-card card">
+      <div class="form-header">
+        <div>
+          <h2>{{ editingSupplier ? 'Edit Supplier' : 'Add Supplier' }}</h2>
+          <p>{{ editingSupplier ? 'Update supplier contact details.' : 'Create a new supplier record.' }}</p>
+        </div>
+
+        <button class="close-button" type="button" (click)="closeForm()">Close</button>
+      </div>
+
+      @if (formError) {
+        <div class="form-alert form-alert-error">{{ formError }}</div>
+      }
+
+      <form class="supplier-form" (ngSubmit)="handleSubmit()">
+        <div class="form-group">
+          <label class="form-label" for="supplierName">Supplier name</label>
+          <input
+            id="supplierName"
+            class="form-control"
+            type="text"
+            name="supplierName"
+            placeholder="Example: ABC Suppliers"
+            [(ngModel)]="supplierName"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="contactPerson">Contact person</label>
+          <input
+            id="contactPerson"
+            class="form-control"
+            type="text"
+            name="contactPerson"
+            placeholder="Example: Mr. Rahim"
+            [(ngModel)]="contactPerson"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone</label>
+          <input
+            id="phone"
+            class="form-control"
+            type="text"
+            name="phone"
+            placeholder="Example: 01700000000"
+            [(ngModel)]="phone"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input
+            id="email"
+            class="form-control"
+            type="email"
+            name="email"
+            placeholder="supplier@example.com"
+            [(ngModel)]="email"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label" for="address">Address</label>
+          <input
+            id="address"
+            class="form-control"
+            type="text"
+            name="address"
+            placeholder="Supplier address"
+            [(ngModel)]="address"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        @if (editingSupplier) {
+          <label class="checkbox-field">
+            <input
+              type="checkbox"
+              name="supplierIsActive"
+              [(ngModel)]="supplierIsActive"
+              [disabled]="isSubmitting"
+            />
+            Active supplier
+          </label>
+        }
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Saving...' : editingSupplier ? 'Update Supplier' : 'Create Supplier' }}
+          </button>
+          <button class="btn btn-secondary" type="button" (click)="closeForm()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 
   @if (isLoading) {
     <app-loading-state message="Loading suppliers..." />
@@ -54,9 +162,13 @@
               </td>
               <td>
                 <div class="table-actions">
-                  <button type="button" title="View will be added later">View</button>
-                  <button type="button" title="Edit will be added later">Edit</button>
-                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                  <button type="button" (click)="openEditForm(supplier)">Edit</button>
+
+                  @if (supplier.is_active) {
+                    <button class="danger" type="button" (click)="deactivateSupplier(supplier)">Deactivate</button>
+                  } @else {
+                    <button class="restore" type="button" (click)="restoreSupplier(supplier)">Restore</button>
+                  }
                 </div>
               </td>
             </tr>
@@ -67,7 +179,7 @@
   } @else {
     <app-empty-state
       title="No suppliers found"
-      message="Try changing the search term."
+      message="Try changing the search term or create a new supplier."
     />
   }
 </section>
