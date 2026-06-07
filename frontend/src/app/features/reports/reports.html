@@ -1,0 +1,192 @@
+﻿<section class="reports-page">
+  <app-page-header
+    title="Reports"
+    description="View business summaries, inventory health, finance records, and export report data."
+  />
+
+  @if (isLoading) {
+    <app-loading-state message="Loading reports..." />
+  }
+  @else if (errorMessage) {
+    <app-empty-state
+      title="Reports could not be loaded"
+      [message]="errorMessage"
+    />
+  }
+  @else {
+    <section class="report-summary-grid">
+      <div class="report-card">
+        <p>Total Products</p>
+        <h2>{{ dashboardSummary?.total_products || 0 }}</h2>
+        <span>All product records</span>
+      </div>
+
+      <div class="report-card warning">
+        <p>Low Stock Products</p>
+        <h2>{{ dashboardSummary?.low_stock_products || 0 }}</h2>
+        <span>Needs restocking attention</span>
+      </div>
+
+      <div class="report-card success">
+        <p>Total Income</p>
+        <h2>{{ formatCurrency(financialSummary?.total_income || dashboardSummary?.total_income) }}</h2>
+        <span>{{ incomeTransactions.length }} income records</span>
+      </div>
+
+      <div class="report-card danger">
+        <p>Total Expense</p>
+        <h2>{{ formatCurrency(financialSummary?.total_expense || dashboardSummary?.total_expense) }}</h2>
+        <span>{{ expenseTransactions.length }} expense records</span>
+      </div>
+
+      <div class="report-card primary">
+        <p>Net Balance</p>
+        <h2>{{ formatCurrency(financialSummary?.net_balance || dashboardSummary?.net_balance) }}</h2>
+        <span>Income minus expenses</span>
+      </div>
+
+      <div class="report-card neutral">
+        <p>Inactive Products</p>
+        <h2>{{ inactiveProducts.length }}</h2>
+        <span>Soft-deactivated records</span>
+      </div>
+    </section>
+
+    <section class="report-actions card">
+      <div>
+        <h2>Export Reports</h2>
+        <p>Download current report datasets as CSV files.</p>
+      </div>
+
+      <div class="export-buttons">
+        <button class="btn btn-secondary" type="button" (click)="exportProductsCsv()">
+          Export Products
+        </button>
+
+        <button class="btn btn-secondary" type="button" (click)="exportTransactionsCsv()">
+          Export Finance
+        </button>
+
+        <button class="btn btn-secondary" type="button" (click)="exportStockMovementsCsv()">
+          Export Stock
+        </button>
+      </div>
+    </section>
+
+    <section class="report-section card">
+      <div class="section-header">
+        <div>
+          <h2>Low Stock Report</h2>
+          <p>Active products at or below their low stock threshold.</p>
+        </div>
+
+        <app-badge label="Inventory" tone="warning" />
+      </div>
+
+      @if (lowStockProducts.length > 0) {
+        <div class="table-wrapper">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Current Stock</th>
+                <th>Threshold</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (product of lowStockProducts; track product.id) {
+                <tr>
+                  <td><strong>{{ product.name }}</strong></td>
+                  <td>{{ product.sku }}</td>
+                  <td>{{ product.current_stock }}</td>
+                  <td>{{ product.low_stock_threshold }}</td>
+                  <td><app-badge label="Low Stock" tone="warning" /></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @else {
+        <p class="empty-note">No low stock products found.</p>
+      }
+    </section>
+
+    <section class="report-grid">
+      <section class="report-section card">
+        <div class="section-header">
+          <div>
+            <h2>Recent Finance Records</h2>
+            <p>Latest income and expense transactions.</p>
+          </div>
+
+          <app-badge label="Finance" tone="success" />
+        </div>
+
+        @if (recentTransactions.length > 0) {
+          <div class="compact-list">
+            @for (transaction of recentTransactions; track transaction.id) {
+              <div class="compact-item">
+                <div>
+                  <h3>{{ transaction.title }}</h3>
+                  <p>{{ transaction.transaction_date }}</p>
+                </div>
+
+                <div class="compact-meta">
+                  <app-badge
+                    [label]="formatMovementType(transaction.transaction_type)"
+                    [tone]="getTransactionTone(transaction.transaction_type)"
+                  />
+
+                  <strong>{{ formatCurrency(transaction.amount) }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        @else {
+          <p class="empty-note">No finance records found.</p>
+        }
+      </section>
+
+      <section class="report-section card">
+        <div class="section-header">
+          <div>
+            <h2>Recent Stock Activity</h2>
+            <p>Latest stock movement records.</p>
+          </div>
+
+          <app-badge label="Stock" tone="info" />
+        </div>
+
+        @if (recentStockMovements.length > 0) {
+          <div class="compact-list">
+            @for (movement of recentStockMovements; track movement.id) {
+              <div class="compact-item">
+                <div>
+                  <h3>Product #{{ movement.product_id }}</h3>
+                  <p>{{ movement.reason || movement.created_at }}</p>
+                </div>
+
+                <div class="compact-meta">
+                  <app-badge
+                    [label]="formatMovementType(movement.movement_type)"
+                    [tone]="getMovementTone(movement.movement_type)"
+                  />
+
+                  <strong>{{ movement.quantity }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        @else {
+          <p class="empty-note">No stock movements found.</p>
+        }
+      </section>
+    </section>
+  }
+</section>
