@@ -1,4 +1,4 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -82,6 +82,7 @@ def get_low_stock_products(
     return product_service.get_products(
         db=db,
         is_low_stock=True,
+        include_inactive=False,
     )
 
 
@@ -91,7 +92,7 @@ def get_product(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    product = product_service.get_product_by_id(db, product_id)
+    product = product_service.get_product_by_id(db, product_id, include_inactive=True)
 
     if product is None:
         raise HTTPException(
@@ -109,7 +110,7 @@ def update_product(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    product = product_service.get_product_by_id(db, product_id)
+    product = product_service.get_product_by_id(db, product_id, include_inactive=True)
 
     if product is None:
         raise HTTPException(
@@ -141,7 +142,7 @@ def delete_product(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    product = product_service.get_product_by_id(db, product_id)
+    product = product_service.get_product_by_id(db, product_id, include_inactive=True)
 
     if product is None:
         raise HTTPException(

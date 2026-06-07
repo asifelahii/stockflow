@@ -1,4 +1,4 @@
-from sqlalchemy import or_
+﻿from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.category import ProductCategory
@@ -28,8 +28,12 @@ def get_products(
     db: Session,
     search: str | None = None,
     is_low_stock: bool | None = None,
+    include_inactive: bool = True,
 ) -> list[Product]:
-    query = db.query(Product).filter(Product.is_active.is_(True))
+    query = db.query(Product)
+
+    if not include_inactive:
+        query = query.filter(Product.is_active.is_(True))
 
     if search:
         search_term = f"%{search}%"

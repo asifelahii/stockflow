@@ -2,7 +2,6 @@
   <app-page-header
     title="Products"
     description="Manage inventory products, SKUs, stock levels, suppliers, and selling prices."
-    actionLabel="+ Add Product"
   />
 
   <section class="toolbar card">
@@ -12,7 +11,7 @@
         id="productSearch"
         class="form-control"
         type="text"
-        placeholder="Search by product name, SKU, category ID, or supplier ID"
+        placeholder="Search by product name, SKU, category, or supplier"
         [(ngModel)]="searchTerm"
       />
     </div>
@@ -30,7 +29,174 @@
         <option value="inactive">Inactive</option>
       </select>
     </div>
+
+    <button class="btn btn-primary" type="button" (click)="openCreateForm()">
+      + Add Product
+    </button>
   </section>
+
+  @if (isFormOpen) {
+    <section class="product-form-card card">
+      <div class="form-header">
+        <div>
+          <h2>{{ editingProduct ? 'Edit Product' : 'Add Product' }}</h2>
+          <p>{{ editingProduct ? 'Update product information.' : 'Create a new inventory product.' }}</p>
+        </div>
+
+        <button class="close-button" type="button" (click)="closeForm()">Close</button>
+      </div>
+
+      @if (formError) {
+        <div class="form-alert form-alert-error">{{ formError }}</div>
+      }
+
+      <form class="product-form" (ngSubmit)="handleSubmit()">
+        <div class="form-group">
+          <label class="form-label" for="productName">Product name</label>
+          <input
+            id="productName"
+            class="form-control"
+            type="text"
+            name="productName"
+            placeholder="Example: Wireless Mouse"
+            [(ngModel)]="productName"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sku">SKU</label>
+          <input
+            id="sku"
+            class="form-control"
+            type="text"
+            name="sku"
+            placeholder="Example: MOUSE-001"
+            [(ngModel)]="sku"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="categoryId">Category</label>
+          <select
+            id="categoryId"
+            class="form-control"
+            name="categoryId"
+            [(ngModel)]="categoryId"
+            [disabled]="isSubmitting"
+          >
+            <option value="">No category</option>
+            @for (category of activeCategories; track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="supplierId">Supplier</label>
+          <select
+            id="supplierId"
+            class="form-control"
+            name="supplierId"
+            [(ngModel)]="supplierId"
+            [disabled]="isSubmitting"
+          >
+            <option value="">No supplier</option>
+            @for (supplier of activeSuppliers; track supplier.id) {
+              <option [value]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="purchasePrice">Purchase price</label>
+          <input
+            id="purchasePrice"
+            class="form-control"
+            type="number"
+            min="0"
+            name="purchasePrice"
+            [(ngModel)]="purchasePrice"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sellingPrice">Selling price</label>
+          <input
+            id="sellingPrice"
+            class="form-control"
+            type="number"
+            min="0"
+            name="sellingPrice"
+            [(ngModel)]="sellingPrice"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="currentStock">Current stock</label>
+          <input
+            id="currentStock"
+            class="form-control"
+            type="number"
+            min="0"
+            name="currentStock"
+            [(ngModel)]="currentStock"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="lowStockThreshold">Low stock threshold</label>
+          <input
+            id="lowStockThreshold"
+            class="form-control"
+            type="number"
+            min="0"
+            name="lowStockThreshold"
+            [(ngModel)]="lowStockThreshold"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label" for="description">Description</label>
+          <textarea
+            id="description"
+            class="form-control"
+            rows="3"
+            name="description"
+            placeholder="Short product description"
+            [(ngModel)]="description"
+            [disabled]="isSubmitting"
+          ></textarea>
+        </div>
+
+        @if (editingProduct) {
+          <label class="checkbox-field">
+            <input
+              type="checkbox"
+              name="productIsActive"
+              [(ngModel)]="productIsActive"
+              [disabled]="isSubmitting"
+            />
+            Active product
+          </label>
+        }
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product' }}
+          </button>
+          <button class="btn btn-secondary" type="button" (click)="closeForm()" [disabled]="isSubmitting">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 
   @if (isLoading) {
     <app-loading-state message="Loading products..." />
@@ -46,8 +212,8 @@
           <tr>
             <th>Name</th>
             <th>SKU</th>
-            <th>Category ID</th>
-            <th>Supplier ID</th>
+            <th>Category</th>
+            <th>Supplier</th>
             <th>Stock</th>
             <th>Selling Price</th>
             <th>Status</th>
@@ -60,8 +226,8 @@
             <tr>
               <td><strong>{{ product.name }}</strong></td>
               <td>{{ product.sku }}</td>
-              <td>{{ product.category_id || '—' }}</td>
-              <td>{{ product.supplier_id || '—' }}</td>
+              <td>{{ getCategoryName(product.category_id) }}</td>
+              <td>{{ getSupplierName(product.supplier_id) }}</td>
               <td>{{ product.current_stock }}</td>
               <td>{{ formatCurrency(product.selling_price) }}</td>
               <td>
@@ -72,9 +238,13 @@
               </td>
               <td>
                 <div class="table-actions">
-                  <button type="button" title="View will be added later">View</button>
-                  <button type="button" title="Edit will be added later">Edit</button>
-                  <button class="danger" type="button" title="Delete will be added later">Delete</button>
+                  <button type="button" (click)="openEditForm(product)">Edit</button>
+
+                  @if (product.is_active) {
+                    <button class="danger" type="button" (click)="deactivateProduct(product)">Deactivate</button>
+                  } @else {
+                    <button class="restore" type="button" (click)="restoreProduct(product)">Restore</button>
+                  }
                 </div>
               </td>
             </tr>
