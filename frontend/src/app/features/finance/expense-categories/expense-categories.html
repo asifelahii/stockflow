@@ -18,7 +18,14 @@
     </div>
   </section>
 
-  @if (filteredCategories.length > 0) {
+  @if (isLoading) {
+    <app-loading-state message="Loading expense categories..." />
+  } @else if (errorMessage) {
+    <app-empty-state
+      title="Expense categories could not be loaded"
+      [message]="errorMessage"
+    />
+  } @else if (filteredCategories.length > 0) {
     <section class="table-wrapper">
       <table class="app-table">
         <thead>
@@ -31,12 +38,15 @@
         </thead>
 
         <tbody>
-          @for (category of filteredCategories; track category.name) {
+          @for (category of filteredCategories; track category.id) {
             <tr>
               <td><strong>{{ category.name }}</strong></td>
-              <td>{{ category.description }}</td>
+              <td>{{ category.description || '—' }}</td>
               <td>
-                <app-badge [label]="category.status" [tone]="category.tone" />
+                <app-badge
+                  [label]="getCategoryStatus(category)"
+                  [tone]="getCategoryTone(category)"
+                />
               </td>
               <td>
                 <div class="table-actions">

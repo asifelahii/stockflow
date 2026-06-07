@@ -12,37 +12,47 @@
         id="expenseSearch"
         class="form-control"
         type="text"
-        placeholder="Search by category, description, payment method, or date"
+        placeholder="Search by title, amount, category ID, date, description, or type"
         [(ngModel)]="searchTerm"
       />
     </div>
   </section>
 
-  @if (filteredExpenseRecords.length > 0) {
+  @if (isLoading) {
+    <app-loading-state message="Loading expense records..." />
+  } @else if (errorMessage) {
+    <app-empty-state
+      title="Expense records could not be loaded"
+      [message]="errorMessage"
+    />
+  } @else if (filteredExpenseRecords.length > 0) {
     <section class="table-wrapper">
       <table class="app-table">
         <thead>
           <tr>
-            <th>Category</th>
-            <th>Description</th>
+            <th>Title</th>
             <th>Amount</th>
-            <th>Payment Method</th>
+            <th>Category ID</th>
             <th>Date</th>
+            <th>Description</th>
             <th>Type</th>
             <th>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          @for (record of filteredExpenseRecords; track record.description + record.date) {
+          @for (record of filteredExpenseRecords; track record.id) {
             <tr>
-              <td>{{ record.category }}</td>
-              <td><strong>{{ record.description }}</strong></td>
-              <td>{{ record.amount }}</td>
-              <td>{{ record.paymentMethod }}</td>
-              <td>{{ record.date }}</td>
+              <td><strong>{{ record.title }}</strong></td>
+              <td>{{ formatCurrency(record.amount) }}</td>
+              <td>{{ record.expense_category_id || '—' }}</td>
+              <td>{{ record.transaction_date }}</td>
+              <td>{{ record.description || '—' }}</td>
               <td>
-                <app-badge [label]="record.type" [tone]="record.tone" />
+                <app-badge
+                  [label]="formatTransactionType(record.transaction_type)"
+                  tone="danger"
+                />
               </td>
               <td>
                 <div class="table-actions">
