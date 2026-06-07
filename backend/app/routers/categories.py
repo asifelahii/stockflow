@@ -1,4 +1,4 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -62,7 +62,7 @@ def get_product_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_product_category_by_id(db, category_id)
+    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(
@@ -83,7 +83,7 @@ def update_product_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_product_category_by_id(db, category_id)
+    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(
@@ -115,7 +115,7 @@ def delete_product_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_product_category_by_id(db, category_id)
+    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(
@@ -170,7 +170,7 @@ def get_expense_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id)
+    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(
@@ -191,7 +191,7 @@ def update_expense_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id)
+    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(
@@ -223,7 +223,7 @@ def delete_expense_category(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id)
+    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
 
     if category is None:
         raise HTTPException(

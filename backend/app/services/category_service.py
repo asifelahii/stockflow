@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+﻿from sqlalchemy.orm import Session
 
 from app.models.category import ExpenseCategory, ProductCategory
 from app.schemas.category import CategoryCreate, CategoryUpdate
@@ -24,7 +24,6 @@ def get_product_category_by_name(db: Session, name: str) -> ProductCategory | No
 def get_product_categories(db: Session) -> list[ProductCategory]:
     return (
         db.query(ProductCategory)
-        .filter(ProductCategory.is_active.is_(True))
         .order_by(ProductCategory.id.desc())
         .all()
     )
@@ -88,7 +87,6 @@ def get_expense_category_by_name(db: Session, name: str) -> ExpenseCategory | No
 def get_expense_categories(db: Session) -> list[ExpenseCategory]:
     return (
         db.query(ExpenseCategory)
-        .filter(ExpenseCategory.is_active.is_(True))
         .order_by(ExpenseCategory.id.desc())
         .all()
     )
