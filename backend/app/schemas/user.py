@@ -10,6 +10,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=6, max_length=128)
+    turnstile_token: str | None = None
 
 
 class UserLogin(BaseModel):
