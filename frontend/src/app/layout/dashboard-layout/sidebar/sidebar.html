@@ -1,13 +1,23 @@
-﻿<div class="sidebar">
+﻿<div class="sidebar" [class.collapsed]="collapsed">
   <div class="sidebar-brand">
     <div class="brand-mark" aria-hidden="true">
       <img src="stockflow-icon.svg" alt="" class="brand-logo" />
     </div>
 
-    <div>
+    <div class="brand-copy">
       <h1>StockFlow</h1>
       <p>Inventory & Finance Workspace</p>
     </div>
+
+    <button
+      class="sidebar-collapse-button"
+      type="button"
+      [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      [title]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+      (click)="toggleCollapse()"
+    >
+      <span aria-hidden="true">{{ collapsed ? '›' : '‹' }}</span>
+    </button>
   </div>
 
   <nav class="sidebar-nav" aria-label="Main navigation">
@@ -22,8 +32,10 @@
               [routerLink]="link.route"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
+              [title]="collapsed ? link.label : ''"
             >
-              {{ link.label }}
+              <span class="nav-link-icon" aria-hidden="true">{{ link.icon }}</span>
+              <span class="nav-link-label">{{ link.label }}</span>
             </a>
           }
         </div>

@@ -12,9 +12,14 @@ import { TopbarComponent } from './topbar/topbar';
   styleUrl: './dashboard-layout.scss'
 })
 export class DashboardLayoutComponent {
+  private readonly sidebarStorageKey = 'stockflow_sidebar_collapsed';
+
   protected isSidebarOpen = false;
+  protected isSidebarCollapsed = false;
 
   constructor(private readonly router: Router) {
+    this.isSidebarCollapsed = localStorage.getItem(this.sidebarStorageKey) === 'true';
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
@@ -28,5 +33,10 @@ export class DashboardLayoutComponent {
 
   protected closeSidebar(): void {
     this.isSidebarOpen = false;
+  }
+
+  protected toggleSidebarCollapsed(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    localStorage.setItem(this.sidebarStorageKey, String(this.isSidebarCollapsed));
   }
 }

@@ -1,4 +1,8 @@
-﻿<div class="dashboard-layout" [class.sidebar-open]="isSidebarOpen">
+﻿<div
+  class="dashboard-layout"
+  [class.sidebar-open]="isSidebarOpen"
+  [class.sidebar-collapsed]="isSidebarCollapsed"
+>
   <button
     class="sidebar-backdrop"
     type="button"
@@ -7,7 +11,10 @@
   ></button>
 
   <aside class="dashboard-sidebar" aria-label="Main navigation">
-    <app-sidebar />
+    <app-sidebar
+      [collapsed]="isSidebarCollapsed"
+      (collapseToggled)="toggleSidebarCollapsed()"
+    />
   </aside>
 
   <section class="dashboard-main">
