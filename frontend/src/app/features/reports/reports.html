@@ -1,7 +1,7 @@
 ﻿<section class="reports-page">
   <app-page-header
     title="Reports"
-    description="View business summaries, inventory health, finance records, and export report data."
+    description="Build filtered product, finance, and stock reports, preview the result, and export report data."
   />
 
   @if (isLoading) {
@@ -52,66 +52,299 @@
       </div>
     </section>
 
-    <section class="report-actions card">
-      <div>
-        <h2>Export Reports</h2>
-        <p>Download current report datasets as CSV files.</p>
+    <section class="report-builder card">
+      <div class="section-header">
+        <div>
+          <h2>Advanced Report Builder</h2>
+          <p>Select a report type, apply filters, preview the data, and export the filtered result.</p>
+        </div>
+
+        <app-badge label="ERP Style" tone="info" />
       </div>
 
-      <div class="export-buttons">
-        <button class="btn btn-secondary" type="button" (click)="exportProductsCsv()">
-          Export Products
-        </button>
+      <div class="filter-grid">
+        <label class="filter-field">
+          <span>Report Type</span>
+          <select [(ngModel)]="selectedReportType" (change)="resetReportFilters()">
+            <option value="products">Product Report</option>
+            <option value="finance">Finance Report</option>
+            <option value="stock">Stock Movement Report</option>
+          </select>
+        </label>
 
-        <button class="btn btn-secondary" type="button" (click)="exportTransactionsCsv()">
-          Export Finance
-        </button>
+        <label class="filter-field">
+          <span>Search</span>
+          <input
+            type="search"
+            [(ngModel)]="searchTerm"
+            placeholder="Search report data"
+          />
+        </label>
 
-        <button class="btn btn-secondary" type="button" (click)="exportStockMovementsCsv()">
-          Export Stock
-        </button>
+        @if (selectedReportType === 'products') {
+          <label class="filter-field">
+            <span>Product Status</span>
+            <select [(ngModel)]="productStatusFilter">
+              <option value="all">All Products</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="low_stock">Low Stock</option>
+            </select>
+          </label>
+        }
+
+        @if (selectedReportType === 'finance') {
+          <label class="filter-field">
+            <span>Transaction Type</span>
+            <select [(ngModel)]="transactionTypeFilter">
+              <option value="all">All Transactions</option>
+              <option value="income">Income Only</option>
+              <option value="expense">Expense Only</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Date From</span>
+            <input type="date" [(ngModel)]="dateFrom" />
+          </label>
+
+          <label class="filter-field">
+            <span>Date To</span>
+            <input type="date" [(ngModel)]="dateTo" />
+          </label>
+        }
+
+        @if (selectedReportType === 'stock') {
+          <label class="filter-field">
+            <span>Product</span>
+            <select [(ngModel)]="selectedProductId">
+              <option value="">All Products</option>
+              @for (product of products; track product.id) {
+                <option [value]="product.id">{{ product.name }} — {{ product.sku }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Movement Type</span>
+            <select [(ngModel)]="movementTypeFilter">
+              <option value="all">All Movements</option>
+              <option value="stock_in">Stock In</option>
+              <option value="stock_out">Stock Out</option>
+              <option value="adjustment">Adjustment</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Date From</span>
+            <input type="date" [(ngModel)]="dateFrom" />
+          </label>
+
+          <label class="filter-field">
+            <span>Date To</span>
+            <input type="date" [(ngModel)]="dateTo" />
+          </label>
+        }
+      </div>
+
+      <div class="builder-summary-grid">
+        <div class="mini-summary-card">
+          <p>Matched Records</p>
+          <strong>{{ activeReportTotalCount }}</strong>
+        </div>
+
+        @if (selectedReportType === 'finance') {
+          <div class="mini-summary-card success">
+            <p>Filtered Income</p>
+            <strong>{{ formatCurrency(filteredIncomeTotal) }}</strong>
+          </div>
+
+          <div class="mini-summary-card danger">
+            <p>Filtered Expense</p>
+            <strong>{{ formatCurrency(filteredExpenseTotal) }}</strong>
+          </div>
+
+          <div class="mini-summary-card primary">
+            <p>Filtered Net</p>
+            <strong>{{ formatCurrency(filteredNetBalance) }}</strong>
+          </div>
+        }
+
+        @if (selectedReportType === 'stock') {
+          <div class="mini-summary-card success">
+            <p>Total Stock In</p>
+            <strong>{{ filteredStockInTotal }}</strong>
+          </div>
+
+          <div class="mini-summary-card danger">
+            <p>Total Stock Out</p>
+            <strong>{{ filteredStockOutTotal }}</strong>
+          </div>
+
+          <div class="mini-summary-card primary">
+            <p>Adjustments</p>
+            <strong>{{ filteredAdjustmentTotal }}</strong>
+          </div>
+        }
+
+        @if (selectedReportType === 'products') {
+          <div class="mini-summary-card success">
+            <p>Active Products</p>
+            <strong>{{ filteredProducts.length - inactiveProducts.length }}</strong>
+          </div>
+
+          <div class="mini-summary-card warning">
+            <p>Low Stock</p>
+            <strong>{{ lowStockProducts.length }}</strong>
+          </div>
+        }
       </div>
     </section>
 
     <section class="report-section card">
-      <div class="section-header">
+      <div class="section-header report-preview-header">
         <div>
-          <h2>Low Stock Report</h2>
-          <p>Active products at or below their low stock threshold.</p>
+          <h2>{{ activeReportTitle }}</h2>
+          <p>{{ activeReportDescription }}</p>
         </div>
 
-        <app-badge label="Inventory" tone="warning" />
+        <div class="export-buttons">
+          @if (selectedReportType === 'products') {
+            <button class="btn btn-secondary" type="button" (click)="exportProductsCsv()">
+              Export Product CSV
+            </button>
+          }
+
+          @if (selectedReportType === 'finance') {
+            <button class="btn btn-secondary" type="button" (click)="exportTransactionsCsv()">
+              Export Finance CSV
+            </button>
+          }
+
+          @if (selectedReportType === 'stock') {
+            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsCsv()">
+              Export Stock CSV
+            </button>
+          }
+        </div>
       </div>
 
-      @if (lowStockProducts.length > 0) {
-        <div class="table-wrapper">
-          <table class="app-table report-mobile-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Current Stock</th>
-                <th>Threshold</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @for (product of lowStockProducts; track product.id) {
+      @if (selectedReportType === 'products') {
+        @if (filteredProducts.length > 0) {
+          <div class="table-wrapper">
+            <table class="app-table report-mobile-table">
+              <thead>
                 <tr>
-                  <td data-label="Product"><strong>{{ product.name }}</strong></td>
-                  <td data-label="SKU">{{ product.sku }}</td>
-                  <td data-label="Current Stock">{{ product.current_stock }}</td>
-                  <td data-label="Threshold">{{ product.low_stock_threshold }}</td>
-                  <td data-label="Status"><app-badge label="Low Stock" tone="warning" /></td>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Stock</th>
+                  <th>Threshold</th>
+                  <th>Selling Price</th>
+                  <th>Status</th>
                 </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                @for (product of filteredProducts; track product.id) {
+                  <tr>
+                    <td data-label="Product"><strong>{{ product.name }}</strong></td>
+                    <td data-label="SKU">{{ product.sku }}</td>
+                    <td data-label="Stock">{{ product.current_stock }}</td>
+                    <td data-label="Threshold">{{ product.low_stock_threshold }}</td>
+                    <td data-label="Selling Price">{{ formatCurrency(product.selling_price) }}</td>
+                    <td data-label="Status">
+                      <app-badge
+                        [label]="getProductStatus(product)"
+                        [tone]="getProductStatusTone(product)"
+                      />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        @else {
+          <p class="empty-note">No product records matched your filters.</p>
+        }
       }
-      @else {
-        <p class="empty-note">No low stock products found.</p>
+
+      @if (selectedReportType === 'finance') {
+        @if (filteredTransactions.length > 0) {
+          <div class="table-wrapper">
+            <table class="app-table report-mobile-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (transaction of filteredTransactions; track transaction.id) {
+                  <tr>
+                    <td data-label="Title"><strong>{{ transaction.title }}</strong></td>
+                    <td data-label="Type">
+                      <app-badge
+                        [label]="formatMovementType(transaction.transaction_type)"
+                        [tone]="getTransactionTone(transaction.transaction_type)"
+                      />
+                    </td>
+                    <td data-label="Amount">{{ formatCurrency(transaction.amount) }}</td>
+                    <td data-label="Date">{{ transaction.transaction_date }}</td>
+                    <td data-label="Description">{{ transaction.description || '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        @else {
+          <p class="empty-note">No finance records matched your filters.</p>
+        }
+      }
+
+      @if (selectedReportType === 'stock') {
+        @if (filteredStockMovements.length > 0) {
+          <div class="table-wrapper">
+            <table class="app-table report-mobile-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Type</th>
+                  <th>Quantity</th>
+                  <th>Previous Stock</th>
+                  <th>New Stock</th>
+                  <th>Reason / Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (movement of filteredStockMovements; track movement.id) {
+                  <tr>
+                    <td data-label="Product"><strong>{{ getProductName(movement.product_id) }}</strong></td>
+                    <td data-label="Type">
+                      <app-badge
+                        [label]="formatMovementType(movement.movement_type)"
+                        [tone]="getMovementTone(movement.movement_type)"
+                      />
+                    </td>
+                    <td data-label="Quantity">{{ movement.quantity }}</td>
+                    <td data-label="Previous Stock">{{ movement.previous_stock }}</td>
+                    <td data-label="New Stock">{{ movement.new_stock }}</td>
+                    <td data-label="Reason / Date">{{ movement.reason || movement.created_at }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        @else {
+          <p class="empty-note">No stock movement records matched your filters.</p>
+        }
       }
     </section>
 
@@ -167,7 +400,7 @@
             @for (movement of recentStockMovements; track movement.id) {
               <div class="compact-item">
                 <div>
-                  <h3>Product #{{ movement.product_id }}</h3>
+                  <h3>{{ getProductName(movement.product_id) }}</h3>
                   <p>{{ movement.reason || movement.created_at }}</p>
                 </div>
 

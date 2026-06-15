@@ -1,4 +1,5 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 
 import { DashboardSummary } from '../../core/models/dashboard.model';
 import { FinancialSummary, FinancialTransaction } from '../../core/models/finance.model';
@@ -14,11 +15,17 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
+type ReportType = 'products' | 'finance' | 'stock';
+type ProductStatusFilter = 'all' | 'active' | 'inactive' | 'low_stock';
+type TransactionTypeFilter = 'all' | 'income' | 'expense';
+type MovementTypeFilter = 'all' | 'stock_in' | 'stock_out' | 'adjustment';
+
 @Component({
   selector: 'app-reports',
   imports: [
     BadgeComponent,
     EmptyStateComponent,
+    FormsModule,
     LoadingStateComponent,
     PageHeaderComponent
   ],
@@ -34,6 +41,15 @@ export class ReportsComponent implements OnInit {
 
   protected isLoading = false;
   protected errorMessage = '';
+
+  protected selectedReportType: ReportType = 'products';
+  protected searchTerm = '';
+  protected dateFrom = '';
+  protected dateTo = '';
+  protected productStatusFilter: ProductStatusFilter = 'all';
+  protected transactionTypeFilter: TransactionTypeFilter = 'all';
+  protected movementTypeFilter: MovementTypeFilter = 'all';
+  protected selectedProductId = '';
 
   constructor(
     private readonly dashboardService: DashboardService,
@@ -87,6 +103,16 @@ export class ReportsComponent implements OnInit {
     });
   }
 
+  protected resetReportFilters(): void {
+    this.searchTerm = '';
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.productStatusFilter = 'all';
+    this.transactionTypeFilter = 'all';
+    this.movementTypeFilter = 'all';
+    this.selectedProductId = '';
+  }
+
   protected get lowStockProducts(): Product[] {
     return this.products.filter((product) => {
       return product.is_active && product.current_stock <= product.low_stock_threshold;
@@ -111,6 +137,147 @@ export class ReportsComponent implements OnInit {
 
   protected get recentStockMovements(): StockMovement[] {
     return this.stockMovements.slice(0, 8);
+  }
+
+  protected get filteredProducts(): Product[] {
+    const searchValue = this.searchTerm.trim().toLowerCase();
+
+    return this.products.filter((product) => {
+      const matchesSearch =
+        !searchValue ||
+        product.name.toLowerCase().includes(searchValue) ||
+        product.sku.toLowerCase().includes(searchValue) ||
+        String(product.id).includes(searchValue);
+
+      const matchesStatus =
+        this.productStatusFilter === 'all' ||
+        (this.productStatusFilter === 'active' && product.is_active) ||
+        (this.productStatusFilter === 'inactive' && !product.is_active) ||
+        (
+          this.productStatusFilter === 'low_stock' &&
+          product.is_active &&
+          product.current_stock <= product.low_stock_threshold
+        );
+
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  protected get filteredTransactions(): FinancialTransaction[] {
+    const searchValue = this.searchTerm.trim().toLowerCase();
+
+    return this.transactions.filter((transaction) => {
+      const matchesSearch =
+        !searchValue ||
+        transaction.title.toLowerCase().includes(searchValue) ||
+        String(transaction.amount).toLowerCase().includes(searchValue) ||
+        (transaction.description || '').toLowerCase().includes(searchValue);
+
+      const matchesType =
+        this.transactionTypeFilter === 'all' ||
+        transaction.transaction_type === this.transactionTypeFilter;
+
+      const matchesDate = this.isWithinDateRange(transaction.transaction_date);
+
+      return matchesSearch && matchesType && matchesDate;
+    });
+  }
+
+  protected get filteredStockMovements(): StockMovement[] {
+    const searchValue = this.searchTerm.trim().toLowerCase();
+
+    return this.stockMovements.filter((movement) => {
+      const productName = this.getProductName(movement.product_id).toLowerCase();
+
+      const matchesSearch =
+        !searchValue ||
+        productName.includes(searchValue) ||
+        String(movement.product_id).includes(searchValue) ||
+        movement.movement_type.toLowerCase().includes(searchValue) ||
+        (movement.reason || '').toLowerCase().includes(searchValue);
+
+      const matchesProduct =
+        !this.selectedProductId ||
+        movement.product_id === Number(this.selectedProductId);
+
+      const matchesType =
+        this.movementTypeFilter === 'all' ||
+        movement.movement_type === this.movementTypeFilter;
+
+      const matchesDate = this.isWithinDateRange(movement.created_at);
+
+      return matchesSearch && matchesProduct && matchesType && matchesDate;
+    });
+  }
+
+  protected get activeReportTitle(): string {
+    if (this.selectedReportType === 'finance') {
+      return 'Finance Report Preview';
+    }
+
+    if (this.selectedReportType === 'stock') {
+      return 'Stock Movement Report Preview';
+    }
+
+    return 'Product Report Preview';
+  }
+
+  protected get activeReportDescription(): string {
+    if (this.selectedReportType === 'finance') {
+      return `${this.filteredTransactions.length} finance records matched your filters.`;
+    }
+
+    if (this.selectedReportType === 'stock') {
+      return `${this.filteredStockMovements.length} stock movement records matched your filters.`;
+    }
+
+    return `${this.filteredProducts.length} product records matched your filters.`;
+  }
+
+  protected get activeReportTotalCount(): number {
+    if (this.selectedReportType === 'finance') {
+      return this.filteredTransactions.length;
+    }
+
+    if (this.selectedReportType === 'stock') {
+      return this.filteredStockMovements.length;
+    }
+
+    return this.filteredProducts.length;
+  }
+
+  protected get filteredIncomeTotal(): number {
+    return this.filteredTransactions
+      .filter((transaction) => transaction.transaction_type === 'income')
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+  }
+
+  protected get filteredExpenseTotal(): number {
+    return this.filteredTransactions
+      .filter((transaction) => transaction.transaction_type === 'expense')
+      .reduce((total, transaction) => total + Number(transaction.amount || 0), 0);
+  }
+
+  protected get filteredNetBalance(): number {
+    return this.filteredIncomeTotal - this.filteredExpenseTotal;
+  }
+
+  protected get filteredStockInTotal(): number {
+    return this.filteredStockMovements
+      .filter((movement) => movement.movement_type === 'stock_in')
+      .reduce((total, movement) => total + Number(movement.quantity || 0), 0);
+  }
+
+  protected get filteredStockOutTotal(): number {
+    return this.filteredStockMovements
+      .filter((movement) => movement.movement_type === 'stock_out')
+      .reduce((total, movement) => total + Number(movement.quantity || 0), 0);
+  }
+
+  protected get filteredAdjustmentTotal(): number {
+    return this.filteredStockMovements
+      .filter((movement) => movement.movement_type === 'adjustment')
+      .length;
   }
 
   protected formatCurrency(value: string | number | null | undefined): string {
@@ -156,28 +323,56 @@ export class ReportsComponent implements OnInit {
     return 'neutral';
   }
 
+  protected getProductStatus(product: Product): string {
+    if (!product.is_active) {
+      return 'Inactive';
+    }
+
+    if (product.current_stock <= product.low_stock_threshold) {
+      return 'Low Stock';
+    }
+
+    return 'Active';
+  }
+
+  protected getProductStatusTone(product: Product): 'success' | 'warning' | 'neutral' {
+    if (!product.is_active) {
+      return 'neutral';
+    }
+
+    if (product.current_stock <= product.low_stock_threshold) {
+      return 'warning';
+    }
+
+    return 'success';
+  }
+
+  protected getProductName(productId: number): string {
+    return this.products.find((product) => product.id === productId)?.name || `Product #${productId}`;
+  }
+
   protected exportProductsCsv(): void {
     const rows = [
       ['ID', 'Name', 'SKU', 'Stock', 'Low Stock Threshold', 'Selling Price', 'Status'],
-      ...this.products.map((product) => [
+      ...this.filteredProducts.map((product) => [
         product.id,
         product.name,
         product.sku,
         product.current_stock,
         product.low_stock_threshold,
         product.selling_price,
-        product.is_active ? 'Active' : 'Inactive'
+        this.getProductStatus(product)
       ])
     ];
 
     this.downloadCsv('stockflow-products-report.csv', rows);
-    this.toastService.success('Products exported', 'Products CSV report was downloaded successfully.');
+    this.toastService.success('Products exported', 'Filtered products CSV report was downloaded successfully.');
   }
 
   protected exportTransactionsCsv(): void {
     const rows = [
       ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
-      ...this.transactions.map((transaction) => [
+      ...this.filteredTransactions.map((transaction) => [
         transaction.id,
         transaction.transaction_type,
         transaction.title,
@@ -188,14 +383,15 @@ export class ReportsComponent implements OnInit {
     ];
 
     this.downloadCsv('stockflow-finance-report.csv', rows);
-    this.toastService.success('Finance exported', 'Finance CSV report was downloaded successfully.');
+    this.toastService.success('Finance exported', 'Filtered finance CSV report was downloaded successfully.');
   }
 
   protected exportStockMovementsCsv(): void {
     const rows = [
-      ['ID', 'Product ID', 'Type', 'Quantity', 'Previous Stock', 'New Stock', 'Reason', 'Created At'],
-      ...this.stockMovements.map((movement) => [
+      ['ID', 'Product', 'Product ID', 'Type', 'Quantity', 'Previous Stock', 'New Stock', 'Reason', 'Created At'],
+      ...this.filteredStockMovements.map((movement) => [
         movement.id,
+        this.getProductName(movement.product_id),
         movement.product_id,
         movement.movement_type,
         movement.quantity,
@@ -207,7 +403,25 @@ export class ReportsComponent implements OnInit {
     ];
 
     this.downloadCsv('stockflow-stock-movements-report.csv', rows);
-    this.toastService.success('Stock movements exported', 'Stock movements CSV report was downloaded successfully.');
+    this.toastService.success('Stock movements exported', 'Filtered stock movements CSV report was downloaded successfully.');
+  }
+
+  private isWithinDateRange(dateValue: string): boolean {
+    if (!dateValue) {
+      return true;
+    }
+
+    const dateOnly = dateValue.slice(0, 10);
+
+    if (this.dateFrom && dateOnly < this.dateFrom) {
+      return false;
+    }
+
+    if (this.dateTo && dateOnly > this.dateTo) {
+      return false;
+    }
+
+    return true;
   }
 
   private downloadCsv(filename: string, rows: Array<Array<string | number>>): void {
@@ -230,4 +444,3 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
-
