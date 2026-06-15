@@ -218,7 +218,7 @@ export class ProductsComponent implements OnInit {
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.toastService.success('Product deactivated', `"${product.name}`" is now inactive.');
+        this.toastService.success('Product deactivated', `${product.name} is now inactive.`);
         this.loadPageData();
       },
       error: (error) => {
@@ -237,7 +237,7 @@ export class ProductsComponent implements OnInit {
 
     this.productService.updateProduct(product.id, { is_active: true }).subscribe({
       next: () => {
-        this.toastService.success('Product restored', `"${product.name}`" is active again.');
+        this.toastService.success('Product restored', `${product.name} is active again.`);
         this.loadPageData();
       },
       error: (error) => {
@@ -318,4 +318,5 @@ export class ProductsComponent implements OnInit {
     })}`;
   }
 }
+
 
