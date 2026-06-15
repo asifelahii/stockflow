@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { CategoryCreate, CategoryUpdate, ExpenseCategory } from '../../../core/models/category.model';
 import { CategoryService } from '../../../core/services/category.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
@@ -28,7 +29,10 @@ export class ExpenseCategoriesComponent implements OnInit {
   protected categoryDescription = '';
   protected categoryIsActive = true;
 
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+  private readonly categoryService: CategoryService,
+  private readonly toastService: ToastService
+) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -104,6 +108,7 @@ export class ExpenseCategoriesComponent implements OnInit {
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update expense category.';
+        this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -124,6 +129,7 @@ export class ExpenseCategoriesComponent implements OnInit {
       error: (error) => {
         this.isSubmitting = false;
         this.formError = error?.error?.detail || 'Unable to create expense category.';
+        this.toastService.error('Create failed', this.formError);
       }
     });
   }
@@ -141,6 +147,7 @@ export class ExpenseCategoriesComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to deactivate expense category.';
+        this.toastService.error('Deactivate failed', this.errorMessage);
       }
     });
   }
@@ -158,6 +165,7 @@ export class ExpenseCategoriesComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to restore expense category.';
+        this.toastService.error('Restore failed', this.errorMessage);
       }
     });
   }
@@ -184,3 +192,4 @@ export class ExpenseCategoriesComponent implements OnInit {
     return category.is_active ? 'success' : 'neutral';
   }
 }
+

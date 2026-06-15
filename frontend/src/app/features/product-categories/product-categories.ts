@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { CategoryCreate, CategoryUpdate, ProductCategory } from '../../core/models/category.model';
 import { CategoryService } from '../../core/services/category.service';
+import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
@@ -29,7 +30,10 @@ export class ProductCategoriesComponent implements OnInit {
   protected categoryDescription = '';
   protected categoryIsActive = true;
 
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+  private readonly categoryService: CategoryService,
+  private readonly toastService: ToastService
+) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -104,12 +108,14 @@ export class ProductCategoriesComponent implements OnInit {
         next: () => {
           this.isSubmitting = false;
           this.formMessage = 'Category updated successfully.';
+        this.toastService.success('Category updated', 'Product category was updated successfully.');
           this.closeForm();
           this.loadCategories();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update category.';
+        this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -125,12 +131,14 @@ export class ProductCategoriesComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.formMessage = 'Category created successfully.';
+        this.toastService.success('Category created', 'New product category was added successfully.');
         this.closeForm();
         this.loadCategories();
       },
       error: (error) => {
         this.isSubmitting = false;
         this.formError = error?.error?.detail || 'Unable to create category.';
+        this.toastService.error('Create failed', this.formError);
       }
     });
   }
@@ -148,6 +156,7 @@ export class ProductCategoriesComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to deactivate category.';
+        this.toastService.error('Deactivate failed', this.errorMessage);
       }
     });
   }
@@ -165,6 +174,7 @@ export class ProductCategoriesComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to restore category.';
+        this.toastService.error('Restore failed', this.errorMessage);
       }
     });
   }
@@ -191,4 +201,5 @@ export class ProductCategoriesComponent implements OnInit {
     return category.is_active ? 'success' : 'neutral';
   }
 }
+
 
