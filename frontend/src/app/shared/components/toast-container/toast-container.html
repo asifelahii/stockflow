@@ -1,0 +1,34 @@
+﻿<div class="toast-container" aria-live="polite" aria-atomic="true">
+  @for (toast of toasts$ | async; track toast.id) {
+    <article class="toast toast-{{ toast.type }}">
+      <div class="toast-icon" aria-hidden="true">
+        <i-lucide
+          [img]="getIcon(toast.type)"
+          [size]="20"
+          [strokeWidth]="2.4"
+        />
+      </div>
+
+      <div class="toast-content">
+        <h3>{{ toast.title }}</h3>
+
+        @if (toast.message) {
+          <p>{{ toast.message }}</p>
+        }
+      </div>
+
+      <button
+        class="toast-close"
+        type="button"
+        aria-label="Dismiss notification"
+        (click)="dismiss(toast.id)"
+      >
+        <i-lucide
+          [img]="closeIcon"
+          [size]="16"
+          [strokeWidth]="2.4"
+        />
+      </button>
+    </article>
+  }
+</div>

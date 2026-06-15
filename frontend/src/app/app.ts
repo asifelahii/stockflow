@@ -2,10 +2,11 @@
 import { RouterOutlet } from '@angular/router';
 
 import { ThemeService } from './core/services/theme.service';
+import { ToastContainerComponent } from './shared/components/toast-container/toast-container';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
