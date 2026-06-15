@@ -1,5 +1,4 @@
 ﻿import { FormsModule } from '@angular/forms';
-import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 
 import { DashboardSummary } from '../../core/models/dashboard.model';
@@ -370,7 +369,7 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Products exported', 'Filtered products CSV report was downloaded successfully.');
   }
 
-  protected exportProductsExcel(): void {
+  protected async exportProductsExcel(): Promise<void> {
     const rows = [
       ['ID', 'Name', 'SKU', 'Stock', 'Low Stock Threshold', 'Selling Price', 'Status'],
       ...this.filteredProducts.map((product) => [
@@ -384,7 +383,7 @@ export class ReportsComponent implements OnInit {
       ])
     ];
 
-    this.downloadExcel('stockflow-products-report.xlsx', 'Products', rows);
+    await this.downloadExcel('stockflow-products-report.xlsx', 'Products', rows);
     this.toastService.success('Products exported', 'Filtered products Excel report was downloaded successfully.');
   }
 
@@ -405,7 +404,7 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Finance exported', 'Filtered finance CSV report was downloaded successfully.');
   }
 
-  protected exportTransactionsExcel(): void {
+  protected async exportTransactionsExcel(): Promise<void> {
     const rows = [
       ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
       ...this.filteredTransactions.map((transaction) => [
@@ -418,7 +417,7 @@ export class ReportsComponent implements OnInit {
       ])
     ];
 
-    this.downloadExcel('stockflow-finance-report.xlsx', 'Finance', rows);
+    await this.downloadExcel('stockflow-finance-report.xlsx', 'Finance', rows);
     this.toastService.success('Finance exported', 'Filtered finance Excel report was downloaded successfully.');
   }
 
@@ -442,7 +441,7 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Stock movements exported', 'Filtered stock movements CSV report was downloaded successfully.');
   }
 
-  protected exportStockMovementsExcel(): void {
+  protected async exportStockMovementsExcel(): Promise<void> {
     const rows = [
       ['ID', 'Product', 'Product ID', 'Type', 'Quantity', 'Previous Stock', 'New Stock', 'Reason', 'Created At'],
       ...this.filteredStockMovements.map((movement) => [
@@ -458,7 +457,7 @@ export class ReportsComponent implements OnInit {
       ])
     ];
 
-    this.downloadExcel('stockflow-stock-movements-report.xlsx', 'Stock Movements', rows);
+    await this.downloadExcel('stockflow-stock-movements-report.xlsx', 'Stock Movements', rows);
     this.toastService.success('Stock movements exported', 'Filtered stock movements Excel report was downloaded successfully.');
   }
 
@@ -480,7 +479,8 @@ export class ReportsComponent implements OnInit {
     return true;
   }
 
-  private downloadExcel(filename: string, sheetName: string, rows: Array<Array<string | number>>): void {
+  private async downloadExcel(filename: string, sheetName: string, rows: Array<Array<string | number>>): Promise<void> {
+    const XLSX = await import('xlsx');
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
 
@@ -508,4 +508,5 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
+
 
