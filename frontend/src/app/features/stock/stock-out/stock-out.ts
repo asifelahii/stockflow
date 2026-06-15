@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
@@ -26,7 +27,8 @@ export class StockOutComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly stockService: StockService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +71,7 @@ export class StockOutComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.successMessage = 'Stock out recorded successfully.';
+        this.toastService.success('Stock out recorded', 'Outgoing stock was recorded successfully.');
 
         setTimeout(() => {
           this.router.navigate(['/app/stock/movements']);
@@ -76,9 +79,10 @@ export class StockOutComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage =
-          error?.error?.detail || 'Unable to record stock out.';
+        this.errorMessage = error?.error?.detail || 'Unable to record stock out.';
+        this.toastService.error('Stock out failed', this.errorMessage);
       }
     });
   }
 }
+

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
@@ -26,7 +27,8 @@ export class StockInComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly stockService: StockService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +71,7 @@ export class StockInComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.successMessage = 'Stock in recorded successfully.';
+        this.toastService.success('Stock in recorded', 'Incoming stock was added successfully.');
 
         setTimeout(() => {
           this.router.navigate(['/app/stock/movements']);
@@ -76,10 +79,11 @@ export class StockInComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage =
-          error?.error?.detail || 'Unable to record stock in.';
+        this.errorMessage = error?.error?.detail || 'Unable to record stock in.';
+        this.toastService.error('Stock in failed', this.errorMessage);
       }
     });
   }
 }
+
 
