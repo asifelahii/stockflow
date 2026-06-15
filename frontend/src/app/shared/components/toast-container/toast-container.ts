@@ -1,4 +1,4 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import {
   AlertCircle,
@@ -9,7 +9,7 @@ import {
   X
 } from 'lucide-angular';
 
-import { ToastMessage, ToastService, ToastType } from '../../../core/services/toast.service';
+import { ToastService, ToastType } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-toast-container',
@@ -18,6 +18,8 @@ import { ToastMessage, ToastService, ToastType } from '../../../core/services/to
   styleUrl: './toast-container.scss'
 })
 export class ToastContainerComponent {
+  private readonly toastService = inject(ToastService);
+
   protected readonly toasts$ = this.toastService.toasts$;
 
   protected readonly successIcon = CheckCircle2;
@@ -26,14 +28,12 @@ export class ToastContainerComponent {
   protected readonly warningIcon = AlertTriangle;
   protected readonly closeIcon = X;
 
-  constructor(private readonly toastService: ToastService) {}
-
   protected dismiss(id: number): void {
     this.toastService.dismiss(id);
   }
 
-  protected getIcon(type: ToastType): unknown {
-    const iconMap: Record<ToastType, unknown> = {
+  protected getIcon(type: ToastType): any {
+    const iconMap: Record<ToastType, any> = {
       success: this.successIcon,
       error: this.errorIcon,
       info: this.infoIcon,
