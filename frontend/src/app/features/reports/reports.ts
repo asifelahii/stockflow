@@ -8,6 +8,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { FinanceService } from '../../core/services/finance.service';
 import { ProductService } from '../../core/services/product.service';
 import { StockService } from '../../core/services/stock.service';
+import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
@@ -38,7 +39,8 @@ export class ReportsComponent implements OnInit {
     private readonly dashboardService: DashboardService,
     private readonly financeService: FinanceService,
     private readonly productService: ProductService,
-    private readonly stockService: StockService
+    private readonly stockService: StockService,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -169,6 +171,7 @@ export class ReportsComponent implements OnInit {
     ];
 
     this.downloadCsv('stockflow-products-report.csv', rows);
+    this.toastService.success('Products exported', 'Products CSV report was downloaded successfully.');
   }
 
   protected exportTransactionsCsv(): void {
@@ -185,6 +188,7 @@ export class ReportsComponent implements OnInit {
     ];
 
     this.downloadCsv('stockflow-finance-report.csv', rows);
+    this.toastService.success('Finance exported', 'Finance CSV report was downloaded successfully.');
   }
 
   protected exportStockMovementsCsv(): void {
@@ -203,6 +207,7 @@ export class ReportsComponent implements OnInit {
     ];
 
     this.downloadCsv('stockflow-stock-movements-report.csv', rows);
+    this.toastService.success('Stock movements exported', 'Stock movements CSV report was downloaded successfully.');
   }
 
   private downloadCsv(filename: string, rows: Array<Array<string | number>>): void {
@@ -225,3 +230,4 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
+
