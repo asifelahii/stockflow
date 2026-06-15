@@ -17,7 +17,7 @@
   overflow: hidden;
   background: #0f172a;
   color: #f8fafc;
-  padding: 1.25rem;
+  padding: 0 1.25rem 1.25rem;
 }
 
 .dashboard-main {
@@ -31,7 +31,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  min-height: 72px;
+  min-height: 92px;
   display: flex;
   align-items: center;
   gap: 0.85rem;
@@ -61,7 +61,10 @@
     grid-template-columns: 240px minmax(0, 1fr);
   }
 
-  .dashboard-sidebar,
+  .dashboard-sidebar {
+    padding: 0 1rem 1rem;
+  }
+
   .dashboard-content {
     padding: 1rem;
   }
@@ -83,7 +86,7 @@
     width: min(84vw, 300px);
     height: 100dvh;
     max-height: none;
-    padding: 1rem;
+    padding: 0 1rem 1rem;
     transform: translateX(-105%);
     transition: transform 0.22s ease;
     box-shadow: 20px 0 45px rgba(15, 23, 42, 0.22);
@@ -116,7 +119,7 @@
   }
 
   .dashboard-topbar {
-    min-height: 64px;
+    min-height: 72px;
     padding: 0 1rem;
   }
 

@@ -14,10 +14,10 @@
 
 .sidebar-brand {
   flex: 0 0 auto;
+  min-height: 92px;
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding-bottom: 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -128,7 +128,7 @@
   }
 
   .sidebar-brand {
-    padding-bottom: 0.85rem;
+    min-height: 72px;
   }
 
   .sidebar-nav {
