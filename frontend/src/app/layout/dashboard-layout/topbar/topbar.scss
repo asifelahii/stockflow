@@ -5,11 +5,15 @@
 
 .topbar {
   width: 100%;
-  min-height: 68px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
+}
+
+.topbar > div:first-child {
+  min-width: 0;
 }
 
 .topbar-kicker {
@@ -26,6 +30,7 @@
   color: #111827;
   font-size: 1rem;
   font-weight: 800;
+  line-height: 1.25;
 }
 
 .topbar-actions {
@@ -33,13 +38,15 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  flex: 0 0 auto;
 }
 
 .user-pill {
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  padding: 0.35rem 0.65rem 0.35rem 0.4rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
   border: 1px solid #e5e7eb;
   border-radius: 999px;
   background: #ffffff;
@@ -50,6 +57,7 @@
   height: 32px;
   display: grid;
   place-items: center;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: #dbeafe;
   color: #1e40af;
@@ -63,22 +71,31 @@
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .user-pill small {
+  display: block;
   color: #6b7280;
   font-size: 0.72rem;
+  line-height: 1.2;
+  text-transform: capitalize;
 }
 
 .logout-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 0.55rem 0.8rem;
+  padding: 0 0.95rem;
   background: #ffffff;
   color: #374151;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .logout-button:hover {
@@ -87,11 +104,55 @@
 
 @media (max-width: 700px) {
   .topbar {
-    align-items: flex-start;
-    flex-direction: column;
+    min-height: 64px;
+    gap: 0.8rem;
+  }
+
+  .topbar-kicker {
+    font-size: 0.68rem;
+  }
+
+  .topbar h2 {
+    font-size: 0.92rem;
   }
 
   .topbar-actions {
+    gap: 0.5rem;
+  }
+
+  .user-pill {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .user-pill > div {
+    display: none;
+  }
+
+  .logout-button {
+    min-height: 40px;
+    padding: 0 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 0.75rem 0;
+  }
+
+  .topbar-actions {
+    width: 100%;
     margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .logout-button {
+    flex: 1;
   }
 }

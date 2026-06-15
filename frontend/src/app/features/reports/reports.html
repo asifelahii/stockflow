@@ -85,7 +85,7 @@
 
       @if (lowStockProducts.length > 0) {
         <div class="table-wrapper">
-          <table class="app-table">
+          <table class="app-table report-mobile-table">
             <thead>
               <tr>
                 <th>Product</th>
@@ -99,11 +99,11 @@
             <tbody>
               @for (product of lowStockProducts; track product.id) {
                 <tr>
-                  <td><strong>{{ product.name }}</strong></td>
-                  <td>{{ product.sku }}</td>
-                  <td>{{ product.current_stock }}</td>
-                  <td>{{ product.low_stock_threshold }}</td>
-                  <td><app-badge label="Low Stock" tone="warning" /></td>
+                  <td data-label="Product"><strong>{{ product.name }}</strong></td>
+                  <td data-label="SKU">{{ product.sku }}</td>
+                  <td data-label="Current Stock">{{ product.current_stock }}</td>
+                  <td data-label="Threshold">{{ product.low_stock_threshold }}</td>
+                  <td data-label="Status"><app-badge label="Low Stock" tone="warning" /></td>
                 </tr>
               }
             </tbody>
