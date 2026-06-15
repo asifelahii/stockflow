@@ -10,6 +10,7 @@ import {
 } from '../../../core/models/finance.model';
 import { CategoryService } from '../../../core/services/category.service';
 import { FinanceService } from '../../../core/services/finance.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
@@ -42,7 +43,8 @@ export class ExpensesComponent implements OnInit {
 
   constructor(
     private readonly financeService: FinanceService,
-    private readonly categoryService: CategoryService
+    private readonly categoryService: CategoryService,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -219,3 +221,4 @@ export class ExpensesComponent implements OnInit {
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 }
+

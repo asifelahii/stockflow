@@ -7,6 +7,7 @@ import {
   IncomeCreate
 } from '../../../core/models/finance.model';
 import { FinanceService } from '../../../core/services/finance.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
@@ -33,7 +34,10 @@ export class IncomeComponent implements OnInit {
   protected transactionDate = '';
   protected description = '';
 
-  constructor(private readonly financeService: FinanceService) {}
+  constructor(
+  private readonly financeService: FinanceService,
+  private readonly toastService: ToastService
+) {}
 
   ngOnInit(): void {
     this.loadIncomeRecords();
@@ -190,3 +194,4 @@ export class IncomeComponent implements OnInit {
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 }
+
