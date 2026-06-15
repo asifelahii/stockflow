@@ -213,17 +213,29 @@
             <button class="btn btn-secondary" type="button" (click)="exportProductsCsv()">
               Export Product CSV
             </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportProductsExcel()">
+              Export Product Excel
+            </button>
           }
 
           @if (selectedReportType === 'finance') {
             <button class="btn btn-secondary" type="button" (click)="exportTransactionsCsv()">
               Export Finance CSV
             </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportTransactionsExcel()">
+              Export Finance Excel
+            </button>
           }
 
           @if (selectedReportType === 'stock') {
             <button class="btn btn-secondary" type="button" (click)="exportStockMovementsCsv()">
               Export Stock CSV
+            </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsExcel()">
+              Export Stock Excel
             </button>
           }
         </div>
@@ -423,3 +435,4 @@
     </section>
   }
 </section>
+

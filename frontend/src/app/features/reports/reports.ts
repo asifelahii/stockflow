@@ -1,4 +1,5 @@
 ﻿import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
 import { Component, OnInit } from '@angular/core';
 
 import { DashboardSummary } from '../../core/models/dashboard.model';
@@ -369,6 +370,24 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Products exported', 'Filtered products CSV report was downloaded successfully.');
   }
 
+  protected exportProductsExcel(): void {
+    const rows = [
+      ['ID', 'Name', 'SKU', 'Stock', 'Low Stock Threshold', 'Selling Price', 'Status'],
+      ...this.filteredProducts.map((product) => [
+        product.id,
+        product.name,
+        product.sku,
+        product.current_stock,
+        product.low_stock_threshold,
+        product.selling_price,
+        this.getProductStatus(product)
+      ])
+    ];
+
+    this.downloadExcel('stockflow-products-report.xlsx', 'Products', rows);
+    this.toastService.success('Products exported', 'Filtered products Excel report was downloaded successfully.');
+  }
+
   protected exportTransactionsCsv(): void {
     const rows = [
       ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
@@ -384,6 +403,23 @@ export class ReportsComponent implements OnInit {
 
     this.downloadCsv('stockflow-finance-report.csv', rows);
     this.toastService.success('Finance exported', 'Filtered finance CSV report was downloaded successfully.');
+  }
+
+  protected exportTransactionsExcel(): void {
+    const rows = [
+      ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
+      ...this.filteredTransactions.map((transaction) => [
+        transaction.id,
+        transaction.transaction_type,
+        transaction.title,
+        transaction.amount,
+        transaction.transaction_date,
+        transaction.description || ''
+      ])
+    ];
+
+    this.downloadExcel('stockflow-finance-report.xlsx', 'Finance', rows);
+    this.toastService.success('Finance exported', 'Filtered finance Excel report was downloaded successfully.');
   }
 
   protected exportStockMovementsCsv(): void {
@@ -406,6 +442,26 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Stock movements exported', 'Filtered stock movements CSV report was downloaded successfully.');
   }
 
+  protected exportStockMovementsExcel(): void {
+    const rows = [
+      ['ID', 'Product', 'Product ID', 'Type', 'Quantity', 'Previous Stock', 'New Stock', 'Reason', 'Created At'],
+      ...this.filteredStockMovements.map((movement) => [
+        movement.id,
+        this.getProductName(movement.product_id),
+        movement.product_id,
+        movement.movement_type,
+        movement.quantity,
+        movement.previous_stock,
+        movement.new_stock,
+        movement.reason || '',
+        movement.created_at
+      ])
+    ];
+
+    this.downloadExcel('stockflow-stock-movements-report.xlsx', 'Stock Movements', rows);
+    this.toastService.success('Stock movements exported', 'Filtered stock movements Excel report was downloaded successfully.');
+  }
+
   private isWithinDateRange(dateValue: string): boolean {
     if (!dateValue) {
       return true;
@@ -422,6 +478,14 @@ export class ReportsComponent implements OnInit {
     }
 
     return true;
+  }
+
+  private downloadExcel(filename: string, sheetName: string, rows: Array<Array<string | number>>): void {
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    XLSX.writeFile(workbook, filename);
   }
 
   private downloadCsv(filename: string, rows: Array<Array<string | number>>): void {
@@ -444,3 +508,4 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
+
