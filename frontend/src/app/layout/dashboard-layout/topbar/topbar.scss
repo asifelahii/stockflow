@@ -49,7 +49,6 @@
   justify-content: center;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 0 0.95rem;
   background: #ffffff;
   color: #374151;
   font-size: 0.85rem;
@@ -59,15 +58,17 @@
 }
 
 .theme-toggle-button {
-  gap: 0.45rem;
+  width: 44px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.logout-button {
+  padding: 0 0.95rem;
 }
 
 .theme-icon {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.theme-text {
+  font-size: 1.05rem;
   line-height: 1;
 }
 
@@ -138,11 +139,6 @@
   .theme-toggle-button {
     width: 44px;
     min-height: 44px;
-    padding: 0;
-  }
-
-  .theme-text {
-    display: none;
   }
 
   .user-pill {
