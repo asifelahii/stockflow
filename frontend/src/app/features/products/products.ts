@@ -8,6 +8,7 @@ import { Supplier } from '../../core/models/supplier.model';
 import { CategoryService } from '../../core/services/category.service';
 import { ProductService } from '../../core/services/product.service';
 import { SupplierService } from '../../core/services/supplier.service';
+import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
@@ -55,7 +56,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
-    private readonly supplierService: SupplierService
+    private readonly supplierService: SupplierService,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -166,12 +168,14 @@ export class ProductsComponent implements OnInit {
       this.productService.updateProduct(this.editingProduct.id, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.toastService.success('Product updated', 'Product details were updated successfully.');
           this.closeForm();
           this.loadPageData();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update product.';
+          this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -193,12 +197,14 @@ export class ProductsComponent implements OnInit {
     this.productService.createProduct(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.toastService.success('Product created', 'New product was added successfully.');
         this.closeForm();
         this.loadPageData();
       },
       error: (error) => {
         this.isSubmitting = false;
         this.formError = error?.error?.detail || 'Unable to create product.';
+        this.toastService.error('Create failed', this.formError);
       }
     });
   }
@@ -212,10 +218,12 @@ export class ProductsComponent implements OnInit {
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
+        this.toastService.success('Product deactivated', `"${product.name}`" is now inactive.');
         this.loadPageData();
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to deactivate product.';
+        this.toastService.error('Deactivate failed', this.errorMessage);
       }
     });
   }
@@ -229,10 +237,12 @@ export class ProductsComponent implements OnInit {
 
     this.productService.updateProduct(product.id, { is_active: true }).subscribe({
       next: () => {
+        this.toastService.success('Product restored', `"${product.name}`" is active again.');
         this.loadPageData();
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to restore product.';
+        this.toastService.error('Restore failed', this.errorMessage);
       }
     });
   }
@@ -308,3 +318,4 @@ export class ProductsComponent implements OnInit {
     })}`;
   }
 }
+
