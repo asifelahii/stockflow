@@ -87,6 +87,7 @@
             [disabled]="isSubmitting"
           >
             <option value="">No category</option>
+
             @for (category of activeCategories; track category.id) {
               <option [value]="category.id">{{ category.name }}</option>
             }
@@ -103,6 +104,7 @@
             [disabled]="isSubmitting"
           >
             <option value="">No supplier</option>
+
             @for (supplier of activeSuppliers; track supplier.id) {
               <option [value]="supplier.id">{{ supplier.name }}</option>
             }
@@ -190,6 +192,7 @@
           <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
             {{ isSubmitting ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product' }}
           </button>
+
           <button class="btn btn-secondary" type="button" (click)="closeForm()" [disabled]="isSubmitting">
             Cancel
           </button>
@@ -200,14 +203,16 @@
 
   @if (isLoading) {
     <app-loading-state message="Loading products..." />
-  } @else if (errorMessage) {
+  }
+  @else if (errorMessage) {
     <app-empty-state
       title="Products could not be loaded"
       [message]="errorMessage"
     />
-  } @else if (filteredProducts.length > 0) {
+  }
+  @else if (filteredProducts.length > 0) {
     <section class="table-wrapper">
-      <table class="app-table">
+      <table class="app-table products-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -224,26 +229,31 @@
         <tbody>
           @for (product of filteredProducts; track product.id) {
             <tr>
-              <td><strong>{{ product.name }}</strong></td>
-              <td>{{ product.sku }}</td>
-              <td>{{ getCategoryName(product.category_id) }}</td>
-              <td>{{ getSupplierName(product.supplier_id) }}</td>
-              <td>{{ product.current_stock }}</td>
-              <td>{{ formatCurrency(product.selling_price) }}</td>
-              <td>
+              <td data-label="Name"><strong>{{ product.name }}</strong></td>
+              <td data-label="SKU">{{ product.sku }}</td>
+              <td data-label="Category">{{ getCategoryName(product.category_id) }}</td>
+              <td data-label="Supplier">{{ getSupplierName(product.supplier_id) }}</td>
+              <td data-label="Stock">{{ product.current_stock }}</td>
+              <td data-label="Selling Price">{{ formatCurrency(product.selling_price) }}</td>
+              <td data-label="Status">
                 <app-badge
                   [label]="getProductStatus(product)"
                   [tone]="getProductTone(product)"
                 />
               </td>
-              <td>
+              <td data-label="Actions">
                 <div class="table-actions">
                   <button type="button" (click)="openEditForm(product)">Edit</button>
 
                   @if (product.is_active) {
-                    <button class="danger" type="button" (click)="deactivateProduct(product)">Deactivate</button>
-                  } @else {
-                    <button class="restore" type="button" (click)="restoreProduct(product)">Restore</button>
+                    <button class="danger" type="button" (click)="deactivateProduct(product)">
+                      Deactivate
+                    </button>
+                  }
+                  @else {
+                    <button class="restore" type="button" (click)="restoreProduct(product)">
+                      Restore
+                    </button>
                   }
                 </div>
               </td>
@@ -252,7 +262,8 @@
         </tbody>
       </table>
     </section>
-  } @else {
+  }
+  @else {
     <app-empty-state
       title="No products found"
       message="Try changing the search term or status filter."
