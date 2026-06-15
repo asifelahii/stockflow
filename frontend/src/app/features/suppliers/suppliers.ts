@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { Supplier, SupplierCreate, SupplierUpdate } from '../../core/models/supplier.model';
 import { SupplierService } from '../../core/services/supplier.service';
+import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
@@ -32,7 +33,10 @@ export class SuppliersComponent implements OnInit {
   protected address = '';
   protected supplierIsActive = true;
 
-  constructor(private readonly supplierService: SupplierService) {}
+  constructor(
+    private readonly supplierService: SupplierService,
+    private readonly toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadSuppliers();
@@ -118,12 +122,14 @@ export class SuppliersComponent implements OnInit {
       this.supplierService.updateSupplier(this.editingSupplier.id, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.toastService.success('Supplier updated', 'Supplier details were updated successfully.');
           this.closeForm();
           this.loadSuppliers();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update supplier.';
+          this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -141,12 +147,14 @@ export class SuppliersComponent implements OnInit {
     this.supplierService.createSupplier(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.toastService.success('Supplier created', 'New supplier was added successfully.');
         this.closeForm();
         this.loadSuppliers();
       },
       error: (error) => {
         this.isSubmitting = false;
         this.formError = error?.error?.detail || 'Unable to create supplier.';
+        this.toastService.error('Create failed', this.formError);
       }
     });
   }
@@ -160,10 +168,12 @@ export class SuppliersComponent implements OnInit {
 
     this.supplierService.deleteSupplier(supplier.id).subscribe({
       next: () => {
+        this.toastService.success('Supplier deactivated', `${supplier.name} is now inactive.`);
         this.loadSuppliers();
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to deactivate supplier.';
+        this.toastService.error('Deactivate failed', this.errorMessage);
       }
     });
   }
@@ -177,10 +187,12 @@ export class SuppliersComponent implements OnInit {
 
     this.supplierService.updateSupplier(supplier.id, { is_active: true }).subscribe({
       next: () => {
+        this.toastService.success('Supplier restored', `${supplier.name} is active again.`);
         this.loadSuppliers();
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to restore supplier.';
+        this.toastService.error('Restore failed', this.errorMessage);
       }
     });
   }
@@ -210,3 +222,4 @@ export class SuppliersComponent implements OnInit {
     return supplier.is_active ? 'success' : 'neutral';
   }
 }
+
