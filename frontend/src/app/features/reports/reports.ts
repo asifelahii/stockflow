@@ -414,6 +414,33 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Products exported', 'Filtered products PDF report was downloaded successfully.');
   }
 
+  protected async exportProductsWord(): Promise<void> {
+    const headers = ['ID', 'Name', 'SKU', 'Stock', 'Threshold', 'Selling Price', 'Status'];
+    const rows = this.filteredProducts.map((product) => [
+      product.id,
+      product.name,
+      product.sku,
+      product.current_stock,
+      product.low_stock_threshold,
+      this.formatCurrency(product.selling_price),
+      this.getProductStatus(product)
+    ]);
+
+    await this.downloadWord(
+      'stockflow-products-report.docx',
+      'Product Inventory Report',
+      headers,
+      rows,
+      [
+        `Matched Records: ${this.filteredProducts.length}`,
+        `Status Filter: ${this.formatFilterValue(this.productStatusFilter)}`,
+        `Search: ${this.searchTerm || 'All'}`
+      ]
+    );
+
+    this.toastService.success('Products exported', 'Filtered products Word report was downloaded successfully.');
+  }
+
   protected exportTransactionsCsv(): void {
     const rows = [
       ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
@@ -475,6 +502,35 @@ export class ReportsComponent implements OnInit {
     );
 
     this.toastService.success('Finance exported', 'Filtered finance PDF report was downloaded successfully.');
+  }
+
+  protected async exportTransactionsWord(): Promise<void> {
+    const headers = ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'];
+    const rows = this.filteredTransactions.map((transaction) => [
+      transaction.id,
+      this.formatMovementType(transaction.transaction_type),
+      transaction.title,
+      this.formatCurrency(transaction.amount),
+      transaction.transaction_date,
+      transaction.description || ''
+    ]);
+
+    await this.downloadWord(
+      'stockflow-finance-report.docx',
+      'Finance Transaction Report',
+      headers,
+      rows,
+      [
+        `Matched Records: ${this.filteredTransactions.length}`,
+        `Transaction Type: ${this.formatFilterValue(this.transactionTypeFilter)}`,
+        `Date Range: ${this.formatDateRange()}`,
+        `Income: ${this.formatCurrency(this.filteredIncomeTotal)}`,
+        `Expense: ${this.formatCurrency(this.filteredExpenseTotal)}`,
+        `Net: ${this.formatCurrency(this.filteredNetBalance)}`
+      ]
+    );
+
+    this.toastService.success('Finance exported', 'Filtered finance Word report was downloaded successfully.');
   }
 
   protected exportStockMovementsCsv(): void {
@@ -549,6 +605,38 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Stock movements exported', 'Filtered stock movements PDF report was downloaded successfully.');
   }
 
+  protected async exportStockMovementsWord(): Promise<void> {
+    const headers = ['ID', 'Product', 'Type', 'Quantity', 'Previous', 'New', 'Reason', 'Created At'];
+    const rows = this.filteredStockMovements.map((movement) => [
+      movement.id,
+      this.getProductName(movement.product_id),
+      this.formatMovementType(movement.movement_type),
+      movement.quantity,
+      movement.previous_stock,
+      movement.new_stock,
+      movement.reason || '',
+      movement.created_at
+    ]);
+
+    await this.downloadWord(
+      'stockflow-stock-movements-report.docx',
+      'Stock Movement Report',
+      headers,
+      rows,
+      [
+        `Matched Records: ${this.filteredStockMovements.length}`,
+        `Product: ${this.selectedProductId ? this.getProductName(Number(this.selectedProductId)) : 'All Products'}`,
+        `Movement Type: ${this.formatFilterValue(this.movementTypeFilter)}`,
+        `Date Range: ${this.formatDateRange()}`,
+        `Total Stock In: ${this.filteredStockInTotal}`,
+        `Total Stock Out: ${this.filteredStockOutTotal}`,
+        `Adjustments: ${this.filteredAdjustmentTotal}`
+      ]
+    );
+
+    this.toastService.success('Stock movements exported', 'Filtered stock movements Word report was downloaded successfully.');
+  }
+
   private isWithinDateRange(dateValue: string): boolean {
     if (!dateValue) {
       return true;
@@ -587,6 +675,170 @@ export class ReportsComponent implements OnInit {
     return value
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  private async downloadWord(
+    filename: string,
+    reportTitle: string,
+    headers: string[],
+    rows: Array<Array<string | number>>,
+    summaryLines: string[]
+  ): Promise<void> {
+    const {
+      AlignmentType,
+      Document,
+      Footer,
+      Header,
+      Packer,
+      Paragraph,
+      Table,
+      TableCell,
+      TableRow,
+      TextRun,
+      WidthType
+    } = await import('docx');
+
+    const generatedAt = new Date().toLocaleString('en-BD');
+
+    const headerRow = new TableRow({
+      children: headers.map((header) =>
+        new TableCell({
+          shading: { fill: '2563EB' },
+          width: { size: Math.floor(100 / headers.length), type: WidthType.PERCENTAGE },
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: header,
+                  bold: true,
+                  color: 'FFFFFF',
+                  size: 18
+                })
+              ]
+            })
+          ]
+        })
+      )
+    });
+
+    const dataRows = rows.map((row) =>
+      new TableRow({
+        children: row.map((cell) =>
+          new TableCell({
+            width: { size: Math.floor(100 / headers.length), type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: String(cell ?? ''),
+                    size: 18,
+                    color: '111827'
+                  })
+                ]
+              })
+            ]
+          })
+        )
+      })
+    );
+
+    const document = new Document({
+      sections: [
+        {
+          headers: {
+            default: new Header({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: 'StockFlow',
+                      bold: true,
+                      size: 24,
+                      color: '0F172A'
+                    }),
+                    new TextRun({
+                      text: ' | Inventory & Finance Workspace',
+                      size: 18,
+                      color: '64748B'
+                    })
+                  ]
+                })
+              ]
+            })
+          },
+          footers: {
+            default: new Footer({
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: 'Generated by StockFlow | Internal Business Report',
+                      size: 16,
+                      color: '6B7280'
+                    })
+                  ]
+                })
+              ]
+            })
+          },
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: reportTitle,
+                  bold: true,
+                  size: 32,
+                  color: '111827'
+                })
+              ],
+              spacing: { after: 160 }
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Generated: ${generatedAt}`,
+                  size: 18,
+                  color: '475569'
+                })
+              ],
+              spacing: { after: 180 }
+            }),
+            ...summaryLines.map((line) =>
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: line,
+                    size: 18,
+                    color: '334155'
+                  })
+                ],
+                spacing: { after: 80 }
+              })
+            ),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: 'Report Data',
+                  bold: true,
+                  size: 24,
+                  color: '111827'
+                })
+              ],
+              spacing: { before: 180, after: 120 }
+            }),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [headerRow, ...dataRows]
+            })
+          ]
+        }
+      ]
+    });
+
+    const blob = await Packer.toBlob(document);
+    this.downloadBlob(filename, blob);
   }
 
   private async downloadPdf(
@@ -679,6 +931,17 @@ export class ReportsComponent implements OnInit {
 
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     XLSX.writeFile(workbook, filename);
+  }
+
+  private downloadBlob(filename: string, blob: Blob): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = filename;
+    link.click();
+
+    URL.revokeObjectURL(url);
   }
 
   private downloadCsv(filename: string, rows: Array<Array<string | number>>): void {

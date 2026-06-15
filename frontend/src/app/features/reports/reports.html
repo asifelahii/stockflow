@@ -221,6 +221,10 @@
             <button class="btn btn-secondary" type="button" (click)="exportProductsPdf()">
               Export Product PDF
             </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportProductsWord()">
+              Export Product Word
+            </button>
           }
 
           @if (selectedReportType === 'finance') {
@@ -235,6 +239,10 @@
             <button class="btn btn-secondary" type="button" (click)="exportTransactionsPdf()">
               Export Finance PDF
             </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportTransactionsWord()">
+              Export Finance Word
+            </button>
           }
 
           @if (selectedReportType === 'stock') {
@@ -248,6 +256,10 @@
 
             <button class="btn btn-secondary" type="button" (click)="exportStockMovementsPdf()">
               Export Stock PDF
+            </button>
+
+            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsWord()">
+              Export Stock Word
             </button>
           }
         </div>
