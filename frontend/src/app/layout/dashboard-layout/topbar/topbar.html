@@ -14,7 +14,15 @@
         title="Quick Add"
         (click)="toggleQuickActions()"
       >
-        <span class="quick-action-plus" aria-hidden="true">+</span>
+        <span class="quick-action-plus" aria-hidden="true">
+          <i-lucide
+            class="quick-action-plus-icon"
+            [img]="plusIcon"
+            [size]="16"
+            [strokeWidth]="2.8"
+          />
+        </span>
+
         <span class="quick-action-label">Quick Add</span>
       </button>
 
@@ -32,7 +40,15 @@
               [routerLink]="action.route"
               (click)="closeQuickActions()"
             >
-              <span class="quick-action-icon">{{ action.icon }}</span>
+              <span class="quick-action-icon" aria-hidden="true">
+                <i-lucide
+                  class="quick-action-icon-svg"
+                  [img]="action.icon"
+                  [size]="18"
+                  [strokeWidth]="2.25"
+                />
+              </span>
+
               <span>
                 <strong>{{ action.label }}</strong>
                 <small>{{ action.description }}</small>
@@ -50,11 +66,19 @@
       [title]="themeToggleLabel"
       (click)="toggleTheme()"
     >
-      <span class="theme-icon" aria-hidden="true">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+      <span class="theme-icon" aria-hidden="true">
+        <i-lucide
+          class="theme-icon-svg"
+          [img]="isDarkMode ? sunIcon : moonIcon"
+          [size]="18"
+          [strokeWidth]="2.35"
+        />
+      </span>
     </button>
 
     <div class="user-pill">
       <span class="user-avatar">{{ userInitial }}</span>
+
       <div>
         <p>{{ currentUser?.full_name || 'User' }}</p>
         <small>{{ currentUser?.role || 'Staff' }}</small>

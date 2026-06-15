@@ -1,5 +1,17 @@
 ﻿import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import {
+  ArrowDown,
+  ArrowUp,
+  DollarSign,
+  LucideAngularModule,
+  Moon,
+  Package,
+  Plus,
+  Receipt,
+  Sun,
+  Truck
+} from 'lucide-angular';
 
 import { UserResponse } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,12 +21,12 @@ interface QuickAction {
   label: string;
   description: string;
   route: string;
-  icon: string;
+  icon: any;
 }
 
 @Component({
   selector: 'app-topbar',
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss'
 })
@@ -23,42 +35,46 @@ export class TopbarComponent implements OnInit {
   protected isDarkMode = false;
   protected isQuickActionsOpen = false;
 
+  protected readonly plusIcon = Plus;
+  protected readonly moonIcon = Moon;
+  protected readonly sunIcon = Sun;
+
   protected readonly quickActions: QuickAction[] = [
     {
       label: 'Add Product',
       description: 'Create or manage inventory items',
       route: '/app/products',
-      icon: '+P'
+      icon: Package
     },
     {
       label: 'Stock In',
       description: 'Record incoming stock',
       route: '/app/stock/in',
-      icon: 'IN'
+      icon: ArrowDown
     },
     {
       label: 'Stock Out',
       description: 'Record outgoing stock',
       route: '/app/stock/out',
-      icon: 'OUT'
+      icon: ArrowUp
     },
     {
       label: 'Add Income',
       description: 'Track new business income',
       route: '/app/finance/income',
-      icon: '+৳'
+      icon: DollarSign
     },
     {
       label: 'Add Expense',
       description: 'Record business expenses',
       route: '/app/finance/expenses',
-      icon: '-৳'
+      icon: Receipt
     },
     {
       label: 'Add Supplier',
       description: 'Manage supplier records',
       route: '/app/suppliers',
-      icon: '+S'
+      icon: Truck
     }
   ];
 

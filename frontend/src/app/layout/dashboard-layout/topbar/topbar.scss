@@ -339,3 +339,13 @@
     flex: 1;
   }
 }
+.quick-action-plus-icon,
+.quick-action-icon-svg,
+.theme-icon-svg {
+  display: block;
+}
+
+.theme-icon {
+  display: grid;
+  place-items: center;
+}

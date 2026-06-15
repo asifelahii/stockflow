@@ -16,7 +16,13 @@
       [title]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
       (click)="toggleCollapse()"
     >
-      <span aria-hidden="true">{{ collapsed ? '›' : '‹' }}</span>
+      <i-lucide
+        class="sidebar-collapse-icon"
+        [img]="collapsed ? expandIcon : collapseIcon"
+        [size]="18"
+        [strokeWidth]="2.4"
+        aria-hidden="true"
+      />
     </button>
   </div>
 
@@ -34,7 +40,15 @@
               [routerLinkActiveOptions]="{ exact: true }"
               [title]="collapsed ? link.label : ''"
             >
-              <span class="nav-link-icon" aria-hidden="true">{{ link.icon }}</span>
+              <span class="nav-link-icon" aria-hidden="true">
+                <i-lucide
+                  class="nav-link-icon-svg"
+                  [img]="link.icon"
+                  [size]="18"
+                  [strokeWidth]="2.25"
+                />
+              </span>
+
               <span class="nav-link-label">{{ link.label }}</span>
             </a>
           }
