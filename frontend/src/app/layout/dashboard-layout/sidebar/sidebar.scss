@@ -22,15 +22,22 @@
 }
 
 .brand-mark {
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border-radius: 14px;
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 800;
+  border-radius: 16px;
+  background: #f8fafc;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+  overflow: hidden;
+}
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
 }
 
 .sidebar-brand h1 {
@@ -129,6 +136,17 @@
 
   .sidebar-brand {
     min-height: 72px;
+  }
+
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
   }
 
   .sidebar-nav {
