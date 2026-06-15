@@ -11,13 +11,20 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 
 @Component({
   selector: 'app-expense-categories',
-  imports: [BadgeComponent, EmptyStateComponent, FormsModule, LoadingStateComponent, PageHeaderComponent],
+  imports: [
+    BadgeComponent,
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    PageHeaderComponent
+  ],
   templateUrl: './expense-categories.html',
   styleUrl: './expense-categories.scss'
 })
 export class ExpenseCategoriesComponent implements OnInit {
   protected searchTerm = '';
   protected categories: ExpenseCategory[] = [];
+
   protected isLoading = false;
   protected isSubmitting = false;
   protected errorMessage = '';
@@ -25,14 +32,15 @@ export class ExpenseCategoriesComponent implements OnInit {
 
   protected isFormOpen = false;
   protected editingCategory: ExpenseCategory | null = null;
+
   protected categoryName = '';
   protected categoryDescription = '';
   protected categoryIsActive = true;
 
   constructor(
-  private readonly categoryService: CategoryService,
-  private readonly toastService: ToastService
-) {}
+    private readonly categoryService: CategoryService,
+    private readonly toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -102,13 +110,14 @@ export class ExpenseCategoriesComponent implements OnInit {
       this.categoryService.updateExpenseCategory(this.editingCategory.id, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.toastService.success('Expense category updated', 'Expense category was updated successfully.');
           this.closeForm();
           this.loadCategories();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update expense category.';
-        this.toastService.error('Update failed', this.formError);
+          this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -123,6 +132,7 @@ export class ExpenseCategoriesComponent implements OnInit {
     this.categoryService.createExpenseCategory(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.toastService.success('Expense category created', 'New expense category was added successfully.');
         this.closeForm();
         this.loadCategories();
       },
@@ -143,6 +153,7 @@ export class ExpenseCategoriesComponent implements OnInit {
 
     this.categoryService.deleteExpenseCategory(category.id).subscribe({
       next: () => {
+        this.toastService.success('Expense category deactivated', `${category.name} is now inactive.`);
         this.loadCategories();
       },
       error: (error) => {
@@ -161,6 +172,7 @@ export class ExpenseCategoriesComponent implements OnInit {
 
     this.categoryService.updateExpenseCategory(category.id, { is_active: true }).subscribe({
       next: () => {
+        this.toastService.success('Expense category restored', `${category.name} is active again.`);
         this.loadCategories();
       },
       error: (error) => {
@@ -192,4 +204,3 @@ export class ExpenseCategoriesComponent implements OnInit {
     return category.is_active ? 'success' : 'neutral';
   }
 }
-

@@ -11,13 +11,20 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 
 @Component({
   selector: 'app-product-categories',
-  imports: [BadgeComponent, EmptyStateComponent, FormsModule, LoadingStateComponent, PageHeaderComponent],
+  imports: [
+    BadgeComponent,
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    PageHeaderComponent
+  ],
   templateUrl: './product-categories.html',
   styleUrl: './product-categories.scss'
 })
 export class ProductCategoriesComponent implements OnInit {
   protected searchTerm = '';
   protected categories: ProductCategory[] = [];
+
   protected isLoading = false;
   protected isSubmitting = false;
   protected errorMessage = '';
@@ -26,14 +33,15 @@ export class ProductCategoriesComponent implements OnInit {
 
   protected isFormOpen = false;
   protected editingCategory: ProductCategory | null = null;
+
   protected categoryName = '';
   protected categoryDescription = '';
   protected categoryIsActive = true;
 
   constructor(
-  private readonly categoryService: CategoryService,
-  private readonly toastService: ToastService
-) {}
+    private readonly categoryService: CategoryService,
+    private readonly toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -108,14 +116,14 @@ export class ProductCategoriesComponent implements OnInit {
         next: () => {
           this.isSubmitting = false;
           this.formMessage = 'Category updated successfully.';
-        this.toastService.success('Category updated', 'Product category was updated successfully.');
+          this.toastService.success('Category updated', 'Product category was updated successfully.');
           this.closeForm();
           this.loadCategories();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update category.';
-        this.toastService.error('Update failed', this.formError);
+          this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -152,6 +160,7 @@ export class ProductCategoriesComponent implements OnInit {
 
     this.categoryService.deleteProductCategory(category.id).subscribe({
       next: () => {
+        this.toastService.success('Category deactivated', `${category.name} is now inactive.`);
         this.loadCategories();
       },
       error: (error) => {
@@ -170,6 +179,7 @@ export class ProductCategoriesComponent implements OnInit {
 
     this.categoryService.updateProductCategory(category.id, { is_active: true }).subscribe({
       next: () => {
+        this.toastService.success('Category restored', `${category.name} is active again.`);
         this.loadCategories();
       },
       error: (error) => {
@@ -201,5 +211,3 @@ export class ProductCategoriesComponent implements OnInit {
     return category.is_active ? 'success' : 'neutral';
   }
 }
-
-
