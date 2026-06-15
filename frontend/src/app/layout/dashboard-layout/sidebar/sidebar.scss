@@ -55,6 +55,8 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.25rem;
+  padding-bottom: 0.75rem;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.55) transparent;
 }
@@ -116,12 +118,12 @@
 
 @media (max-width: 900px) {
   :host {
-    height: auto;
+    height: 100%;
   }
 
   .sidebar {
-    height: auto;
-    max-height: calc(42vh - 2rem);
+    height: 100%;
+    max-height: none;
     gap: 0.9rem;
   }
 
@@ -130,7 +132,9 @@
   }
 
   .sidebar-nav {
-    max-height: calc(42vh - 88px);
+    flex: 1 1 auto;
+    max-height: none;
+    padding-bottom: 1.25rem;
   }
 
   .nav-link {
