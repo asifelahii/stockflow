@@ -387,6 +387,33 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Products exported', 'Filtered products Excel report was downloaded successfully.');
   }
 
+  protected async exportProductsPdf(): Promise<void> {
+    const headers = ['ID', 'Name', 'SKU', 'Stock', 'Threshold', 'Selling Price', 'Status'];
+    const rows = this.filteredProducts.map((product) => [
+      product.id,
+      product.name,
+      product.sku,
+      product.current_stock,
+      product.low_stock_threshold,
+      this.formatCurrency(product.selling_price),
+      this.getProductStatus(product)
+    ]);
+
+    await this.downloadPdf(
+      'stockflow-products-report.pdf',
+      'Product Inventory Report',
+      headers,
+      rows,
+      [
+        Matched Records: ,
+        Status Filter: ,
+        Search: 
+      ]
+    );
+
+    this.toastService.success('Products exported', 'Filtered products PDF report was downloaded successfully.');
+  }
+
   protected exportTransactionsCsv(): void {
     const rows = [
       ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'],
@@ -419,6 +446,35 @@ export class ReportsComponent implements OnInit {
 
     await this.downloadExcel('stockflow-finance-report.xlsx', 'Finance', rows);
     this.toastService.success('Finance exported', 'Filtered finance Excel report was downloaded successfully.');
+  }
+
+  protected async exportTransactionsPdf(): Promise<void> {
+    const headers = ['ID', 'Type', 'Title', 'Amount', 'Date', 'Description'];
+    const rows = this.filteredTransactions.map((transaction) => [
+      transaction.id,
+      this.formatMovementType(transaction.transaction_type),
+      transaction.title,
+      this.formatCurrency(transaction.amount),
+      transaction.transaction_date,
+      transaction.description || ''
+    ]);
+
+    await this.downloadPdf(
+      'stockflow-finance-report.pdf',
+      'Finance Transaction Report',
+      headers,
+      rows,
+      [
+        Matched Records: ,
+        Transaction Type: ,
+        Date Range: ,
+        Income: ,
+        Expense: ,
+        Net: 
+      ]
+    );
+
+    this.toastService.success('Finance exported', 'Filtered finance PDF report was downloaded successfully.');
   }
 
   protected exportStockMovementsCsv(): void {
@@ -461,6 +517,38 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Stock movements exported', 'Filtered stock movements Excel report was downloaded successfully.');
   }
 
+  protected async exportStockMovementsPdf(): Promise<void> {
+    const headers = ['ID', 'Product', 'Type', 'Quantity', 'Previous', 'New', 'Reason', 'Created At'];
+    const rows = this.filteredStockMovements.map((movement) => [
+      movement.id,
+      this.getProductName(movement.product_id),
+      this.formatMovementType(movement.movement_type),
+      movement.quantity,
+      movement.previous_stock,
+      movement.new_stock,
+      movement.reason || '',
+      movement.created_at
+    ]);
+
+    await this.downloadPdf(
+      'stockflow-stock-movements-report.pdf',
+      'Stock Movement Report',
+      headers,
+      rows,
+      [
+        Matched Records: ,
+        Product: ,
+        Movement Type: ,
+        Date Range: ,
+        Total Stock In: ,
+        Total Stock Out: ,
+        Adjustments: 
+      ]
+    );
+
+    this.toastService.success('Stock movements exported', 'Filtered stock movements PDF report was downloaded successfully.');
+  }
+
   private isWithinDateRange(dateValue: string): boolean {
     if (!dateValue) {
       return true;
@@ -477,6 +565,111 @@ export class ReportsComponent implements OnInit {
     }
 
     return true;
+  }
+
+  private formatDateRange(): string {
+    if (this.dateFrom && this.dateTo) {
+      return ${this.dateFrom} to ;
+    }
+
+    if (this.dateFrom) {
+      return From ;
+    }
+
+    if (this.dateTo) {
+      return Until ;
+    }
+
+    return 'All Time';
+  }
+
+  private formatFilterValue(value: string): string {
+    return value
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  private async downloadPdf(
+    filename: string,
+    reportTitle: string,
+    headers: string[],
+    rows: Array<Array<string | number>>,
+    summaryLines: string[]
+  ): Promise<void> {
+    const jsPdfModule = await import('jspdf');
+    const autoTableModule = await import('jspdf-autotable');
+
+    const doc = new jsPdfModule.jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const generatedAt = new Date().toLocaleString('en-BD');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('StockFlow', 14, 12);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Inventory & Finance Workspace', 14, 19);
+
+    doc.setFontSize(10);
+    doc.text(Generated: , pageWidth - 14, 12, { align: 'right' });
+
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(15);
+    doc.setFont('helvetica', 'bold');
+    doc.text(reportTitle, 14, 39);
+
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+
+    let summaryY = 47;
+    summaryLines.forEach((line) => {
+      doc.text(line, 14, summaryY);
+      summaryY += 5;
+    });
+
+    autoTableModule.default(doc, {
+      head: [headers],
+      body: rows,
+      startY: summaryY + 3,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2.5,
+        overflow: 'linebreak'
+      },
+      headStyles: {
+        fillColor: [37, 99, 235],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252]
+      },
+      margin: {
+        left: 14,
+        right: 14
+      },
+      didDrawPage: () => {
+        const currentPage = doc.getNumberOfPages();
+
+        doc.setFontSize(8);
+        doc.setTextColor(107, 114, 128);
+        doc.text('Generated by StockFlow | Internal Business Report', 14, pageHeight - 10);
+        doc.text(Page , pageWidth - 14, pageHeight - 10, { align: 'right' });
+      }
+    });
+
+    doc.save(filename);
   }
 
   private async downloadExcel(filename: string, sheetName: string, rows: Array<Array<string | number>>): Promise<void> {
@@ -508,5 +701,6 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
+
 
 
