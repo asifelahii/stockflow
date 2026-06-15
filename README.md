@@ -31,6 +31,14 @@ Completed major modules:
 - Reports dashboard
 - CSV export for products, finance records, and stock movements
 - Global UI polish
+- Responsive dashboard layout
+- Brand logo and favicon integration
+- Light and dark theme toggle
+- Collapsible sidebar
+- Quick actions menu
+- Lucide icon system
+- Global toast notification system
+- Toast feedback for CRUD, stock, finance, category, supplier, product, and report export workflows
 - Manual build verification
 
 ---
@@ -89,6 +97,16 @@ Completed major modules:
 - Finance transaction filtering
 - Financial summary with income, expense, and net balance
 
+### UI and User Experience
+
+- Responsive dashboard layout
+- Brand-based sidebar and auth layout
+- Light and dark theme support
+- Collapsible sidebar navigation
+- Quick actions menu
+- Lucide icon-based visual system
+- Global toast notifications for success and error feedback
+
 ### Reports
 
 - Summary report cards
@@ -98,6 +116,7 @@ Completed major modules:
 - Export products CSV
 - Export finance CSV
 - Export stock movements CSV
+- Toast confirmation after report export
 
 ---
 
@@ -106,7 +125,9 @@ Completed major modules:
 | Layer | Technology |
 | --- | --- |
 | Frontend | Angular, TypeScript |
-| Styling | SCSS |
+| Styling | SCSS, responsive custom UI |
+| Icons | Lucide Angular |
+| UI Feedback | Global toast notifications |
 | Backend | FastAPI |
 | Backend Language | Python |
 | Database | PostgreSQL |
@@ -318,6 +339,11 @@ The project has been manually tested for:
 - Expense CRUD
 - Reports dashboard
 - CSV exports
+- Light/dark theme toggle
+- Collapsible sidebar
+- Quick actions menu
+- Toast feedback for major CRUD and action workflows
+- Reports export toast feedback
 - Frontend production build
 
 Build command:
@@ -342,7 +368,10 @@ Screenshots can be added in the `screenshots/` folder.
 Recommended screenshots:
 
 - Login page
-- Dashboard
+- Dashboard dashboard
+- Collapsible sidebar
+- Quick actions menu
+- Toast notification examples
 - Products page
 - Product form
 - Suppliers page
@@ -381,7 +410,6 @@ Recommended next improvements:
 - Product-name mapping in stock movement views
 - Date-range filters in reports
 - Dashboard charts
-- Dark mode
 - Automated tests
 - Production deployment with hosted database
 
@@ -430,6 +458,9 @@ This project demonstrates:
 - CRUD workflow implementation
 - Stock and finance business logic
 - CSV export
+- Global toast notification UX
+- Responsive dashboard UI polish
+- Light/dark theme implementation
 - Clean Git workflow
 - Professional project documentation
 
@@ -440,3 +471,4 @@ This project demonstrates:
 Asif Elahi
 
 This project is part of my professional portfolio development journey.
+
