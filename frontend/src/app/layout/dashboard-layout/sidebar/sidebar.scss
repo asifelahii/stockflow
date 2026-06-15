@@ -312,3 +312,12 @@
     padding: 0.55rem 0.65rem;
   }
 }
+.nav-link-icon-svg,
+.sidebar-collapse-icon {
+  display: block;
+}
+
+.sidebar.collapsed .nav-link-icon-svg {
+  width: 20px;
+  height: 20px;
+}
