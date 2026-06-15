@@ -59,7 +59,7 @@
           <p>Select a report type, apply filters, preview the data, and export the filtered result.</p>
         </div>
 
-        <app-badge label="ERP Style" tone="info" />
+        <app-badge label="Multi-format Export" tone="info" />
       </div>
 
       <div class="filter-grid">
@@ -190,12 +190,12 @@
         @if (selectedReportType === 'products') {
           <div class="mini-summary-card success">
             <p>Active Products</p>
-            <strong>{{ filteredProducts.length - inactiveProducts.length }}</strong>
+            <strong>{{ filteredActiveProductCount }}</strong>
           </div>
 
           <div class="mini-summary-card warning">
             <p>Low Stock</p>
-            <strong>{{ lowStockProducts.length }}</strong>
+            <strong>{{ filteredLowStockProductCount }}</strong>
           </div>
         }
       </div>
@@ -210,56 +210,68 @@
 
         <div class="export-buttons">
           @if (selectedReportType === 'products') {
-            <button class="btn btn-secondary" type="button" (click)="exportProductsCsv()">
-              Export Product CSV
+            <button class="export-btn export-btn-csv" type="button" (click)="exportProductsCsv()">
+              <span>CSV</span>
+              <small>Raw data</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportProductsExcel()">
-              Export Product Excel
+            <button class="export-btn export-btn-excel" type="button" (click)="exportProductsExcel()">
+              <span>Excel</span>
+              <small>Workbook</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportProductsPdf()">
-              Export Product PDF
+            <button class="export-btn export-btn-pdf" type="button" (click)="exportProductsPdf()">
+              <span>PDF</span>
+              <small>Formatted</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportProductsWord()">
-              Export Product Word
+            <button class="export-btn export-btn-word" type="button" (click)="exportProductsWord()">
+              <span>Word</span>
+              <small>Editable</small>
             </button>
           }
 
           @if (selectedReportType === 'finance') {
-            <button class="btn btn-secondary" type="button" (click)="exportTransactionsCsv()">
-              Export Finance CSV
+            <button class="export-btn export-btn-csv" type="button" (click)="exportTransactionsCsv()">
+              <span>CSV</span>
+              <small>Raw data</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportTransactionsExcel()">
-              Export Finance Excel
+            <button class="export-btn export-btn-excel" type="button" (click)="exportTransactionsExcel()">
+              <span>Excel</span>
+              <small>Workbook</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportTransactionsPdf()">
-              Export Finance PDF
+            <button class="export-btn export-btn-pdf" type="button" (click)="exportTransactionsPdf()">
+              <span>PDF</span>
+              <small>Formatted</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportTransactionsWord()">
-              Export Finance Word
+            <button class="export-btn export-btn-word" type="button" (click)="exportTransactionsWord()">
+              <span>Word</span>
+              <small>Editable</small>
             </button>
           }
 
           @if (selectedReportType === 'stock') {
-            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsCsv()">
-              Export Stock CSV
+            <button class="export-btn export-btn-csv" type="button" (click)="exportStockMovementsCsv()">
+              <span>CSV</span>
+              <small>Raw data</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsExcel()">
-              Export Stock Excel
+            <button class="export-btn export-btn-excel" type="button" (click)="exportStockMovementsExcel()">
+              <span>Excel</span>
+              <small>Workbook</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsPdf()">
-              Export Stock PDF
+            <button class="export-btn export-btn-pdf" type="button" (click)="exportStockMovementsPdf()">
+              <span>PDF</span>
+              <small>Formatted</small>
             </button>
 
-            <button class="btn btn-secondary" type="button" (click)="exportStockMovementsWord()">
-              Export Stock Word
+            <button class="export-btn export-btn-word" type="button" (click)="exportStockMovementsWord()">
+              <span>Word</span>
+              <small>Editable</small>
             </button>
           }
         </div>

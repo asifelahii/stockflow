@@ -262,6 +262,16 @@ export class ReportsComponent implements OnInit {
     return this.filteredIncomeTotal - this.filteredExpenseTotal;
   }
 
+  protected get filteredActiveProductCount(): number {
+    return this.filteredProducts.filter((product) => product.is_active).length;
+  }
+
+  protected get filteredLowStockProductCount(): number {
+    return this.filteredProducts.filter((product) => {
+      return product.is_active && product.current_stock <= product.low_stock_threshold;
+    }).length;
+  }
+
   protected get filteredStockInTotal(): number {
     return this.filteredStockMovements
       .filter((movement) => movement.movement_type === 'stock_in')
