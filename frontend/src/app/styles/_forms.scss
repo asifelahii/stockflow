@@ -13,16 +13,26 @@
 
 .form-control {
   width: 100%;
+  min-height: 44px;
+  display: block;
   border: 1px solid #d1d5db;
   border-radius: 12px;
-  padding: 0.78rem 0.9rem;
+  padding: 0 0.9rem;
   background: #ffffff;
   color: #111827;
+  line-height: 1.2;
   outline: none;
   transition:
     border-color 0.18s ease,
     box-shadow 0.18s ease,
     background 0.18s ease;
+}
+
+textarea.form-control {
+  min-height: 96px;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  resize: vertical;
 }
 
 .form-control::placeholder {
