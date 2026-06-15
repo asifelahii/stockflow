@@ -1,4 +1,13 @@
 ﻿import { Component, OnInit } from '@angular/core';
+import {
+  AlertTriangle,
+  Briefcase,
+  LucideAngularModule,
+  Package,
+  TrendingDown,
+  TrendingUp,
+  Truck
+} from 'lucide-angular';
 
 import {
   DashboardRecentActivity,
@@ -13,7 +22,7 @@ import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [BadgeComponent, PageHeaderComponent, StatCardComponent],
+  imports: [BadgeComponent, PageHeaderComponent, StatCardComponent, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -23,22 +32,17 @@ export class DashboardComponent implements OnInit {
   protected isLoading = false;
   protected errorMessage = '';
 
+  protected readonly productsIcon = Package;
+  protected readonly lowStockIcon = AlertTriangle;
+  protected readonly suppliersIcon = Truck;
+  protected readonly incomeIcon = TrendingUp;
+  protected readonly expenseIcon = TrendingDown;
+  protected readonly balanceIcon = Briefcase;
+
   protected readonly lowStockAlertProducts = [
-    {
-      name: 'USB Keyboard',
-      stock: 4,
-      threshold: 10
-    },
-    {
-      name: 'HDMI Cable',
-      stock: 7,
-      threshold: 15
-    },
-    {
-      name: 'Laptop Stand',
-      stock: 3,
-      threshold: 8
-    }
+    { name: 'USB Keyboard', stock: 4, threshold: 10 },
+    { name: 'HDMI Cable', stock: 7, threshold: 15 },
+    { name: 'Laptop Stand', stock: 3, threshold: 8 }
   ];
 
   constructor(private readonly dashboardService: DashboardService) {}

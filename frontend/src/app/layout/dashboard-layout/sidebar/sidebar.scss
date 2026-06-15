@@ -321,3 +321,12 @@
   width: 20px;
   height: 20px;
 }
+.nav-link-icon-svg,
+.sidebar-collapse-icon {
+  display: block;
+}
+
+.sidebar.collapsed .nav-link-icon-svg {
+  width: 20px;
+  height: 20px;
+}

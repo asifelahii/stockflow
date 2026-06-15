@@ -349,3 +349,13 @@
   display: grid;
   place-items: center;
 }
+.quick-action-plus-icon,
+.quick-action-icon-svg,
+.theme-icon-svg {
+  display: block;
+}
+
+.theme-icon {
+  display: grid;
+  place-items: center;
+}
