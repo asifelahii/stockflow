@@ -5,6 +5,44 @@
   </div>
 
   <div class="topbar-actions">
+    <div class="quick-actions" [class.open]="isQuickActionsOpen">
+      <button
+        class="quick-action-trigger"
+        type="button"
+        aria-haspopup="menu"
+        [attr.aria-expanded]="isQuickActionsOpen"
+        title="Quick Add"
+        (click)="toggleQuickActions()"
+      >
+        <span class="quick-action-plus" aria-hidden="true">+</span>
+        <span class="quick-action-label">Quick Add</span>
+      </button>
+
+      @if (isQuickActionsOpen) {
+        <div class="quick-actions-menu" role="menu">
+          <div class="quick-actions-header">
+            <p>Quick Add</p>
+            <small>Create records faster</small>
+          </div>
+
+          @for (action of quickActions; track action.route) {
+            <a
+              class="quick-action-item"
+              role="menuitem"
+              [routerLink]="action.route"
+              (click)="closeQuickActions()"
+            >
+              <span class="quick-action-icon">{{ action.icon }}</span>
+              <span>
+                <strong>{{ action.label }}</strong>
+                <small>{{ action.description }}</small>
+              </span>
+            </a>
+          }
+        </div>
+      }
+    </div>
+
     <button
       class="theme-toggle-button"
       type="button"
