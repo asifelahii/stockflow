@@ -11,7 +11,8 @@
   justify-content: center;
   padding: 3rem;
   background:
-    linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 64, 175, 0.92)),
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 22rem),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 64, 175, 0.94)),
     #0f172a;
   color: #f8fafc;
 }
@@ -21,23 +22,31 @@
 }
 
 .brand-logo {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   display: grid;
   place-items: center;
-  border-radius: 16px;
-  background: #2563eb;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 1.2rem;
+  border-radius: 20px;
+  background: #f8fafc;
+  box-shadow:
+    0 20px 45px rgba(37, 99, 235, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.16);
   margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.brand-logo-image {
+  width: 58px;
+  height: 58px;
+  display: block;
+  object-fit: contain;
 }
 
 .eyebrow {
   margin: 0 0 0.75rem;
   color: #bfdbfe;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
