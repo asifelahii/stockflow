@@ -1,4 +1,4 @@
-﻿# StockFlow
+# StockFlow
 
 ## Inventory and Business Expense Management System
 
@@ -29,7 +29,8 @@ Completed major modules:
 - Income CRUD
 - Expense CRUD
 - Reports dashboard
-- CSV export for products, finance records, and stock movements
+- Advanced report builder with filtered product, finance, and stock movement reports
+- Multi-format report export: CSV, Excel, PDF, and Word
 - Global UI polish
 - Responsive dashboard layout
 - Brand logo and favicon integration
@@ -110,12 +111,18 @@ Completed major modules:
 ### Reports
 
 - Summary report cards
-- Low-stock report
-- Recent finance records
-- Recent stock activity
-- Export products CSV
-- Export finance CSV
-- Export stock movements CSV
+- Advanced report builder with report type selection
+- Filtered product inventory reports
+- Filtered finance transaction reports
+- Filtered stock movement reports
+- Product status, transaction type, movement type, product, search, and date-range filters
+- Live report preview table
+- Filtered summary metrics
+- Export products, finance records, and stock movements as CSV
+- Export filtered reports as Excel files
+- Export branded PDF reports with title, generated date, filters, summary, table, and footer
+- Export branded Word reports with header, summary, table, and footer
+- Lazy-loaded export libraries for better frontend performance
 - Toast confirmation after report export
 
 ---
@@ -339,6 +346,10 @@ The project has been manually tested for:
 - Expense CRUD
 - Reports dashboard
 - CSV exports
+- Excel report exports
+- Branded PDF report exports
+- Branded Word report exports
+- Advanced report filters and preview
 - Light/dark theme toggle
 - Collapsible sidebar
 - Quick actions menu
@@ -380,7 +391,8 @@ Recommended screenshots:
 - Income page
 - Expenses page
 - Reports page
-- CSV export evidence
+- Advanced report builder filters
+- CSV, Excel, PDF, and Word export evidence
 
 ---
 
@@ -408,7 +420,6 @@ Recommended next improvements:
 - User profile page
 - Finance transaction void/cancel workflow
 - Product-name mapping in stock movement views
-- Date-range filters in reports
 - Dashboard charts
 - Automated tests
 - Production deployment with hosted database
@@ -457,7 +468,8 @@ This project demonstrates:
 - Protected frontend routing
 - CRUD workflow implementation
 - Stock and finance business logic
-- CSV export
+- CSV, Excel, PDF, and Word report export
+- Advanced report filtering and preview workflow
 - Global toast notification UX
 - Responsive dashboard UI polish
 - Light/dark theme implementation
