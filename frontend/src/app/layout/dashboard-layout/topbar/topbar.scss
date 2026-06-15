@@ -177,3 +177,37 @@
     flex: 1;
   }
 }
+
+:host-context(.dark-theme) .topbar-kicker {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .topbar h2 {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .theme-toggle-button,
+:host-context(.dark-theme) .logout-button,
+:host-context(.dark-theme) .user-pill {
+  background: #111827;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
+:host-context(.dark-theme) .theme-toggle-button:hover,
+:host-context(.dark-theme) .logout-button:hover {
+  background: #1e293b;
+}
+
+:host-context(.dark-theme) .user-avatar {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+:host-context(.dark-theme) .user-pill p {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .user-pill small {
+  color: #94a3b8;
+}

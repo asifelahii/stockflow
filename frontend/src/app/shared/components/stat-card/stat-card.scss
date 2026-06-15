@@ -45,3 +45,18 @@
   color: #6b7280;
   font-size: 0.82rem;
 }
+
+:host-context(.dark-theme) .stat-card {
+  background: #0f172a;
+  border-color: #1f2937;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+}
+
+:host-context(.dark-theme) .stat-label,
+:host-context(.dark-theme) .stat-hint {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .stat-card h3 {
+  color: #f8fafc;
+}

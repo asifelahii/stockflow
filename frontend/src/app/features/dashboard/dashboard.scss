@@ -179,3 +179,63 @@
   color: #6b7280;
   font-size: 0.9rem;
 }
+
+:host-context(.dark-theme) .dashboard-panel {
+  background: #0f172a;
+  border-color: #1f2937;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24);
+}
+
+:host-context(.dark-theme) .panel-header h2,
+:host-context(.dark-theme) .activity-item h3,
+:host-context(.dark-theme) .low-stock-item h3,
+:host-context(.dark-theme) .activity-meta strong {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .panel-header p,
+:host-context(.dark-theme) .activity-item p,
+:host-context(.dark-theme) .low-stock-item p,
+:host-context(.dark-theme) .panel-empty-text {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .activity-item,
+:host-context(.dark-theme) .panel-empty-text {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+:host-context(.dark-theme) .low-stock-item {
+  background: rgba(120, 53, 15, 0.18);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+:host-context(.dark-theme) .low-stock-item strong {
+  color: #fbbf24;
+}
+
+:host-context(.dark-theme) .icon-primary {
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
+}
+
+:host-context(.dark-theme) .icon-success {
+  background: rgba(22, 163, 74, 0.18);
+  color: #86efac;
+}
+
+:host-context(.dark-theme) .icon-danger {
+  background: rgba(220, 38, 38, 0.18);
+  color: #fca5a5;
+}
+
+:host-context(.dark-theme) .icon-warning {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+:host-context(.dark-theme) .icon-neutral {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+}
