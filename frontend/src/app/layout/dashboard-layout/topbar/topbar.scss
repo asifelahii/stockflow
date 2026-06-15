@@ -41,6 +41,41 @@
   flex: 0 0 auto;
 }
 
+.theme-toggle-button,
+.logout-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 0.95rem;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.theme-toggle-button {
+  gap: 0.45rem;
+}
+
+.theme-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.theme-text {
+  line-height: 1;
+}
+
+.theme-toggle-button:hover,
+.logout-button:hover {
+  background: #f9fafb;
+}
+
 .user-pill {
   min-height: 44px;
   display: flex;
@@ -82,26 +117,6 @@
   text-transform: capitalize;
 }
 
-.logout-button {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0 0.95rem;
-  background: #ffffff;
-  color: #374151;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.logout-button:hover {
-  background: #f9fafb;
-}
-
 @media (max-width: 700px) {
   .topbar {
     min-height: 64px;
@@ -118,6 +133,16 @@
 
   .topbar-actions {
     gap: 0.5rem;
+  }
+
+  .theme-toggle-button {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .theme-text {
+    display: none;
   }
 
   .user-pill {

@@ -5,6 +5,17 @@
   </div>
 
   <div class="topbar-actions">
+    <button
+      class="theme-toggle-button"
+      type="button"
+      [attr.aria-label]="themeToggleLabel"
+      [title]="themeToggleLabel"
+      (click)="toggleTheme()"
+    >
+      <span class="theme-icon">{{ isDarkMode ? '☀️' : '🌙' }}</span>
+      <span class="theme-text">{{ isDarkMode ? 'Light' : 'Dark' }}</span>
+    </button>
+
     <div class="user-pill">
       <span class="user-avatar">{{ userInitial }}</span>
       <div>

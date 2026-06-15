@@ -2,6 +2,28 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: light;
+  --sf-page-bg: #f8fafc;
+  --sf-surface: #ffffff;
+  --sf-surface-soft: #f9fafb;
+  --sf-border: #e5e7eb;
+  --sf-text: #111827;
+  --sf-muted: #6b7280;
+  --sf-primary: #2563eb;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --sf-page-bg: #020617;
+  --sf-surface: #0f172a;
+  --sf-surface-soft: #111827;
+  --sf-border: #1f2937;
+  --sf-text: #f8fafc;
+  --sf-muted: #94a3b8;
+  --sf-primary: #60a5fa;
+}
+
 html,
 body {
   min-height: 100%;
@@ -12,10 +34,19 @@ body {
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28rem),
-    #f8fafc;
-  color: #111827;
+    var(--sf-page-bg);
+  color: var(--sf-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+body.dark-theme {
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 30rem),
+    #020617;
 }
 
 a {
@@ -41,4 +72,137 @@ button {
 
 button:active {
   transform: translateY(1px);
+}
+
+body.dark-theme .dashboard-layout,
+body.dark-theme .dashboard-content {
+  background: #020617;
+}
+
+body.dark-theme .dashboard-topbar,
+body.dark-theme .card,
+body.dark-theme .table-wrapper,
+body.dark-theme .auth-content-panel,
+body.dark-theme .report-card,
+body.dark-theme .report-section,
+body.dark-theme .report-actions,
+body.dark-theme .toolbar,
+body.dark-theme .product-form-card {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: #1f2937;
+  color: #f8fafc;
+}
+
+body.dark-theme .topbar h2,
+body.dark-theme .page-title,
+body.dark-theme .card h2,
+body.dark-theme .card h3,
+body.dark-theme .report-card h2,
+body.dark-theme .report-actions h2,
+body.dark-theme .section-header h2,
+body.dark-theme .compact-item h3,
+body.dark-theme .app-table strong,
+body.dark-theme .user-pill p {
+  color: #f8fafc;
+}
+
+body.dark-theme .topbar-kicker,
+body.dark-theme .page-description,
+body.dark-theme .form-label,
+body.dark-theme .user-pill small,
+body.dark-theme .report-card p,
+body.dark-theme .report-card span,
+body.dark-theme .report-actions p,
+body.dark-theme .section-header p,
+body.dark-theme .compact-item p,
+body.dark-theme .empty-note {
+  color: #94a3b8;
+}
+
+body.dark-theme .form-control {
+  background: #020617;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-theme .form-control::placeholder {
+  color: #64748b;
+}
+
+body.dark-theme .form-control:hover {
+  border-color: #475569;
+}
+
+body.dark-theme .form-control:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+}
+
+body.dark-theme .btn-secondary,
+body.dark-theme .logout-button,
+body.dark-theme .theme-toggle-button,
+body.dark-theme .close-button,
+body.dark-theme .user-pill,
+body.dark-theme .table-actions button {
+  background: #111827;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
+body.dark-theme .btn-secondary:hover,
+body.dark-theme .logout-button:hover,
+body.dark-theme .theme-toggle-button:hover,
+body.dark-theme .close-button:hover,
+body.dark-theme .table-actions button:hover {
+  background: #1e293b;
+}
+
+body.dark-theme .user-avatar {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+body.dark-theme .app-table th {
+  background: #111827;
+  color: #94a3b8;
+}
+
+body.dark-theme .app-table td {
+  border-bottom-color: #1f2937;
+  color: #e5e7eb;
+}
+
+body.dark-theme .app-table tbody tr:hover {
+  background: #111827;
+}
+
+body.dark-theme .compact-item,
+body.dark-theme .empty-note {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.dark-theme .report-card.primary,
+body.dark-theme .report-card.success,
+body.dark-theme .report-card.warning,
+body.dark-theme .report-card.danger,
+body.dark-theme .report-card.neutral {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: #1f2937;
+}
+
+body.dark-theme .products-table tr,
+body.dark-theme .report-mobile-table tr {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+body.dark-theme .products-table td,
+body.dark-theme .report-mobile-table td {
+  border-bottom-color: #1f2937;
+}
+
+body.dark-theme .products-table td::before,
+body.dark-theme .report-mobile-table td::before {
+  color: #94a3b8;
 }
