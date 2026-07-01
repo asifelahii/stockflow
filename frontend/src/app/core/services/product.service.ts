@@ -41,7 +41,12 @@ export class ProductService {
     return this.http.put<Product>(`${API_BASE_URL}/products/${productId}`, payload);
   }
 
-  deleteProduct(productId: number): Observable<Product> {
-    return this.http.delete<Product>(`${API_BASE_URL}/products/${productId}`);
+  deleteProduct(productId: number, version: number): Observable<Product> {
+    const params = new HttpParams().set('version', String(version));
+
+    return this.http.delete<Product>(
+      `${API_BASE_URL}/products/${productId}`,
+      { params }
+    );
   }
 }

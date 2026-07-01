@@ -1,11 +1,10 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.dependencies.auth import get_current_user
-from app.models.user import User
+from app.dependencies.organization import CurrentOrganization, get_current_organization
 from app.schemas.stock_movement import (
     StockAdjustmentCreate,
     StockInCreate,
@@ -22,9 +21,16 @@ router = APIRouter(prefix="/api/v1/stock", tags=["Stock"])
 def create_stock_in(
     stock_data: StockInCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    product = stock_service.get_product_for_stock(db, stock_data.product_id)
+    product = stock_service.get_product_for_stock(
+        db,
+        current_organization.id,
+        stock_data.product_id,
+    )
 
     if product is None:
         raise HTTPException(
@@ -34,9 +40,10 @@ def create_stock_in(
 
     return stock_service.create_stock_in(
         db=db,
+        organization_id=current_organization.id,
         product=product,
         stock_data=stock_data,
-        created_by_id=current_user.id,
+        created_by_id=current_organization.user.id,
     )
 
 
@@ -44,9 +51,16 @@ def create_stock_in(
 def create_stock_out(
     stock_data: StockOutCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    product = stock_service.get_product_for_stock(db, stock_data.product_id)
+    product = stock_service.get_product_for_stock(
+        db,
+        current_organization.id,
+        stock_data.product_id,
+    )
 
     if product is None:
         raise HTTPException(
@@ -54,27 +68,37 @@ def create_stock_out(
             detail="Product not found",
         )
 
-    if product.current_stock < stock_data.quantity:
+    try:
+        return stock_service.create_stock_out(
+            db=db,
+            organization_id=current_organization.id,
+            product=product,
+            stock_data=stock_data,
+            created_by_id=current_organization.user.id,
+        )
+    except stock_service.InsufficientStockError:
+        db.rollback()
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Insufficient stock",
         )
-
-    return stock_service.create_stock_out(
-        db=db,
-        product=product,
-        stock_data=stock_data,
-        created_by_id=current_user.id,
-    )
 
 
 @router.post("/adjust", response_model=StockMovementResponse, status_code=status.HTTP_201_CREATED)
 def create_stock_adjustment(
     stock_data: StockAdjustmentCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    product = stock_service.get_product_for_stock(db, stock_data.product_id)
+    product = stock_service.get_product_for_stock(
+        db,
+        current_organization.id,
+        stock_data.product_id,
+    )
 
     if product is None:
         raise HTTPException(
@@ -84,21 +108,26 @@ def create_stock_adjustment(
 
     return stock_service.create_stock_adjustment(
         db=db,
+        organization_id=current_organization.id,
         product=product,
         stock_data=stock_data,
-        created_by_id=current_user.id,
+        created_by_id=current_organization.user.id,
     )
 
 
 @router.get("/movements", response_model=list[StockMovementResponse])
 def get_stock_movements(
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
     product_id: int | None = Query(default=None),
     movement_type: str | None = Query(default=None),
 ):
     return stock_service.get_stock_movements(
         db=db,
+        organization_id=current_organization.id,
         product_id=product_id,
         movement_type=movement_type,
     )

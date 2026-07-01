@@ -1,4 +1,4 @@
-﻿<section class="products-page">
+<section class="products-page">
   <app-page-header
     title="Products"
     description="Manage inventory products, SKUs, stock levels, suppliers, and selling prices."
@@ -137,18 +137,33 @@
           />
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="currentStock">Current stock</label>
-          <input
-            id="currentStock"
-            class="form-control"
-            type="number"
-            min="0"
-            name="currentStock"
-            [(ngModel)]="currentStock"
-            [disabled]="isSubmitting"
-          />
-        </div>
+        @if (!editingProduct) {
+          <div class="form-group">
+            <label class="form-label" for="currentStock">Initial stock</label>
+            <input
+              id="currentStock"
+              class="form-control"
+              type="number"
+              min="0"
+              name="currentStock"
+              [(ngModel)]="currentStock"
+              [disabled]="isSubmitting"
+            />
+          </div>
+        }
+        @else {
+          <div class="form-group">
+            <label class="form-label" for="currentStock">Current stock</label>
+            <input
+              id="currentStock"
+              class="form-control"
+              type="number"
+              [value]="currentStock"
+              disabled
+            />
+            <p>Use Stock In, Stock Out, or Adjustment to change inventory.</p>
+          </div>
+        }
 
         <div class="form-group">
           <label class="form-label" for="lowStockThreshold">Low stock threshold</label>

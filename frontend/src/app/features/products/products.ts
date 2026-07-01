@@ -1,4 +1,4 @@
-﻿import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
@@ -153,6 +153,7 @@ export class ProductsComponent implements OnInit {
 
     if (this.editingProduct) {
       const payload: ProductUpdate = {
+        version: this.editingProduct.version,
         name: this.productName.trim(),
         sku: this.sku.trim(),
         description: this.description.trim() || null,
@@ -160,7 +161,6 @@ export class ProductsComponent implements OnInit {
         supplier_id: this.supplierId ? Number(this.supplierId) : null,
         purchase_price: this.purchasePrice,
         selling_price: this.sellingPrice,
-        current_stock: this.currentStock,
         low_stock_threshold: this.lowStockThreshold,
         is_active: this.productIsActive
       };
@@ -216,7 +216,7 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
-    this.productService.deleteProduct(product.id).subscribe({
+    this.productService.deleteProduct(product.id, product.version).subscribe({
       next: () => {
         this.toastService.success('Product deactivated', `${product.name} is now inactive.`);
         this.loadPageData();
@@ -235,7 +235,7 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
-    this.productService.updateProduct(product.id, { is_active: true }).subscribe({
+    this.productService.updateProduct(product.id, { version: product.version, is_active: true }).subscribe({
       next: () => {
         this.toastService.success('Product restored', `${product.name} is active again.`);
         this.loadPageData();

@@ -9,6 +9,7 @@
   selling_price: string;
   current_stock: number;
   low_stock_threshold: number;
+  version: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -27,6 +28,7 @@ export interface ProductCreate {
 }
 
 export interface ProductUpdate {
+  version: number;
   name?: string;
   sku?: string;
   description?: string | null;
@@ -34,7 +36,6 @@ export interface ProductUpdate {
   supplier_id?: number | null;
   purchase_price?: number;
   selling_price?: number;
-  current_stock?: number;
   low_stock_threshold?: number;
   is_active?: boolean;
 }
