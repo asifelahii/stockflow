@@ -1,4 +1,4 @@
-﻿import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config/api.config';
 import { AuthToken, LoginRequest, RegisterRequest, UserResponse } from '../models/auth.model';
 
 const TOKEN_KEY = 'stockflow_access_token';
+const ORGANIZATION_KEY = 'stockflow_current_organization';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class AuthService {
     return this.http.post<AuthToken>(`${API_BASE_URL}/auth/login`, payload).pipe(
       tap((response) => {
         this.setToken(response.access_token);
+        localStorage.setItem(ORGANIZATION_KEY, JSON.stringify(response.organization));
       })
     );
   }
@@ -39,6 +41,26 @@ export class AuthService {
 
   removeToken(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ORGANIZATION_KEY);
+  }
+
+  getCurrentOrganization(): { id: number; name: string; role: string } | null {
+    const savedOrganization = localStorage.getItem(ORGANIZATION_KEY);
+
+    if (!savedOrganization) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(savedOrganization) as {
+        id: number;
+        name: string;
+        role: string;
+      };
+    } catch {
+      localStorage.removeItem(ORGANIZATION_KEY);
+      return null;
+    }
   }
 
   isAuthenticated(): boolean {

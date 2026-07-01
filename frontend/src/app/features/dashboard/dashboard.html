@@ -1,4 +1,4 @@
-﻿<section class="dashboard-page">
+<section class="dashboard-page">
   <app-page-header
     title="Dashboard"
     description="Overview of inventory, stock activity, suppliers, income, and expenses."
@@ -153,20 +153,30 @@
         <p>Products that may need restocking soon</p>
       </div>
 
-      <app-badge label="Needs review" tone="warning" />
-    </div>
-
-    <div class="low-stock-grid">
-      @for (product of lowStockAlertProducts; track product.name) {
-        <div class="low-stock-item">
-          <div>
-            <h3>{{ product.name }}</h3>
-            <p>Threshold: {{ product.threshold }}</p>
-          </div>
-
-          <strong>{{ product.stock }} left</strong>
-        </div>
+      @if (lowStockAlertProducts.length > 0) {
+        <app-badge label="Needs review" tone="warning" />
+      }
+      @else {
+        <app-badge label="All clear" tone="success" />
       }
     </div>
+
+    @if (lowStockAlertProducts.length > 0) {
+      <div class="low-stock-grid">
+        @for (product of lowStockAlertProducts; track product.id) {
+          <div class="low-stock-item">
+            <div>
+              <h3>{{ product.name }}</h3>
+              <p>Threshold: {{ product.low_stock_threshold }}</p>
+            </div>
+
+            <strong>{{ product.current_stock }} left</strong>
+          </div>
+        }
+      </div>
+    }
+    @else {
+      <p class="panel-empty-text">No low-stock products need attention.</p>
+    }
   </section>
 </section>

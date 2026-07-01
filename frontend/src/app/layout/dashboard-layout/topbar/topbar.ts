@@ -1,4 +1,4 @@
-﻿import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   ArrowDown,
@@ -13,7 +13,7 @@ import {
   Truck
 } from 'lucide-angular';
 
-import { UserResponse } from '../../../core/models/auth.model';
+import { OrganizationSummary, UserResponse } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -32,6 +32,7 @@ interface QuickAction {
 })
 export class TopbarComponent implements OnInit {
   protected currentUser: UserResponse | null = null;
+  protected currentOrganization: OrganizationSummary | null = null;
   protected isDarkMode = false;
   protected isQuickActionsOpen = false;
 
@@ -87,6 +88,7 @@ export class TopbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.isDarkMode = this.themeService.isDarkMode();
+    this.currentOrganization = this.authService.getCurrentOrganization();
 
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
@@ -101,6 +103,10 @@ export class TopbarComponent implements OnInit {
 
   get userInitial(): string {
     return this.currentUser?.full_name?.charAt(0).toUpperCase() || 'U';
+  }
+
+  get workspaceName(): string {
+    return this.currentOrganization?.name || 'StockFlow Dashboard';
   }
 
   get themeToggleLabel(): string {

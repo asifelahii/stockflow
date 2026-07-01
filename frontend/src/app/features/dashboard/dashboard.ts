@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   AlertTriangle,
   Briefcase,
@@ -15,7 +15,9 @@ import {
   RecentFinancialTransaction,
   RecentStockMovement
 } from '../../core/models/dashboard.model';
+import { Product } from '../../core/models/product.model';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { ProductService } from '../../core/services/product.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
@@ -39,13 +41,12 @@ export class DashboardComponent implements OnInit {
   protected readonly expenseIcon = TrendingDown;
   protected readonly balanceIcon = Briefcase;
 
-  protected readonly lowStockAlertProducts = [
-    { name: 'USB Keyboard', stock: 4, threshold: 10 },
-    { name: 'HDMI Cable', stock: 7, threshold: 15 },
-    { name: 'Laptop Stand', stock: 3, threshold: 8 }
-  ];
+  protected lowStockAlertProducts: Product[] = [];
 
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    private readonly productService: ProductService
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -72,6 +73,15 @@ export class DashboardComponent implements OnInit {
       },
       error: () => {
         this.recentActivity = null;
+      }
+    });
+
+    this.productService.getLowStockProducts().subscribe({
+      next: (products) => {
+        this.lowStockAlertProducts = products;
+      },
+      error: () => {
+        this.lowStockAlertProducts = [];
       }
     });
   }
