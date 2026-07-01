@@ -1,3 +1,4 @@
+﻿from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -18,21 +19,35 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    subject: str | Any,
+    expires_delta: timedelta | None = None,
+    additional_claims: Mapping[str, Any] | None = None,
+) -> str:
     if expires_delta is None:
         expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
 
     expire = datetime.now(timezone.utc) + expires_delta
 
-    payload = {
+    payload: dict[str, Any] = {
         "sub": str(subject),
-        "exp": expire,
     }
 
-    encoded_jwt = jwt.encode(
+    if additional_claims:
+        protected_keys = {"sub", "exp"}
+
+        payload.update(
+            {
+                key: value
+                for key, value in additional_claims.items()
+                if key not in protected_keys
+            }
+        )
+
+    payload["exp"] = expire
+
+    return jwt.encode(
         payload,
         settings.secret_key,
         algorithm=settings.algorithm,
     )
-
-    return encoded_jwt

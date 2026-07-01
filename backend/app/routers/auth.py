@@ -1,15 +1,17 @@
-import json
+﻿import json
 import urllib.parse
 import urllib.request
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.db.database import get_db
 from app.dependencies.auth import get_current_user
+from app.models.organization import Organization, OrganizationMember
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
 
@@ -47,7 +49,31 @@ def verify_turnstile_token(token: str | None) -> bool:
         return False
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def get_default_workspace(
+    db: Session,
+    user_id: int,
+) -> tuple[OrganizationMember, Organization] | None:
+    return (
+        db.query(OrganizationMember, Organization)
+        .join(
+            Organization,
+            Organization.id == OrganizationMember.organization_id,
+        )
+        .filter(
+            OrganizationMember.user_id == user_id,
+            OrganizationMember.is_active.is_(True),
+            Organization.is_active.is_(True),
+        )
+        .order_by(OrganizationMember.id.asc())
+        .first()
+    )
+
+
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def register_user(
     user_data: UserCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -66,19 +92,43 @@ def register_user(
             detail="Email is already registered",
         )
 
-    user = User(
-        full_name=user_data.full_name,
-        email=user_data.email,
-        hashed_password=get_password_hash(user_data.password),
-        role="staff",
-        is_active=True,
-    )
+    try:
+        user = User(
+            full_name=user_data.full_name,
+            email=user_data.email,
+            hashed_password=get_password_hash(user_data.password),
+            role="staff",
+            is_active=True,
+        )
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+        organization = Organization(
+            name=user_data.organization_name,
+            is_active=True,
+        )
 
-    return user
+        db.add_all([user, organization])
+        db.flush()
+
+        membership = OrganizationMember(
+            organization_id=organization.id,
+            user_id=user.id,
+            role="owner",
+            is_active=True,
+        )
+
+        db.add(membership)
+        db.commit()
+        db.refresh(user)
+
+        return user
+
+    except IntegrityError:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email is already registered",
+        )
 
 
 @router.post("/login", response_model=Token)
@@ -101,11 +151,32 @@ def login_user(
             detail="Inactive user account",
         )
 
-    access_token = create_access_token(subject=user.id)
+    workspace = get_default_workspace(db, user.id)
+
+    if workspace is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No active workspace is assigned to this account.",
+        )
+
+    membership, organization = workspace
+
+    access_token = create_access_token(
+        subject=user.id,
+        additional_claims={
+            "organization_id": organization.id,
+            "organization_role": membership.role,
+        },
+    )
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "organization": {
+            "id": organization.id,
+            "name": organization.name,
+            "role": membership.role,
+        },
     }
 
 
