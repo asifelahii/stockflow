@@ -7,10 +7,14 @@ from app.schemas.supplier import SupplierCreate, SupplierUpdate
 
 def get_supplier_by_id(
     db: Session,
+    organization_id: int,
     supplier_id: int,
     include_inactive: bool = False,
 ) -> Supplier | None:
-    query = db.query(Supplier).filter(Supplier.id == supplier_id)
+    query = db.query(Supplier).filter(
+        Supplier.organization_id == organization_id,
+        Supplier.id == supplier_id,
+    )
 
     if not include_inactive:
         query = query.filter(Supplier.is_active.is_(True))
@@ -18,8 +22,14 @@ def get_supplier_by_id(
     return query.first()
 
 
-def get_suppliers(db: Session, search: str | None = None) -> list[Supplier]:
-    query = db.query(Supplier)
+def get_suppliers(
+    db: Session,
+    organization_id: int,
+    search: str | None = None,
+) -> list[Supplier]:
+    query = db.query(Supplier).filter(
+        Supplier.organization_id == organization_id,
+    )
 
     if search:
         search_term = f"%{search}%"
@@ -35,8 +45,15 @@ def get_suppliers(db: Session, search: str | None = None) -> list[Supplier]:
     return query.order_by(Supplier.id.desc()).all()
 
 
-def create_supplier(db: Session, supplier_data: SupplierCreate) -> Supplier:
-    supplier = Supplier(**supplier_data.model_dump())
+def create_supplier(
+    db: Session,
+    organization_id: int,
+    supplier_data: SupplierCreate,
+) -> Supplier:
+    supplier = Supplier(
+        organization_id=organization_id,
+        **supplier_data.model_dump(),
+    )
 
     db.add(supplier)
     db.commit()
@@ -61,7 +78,10 @@ def update_supplier(
     return supplier
 
 
-def delete_supplier(db: Session, supplier: Supplier) -> Supplier:
+def delete_supplier(
+    db: Session,
+    supplier: Supplier,
+) -> Supplier:
     supplier.is_active = False
 
     db.commit()

@@ -4,8 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.dependencies.auth import get_current_user
-from app.models.user import User
+from app.dependencies.organization import CurrentOrganization, get_current_organization
 from app.schemas.category import (
     CategoryCreate,
     CategoryUpdate,
@@ -26,10 +25,14 @@ router = APIRouter(tags=["Categories"])
 def create_product_category(
     category_data: CategoryCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
     existing_category = category_service.get_product_category_by_name(
         db,
+        current_organization.id,
         category_data.name,
     )
 
@@ -39,7 +42,11 @@ def create_product_category(
             detail="Product category already exists",
         )
 
-    return category_service.create_product_category(db, category_data)
+    return category_service.create_product_category(
+        db,
+        current_organization.id,
+        category_data,
+    )
 
 
 @router.get(
@@ -48,9 +55,15 @@ def create_product_category(
 )
 def get_product_categories(
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    return category_service.get_product_categories(db)
+    return category_service.get_product_categories(
+        db,
+        current_organization.id,
+    )
 
 
 @router.get(
@@ -60,9 +73,17 @@ def get_product_categories(
 def get_product_category(
     category_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_product_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(
@@ -81,9 +102,17 @@ def update_product_category(
     category_id: int,
     category_data: CategoryUpdate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_product_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(
@@ -94,6 +123,7 @@ def update_product_category(
     if category_data.name and category_data.name != category.name:
         existing_category = category_service.get_product_category_by_name(
             db,
+            current_organization.id,
             category_data.name,
         )
 
@@ -103,7 +133,11 @@ def update_product_category(
                 detail="Product category already exists",
             )
 
-    return category_service.update_product_category(db, category, category_data)
+    return category_service.update_product_category(
+        db,
+        category,
+        category_data,
+    )
 
 
 @router.delete(
@@ -113,9 +147,17 @@ def update_product_category(
 def delete_product_category(
     category_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_product_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_product_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(
@@ -134,10 +176,14 @@ def delete_product_category(
 def create_expense_category(
     category_data: CategoryCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
     existing_category = category_service.get_expense_category_by_name(
         db,
+        current_organization.id,
         category_data.name,
     )
 
@@ -147,7 +193,11 @@ def create_expense_category(
             detail="Expense category already exists",
         )
 
-    return category_service.create_expense_category(db, category_data)
+    return category_service.create_expense_category(
+        db,
+        current_organization.id,
+        category_data,
+    )
 
 
 @router.get(
@@ -156,9 +206,15 @@ def create_expense_category(
 )
 def get_expense_categories(
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    return category_service.get_expense_categories(db)
+    return category_service.get_expense_categories(
+        db,
+        current_organization.id,
+    )
 
 
 @router.get(
@@ -168,9 +224,17 @@ def get_expense_categories(
 def get_expense_category(
     category_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_expense_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(
@@ -189,9 +253,17 @@ def update_expense_category(
     category_id: int,
     category_data: CategoryUpdate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_expense_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(
@@ -202,6 +274,7 @@ def update_expense_category(
     if category_data.name and category_data.name != category.name:
         existing_category = category_service.get_expense_category_by_name(
             db,
+            current_organization.id,
             category_data.name,
         )
 
@@ -211,7 +284,11 @@ def update_expense_category(
                 detail="Expense category already exists",
             )
 
-    return category_service.update_expense_category(db, category, category_data)
+    return category_service.update_expense_category(
+        db,
+        category,
+        category_data,
+    )
 
 
 @router.delete(
@@ -221,9 +298,17 @@ def update_expense_category(
 def delete_expense_category(
     category_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    category = category_service.get_expense_category_by_id(db, category_id, include_inactive=True)
+    category = category_service.get_expense_category_by_id(
+        db,
+        current_organization.id,
+        category_id,
+        include_inactive=True,
+    )
 
     if category is None:
         raise HTTPException(

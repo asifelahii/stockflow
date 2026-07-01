@@ -6,10 +6,14 @@ from app.schemas.category import CategoryCreate, CategoryUpdate
 
 def get_product_category_by_id(
     db: Session,
+    organization_id: int,
     category_id: int,
     include_inactive: bool = False,
 ) -> ProductCategory | None:
-    query = db.query(ProductCategory).filter(ProductCategory.id == category_id)
+    query = db.query(ProductCategory).filter(
+        ProductCategory.organization_id == organization_id,
+        ProductCategory.id == category_id,
+    )
 
     if not include_inactive:
         query = query.filter(ProductCategory.is_active.is_(True))
@@ -17,13 +21,28 @@ def get_product_category_by_id(
     return query.first()
 
 
-def get_product_category_by_name(db: Session, name: str) -> ProductCategory | None:
-    return db.query(ProductCategory).filter(ProductCategory.name == name).first()
-
-
-def get_product_categories(db: Session) -> list[ProductCategory]:
+def get_product_category_by_name(
+    db: Session,
+    organization_id: int,
+    name: str,
+) -> ProductCategory | None:
     return (
         db.query(ProductCategory)
+        .filter(
+            ProductCategory.organization_id == organization_id,
+            ProductCategory.name == name,
+        )
+        .first()
+    )
+
+
+def get_product_categories(
+    db: Session,
+    organization_id: int,
+) -> list[ProductCategory]:
+    return (
+        db.query(ProductCategory)
+        .filter(ProductCategory.organization_id == organization_id)
         .order_by(ProductCategory.id.desc())
         .all()
     )
@@ -31,9 +50,13 @@ def get_product_categories(db: Session) -> list[ProductCategory]:
 
 def create_product_category(
     db: Session,
+    organization_id: int,
     category_data: CategoryCreate,
 ) -> ProductCategory:
-    category = ProductCategory(**category_data.model_dump())
+    category = ProductCategory(
+        organization_id=organization_id,
+        **category_data.model_dump(),
+    )
 
     db.add(category)
     db.commit()
@@ -58,7 +81,10 @@ def update_product_category(
     return category
 
 
-def delete_product_category(db: Session, category: ProductCategory) -> ProductCategory:
+def delete_product_category(
+    db: Session,
+    category: ProductCategory,
+) -> ProductCategory:
     category.is_active = False
 
     db.commit()
@@ -69,10 +95,14 @@ def delete_product_category(db: Session, category: ProductCategory) -> ProductCa
 
 def get_expense_category_by_id(
     db: Session,
+    organization_id: int,
     category_id: int,
     include_inactive: bool = False,
 ) -> ExpenseCategory | None:
-    query = db.query(ExpenseCategory).filter(ExpenseCategory.id == category_id)
+    query = db.query(ExpenseCategory).filter(
+        ExpenseCategory.organization_id == organization_id,
+        ExpenseCategory.id == category_id,
+    )
 
     if not include_inactive:
         query = query.filter(ExpenseCategory.is_active.is_(True))
@@ -80,13 +110,28 @@ def get_expense_category_by_id(
     return query.first()
 
 
-def get_expense_category_by_name(db: Session, name: str) -> ExpenseCategory | None:
-    return db.query(ExpenseCategory).filter(ExpenseCategory.name == name).first()
-
-
-def get_expense_categories(db: Session) -> list[ExpenseCategory]:
+def get_expense_category_by_name(
+    db: Session,
+    organization_id: int,
+    name: str,
+) -> ExpenseCategory | None:
     return (
         db.query(ExpenseCategory)
+        .filter(
+            ExpenseCategory.organization_id == organization_id,
+            ExpenseCategory.name == name,
+        )
+        .first()
+    )
+
+
+def get_expense_categories(
+    db: Session,
+    organization_id: int,
+) -> list[ExpenseCategory]:
+    return (
+        db.query(ExpenseCategory)
+        .filter(ExpenseCategory.organization_id == organization_id)
         .order_by(ExpenseCategory.id.desc())
         .all()
     )
@@ -94,9 +139,13 @@ def get_expense_categories(db: Session) -> list[ExpenseCategory]:
 
 def create_expense_category(
     db: Session,
+    organization_id: int,
     category_data: CategoryCreate,
 ) -> ExpenseCategory:
-    category = ExpenseCategory(**category_data.model_dump())
+    category = ExpenseCategory(
+        organization_id=organization_id,
+        **category_data.model_dump(),
+    )
 
     db.add(category)
     db.commit()
@@ -121,7 +170,10 @@ def update_expense_category(
     return category
 
 
-def delete_expense_category(db: Session, category: ExpenseCategory) -> ExpenseCategory:
+def delete_expense_category(
+    db: Session,
+    category: ExpenseCategory,
+) -> ExpenseCategory:
     category.is_active = False
 
     db.commit()
