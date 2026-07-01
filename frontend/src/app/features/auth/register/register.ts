@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
+﻿import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -27,6 +27,7 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
   private turnstileContainer?: ElementRef<HTMLDivElement>;
 
   protected fullName = '';
+  protected businessName = '';
   protected email = '';
   protected password = '';
   protected turnstileToken = '';
@@ -63,7 +64,12 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.fullName || !this.email || !this.password) {
+    if (
+      !this.fullName.trim() ||
+      !this.businessName.trim() ||
+      !this.email.trim() ||
+      !this.password
+    ) {
       this.errorMessage = 'Please fill in all required fields.';
       return;
     }
@@ -76,14 +82,15 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
     this.isLoading = true;
 
     this.authService.register({
-      full_name: this.fullName,
-      email: this.email,
+      full_name: this.fullName.trim(),
+      organization_name: this.businessName.trim(),
+      email: this.email.trim(),
       password: this.password,
       turnstile_token: this.turnstileToken
     }).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Account created successfully. Redirecting to login...';
+        this.successMessage = 'Business workspace created successfully. Redirecting to login...';
 
         setTimeout(() => {
           this.router.navigate(['/auth/login']);

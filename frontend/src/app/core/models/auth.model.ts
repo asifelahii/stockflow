@@ -1,18 +1,26 @@
-export interface LoginRequest {
+﻿export interface LoginRequest {
   email: string;
   password: string;
 }
 
 export interface RegisterRequest {
   full_name: string;
+  organization_name: string;
   email: string;
   password: string;
   turnstile_token?: string;
 }
 
+export interface OrganizationSummary {
+  id: number;
+  name: string;
+  role: string;
+}
+
 export interface AuthToken {
   access_token: string;
   token_type: string;
+  organization: OrganizationSummary;
 }
 
 export interface UserResponse {

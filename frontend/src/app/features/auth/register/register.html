@@ -1,8 +1,8 @@
-<div class="auth-card">
+﻿<div class="auth-card">
   <div class="auth-card-header">
     <p class="auth-kicker">Create account</p>
     <h2>Start using StockFlow</h2>
-    <p>Create an account to manage products, stock activity, suppliers, and business finance.</p>
+    <p>Create your business workspace to manage products, stock activity, suppliers, and finance.</p>
   </div>
 
   @if (errorMessage) {
@@ -19,7 +19,7 @@
 
   <form class="auth-form" (ngSubmit)="handleRegister()">
     <div class="form-group">
-      <label class="form-label" for="fullName">Full name</label>
+      <label class="form-label" for="fullName">Your full name</label>
       <input
         id="fullName"
         class="form-control"
@@ -27,7 +27,22 @@
         name="fullName"
         placeholder="Admin User"
         [(ngModel)]="fullName"
+        [disabled]="isLoading"
       />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="businessName">Business name</label>
+      <input
+        id="businessName"
+        class="form-control"
+        type="text"
+        name="businessName"
+        placeholder="Example: TechNova Electronics"
+        [(ngModel)]="businessName"
+        [disabled]="isLoading"
+      />
+      <p class="form-help">This creates your private StockFlow workspace.</p>
     </div>
 
     <div class="form-group">
@@ -39,6 +54,7 @@
         name="email"
         placeholder="admin@example.com"
         [(ngModel)]="email"
+        [disabled]="isLoading"
       />
     </div>
 
@@ -51,6 +67,7 @@
         name="password"
         placeholder="Create a secure password"
         [(ngModel)]="password"
+        [disabled]="isLoading"
       />
     </div>
 
@@ -68,7 +85,7 @@
       type="submit"
       [disabled]="isLoading || !turnstileToken"
     >
-      {{ isLoading ? 'Creating account...' : 'Create account' }}
+      {{ isLoading ? 'Creating workspace...' : 'Create workspace' }}
     </button>
   </form>
 
