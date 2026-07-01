@@ -1,7 +1,17 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -10,26 +20,53 @@ from app.db.base import Base
 class Product(Base):
     __tablename__ = "products"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    __table_args__ = (
+        UniqueConstraint(
+            "organization_id",
+            "sku",
+            name="uq_products_organization_sku",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "id",
+            name="uq_products_organization_id",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "category_id"],
+            ["product_categories.organization_id", "product_categories.id"],
+            name="fk_products_organization_category",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "supplier_id"],
+            ["suppliers.organization_id", "suppliers.id"],
+            name="fk_products_organization_supplier",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
 
     name: Mapped[str] = mapped_column(String(150), nullable=False)
 
     sku: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
-        index=True,
         nullable=False,
     )
 
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     category_id: Mapped[int | None] = mapped_column(
-        ForeignKey("product_categories.id"),
+        Integer,
         nullable=True,
     )
 
     supplier_id: Mapped[int | None] = mapped_column(
-        ForeignKey("suppliers.id"),
+        Integer,
         nullable=True,
     )
 
@@ -54,6 +91,13 @@ class Product(Base):
     low_stock_threshold: Mapped[int] = mapped_column(
         Integer,
         default=0,
+        nullable=False,
+    )
+
+    version: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        server_default="1",
         nullable=False,
     )
 

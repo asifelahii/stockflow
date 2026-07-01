@@ -12,7 +12,7 @@ class StockMovement(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
     product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id"),
+        Integer,
         nullable=False,
     )
 

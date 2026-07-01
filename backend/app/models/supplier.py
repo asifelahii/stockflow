@@ -1,6 +1,6 @@
-from datetime import datetime
+﻿from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -9,11 +9,29 @@ from app.db.base import Base
 class Supplier(Base):
     __tablename__ = "suppliers"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    __table_args__ = (
+        Index(
+            "ix_suppliers_organization_name",
+            "organization_id",
+            "name",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "id",
+            name="uq_suppliers_organization_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String(150),
-        index=True,
         nullable=False,
     )
 

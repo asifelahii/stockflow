@@ -1,6 +1,6 @@
-from datetime import datetime
+﻿from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -9,12 +9,29 @@ from app.db.base import Base
 class ProductCategory(Base):
     __tablename__ = "product_categories"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    __table_args__ = (
+        UniqueConstraint(
+            "organization_id",
+            "name",
+            name="uq_product_categories_organization_name",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "id",
+            name="uq_product_categories_organization_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
-        index=True,
         nullable=False,
     )
 
@@ -43,12 +60,29 @@ class ProductCategory(Base):
 class ExpenseCategory(Base):
     __tablename__ = "expense_categories"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    __table_args__ = (
+        UniqueConstraint(
+            "organization_id",
+            "name",
+            name="uq_expense_categories_organization_name",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "id",
+            name="uq_expense_categories_organization_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
-        index=True,
         nullable=False,
     )
 
