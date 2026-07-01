@@ -1,11 +1,10 @@
-from typing import Annotated
+﻿from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.dependencies.auth import get_current_user
-from app.models.user import User
+from app.dependencies.organization import CurrentOrganization, get_current_organization
 from app.schemas.financial_transaction import (
     ExpenseCreate,
     FinancialSummaryResponse,
@@ -27,12 +26,16 @@ router = APIRouter(prefix="/api/v1/finance", tags=["Finance"])
 def create_income(
     income_data: IncomeCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
     return finance_service.create_income(
         db=db,
+        organization_id=current_organization.id,
         income_data=income_data,
-        created_by_id=current_user.id,
+        created_by_id=current_organization.user.id,
     )
 
 
@@ -44,11 +47,15 @@ def create_income(
 def create_expense(
     expense_data: ExpenseCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
     if expense_data.expense_category_id is not None:
         category_exists = finance_service.expense_category_exists(
             db,
+            current_organization.id,
             expense_data.expense_category_id,
         )
 
@@ -60,8 +67,9 @@ def create_expense(
 
     return finance_service.create_expense(
         db=db,
+        organization_id=current_organization.id,
         expense_data=expense_data,
-        created_by_id=current_user.id,
+        created_by_id=current_organization.user.id,
     )
 
 
@@ -71,11 +79,15 @@ def create_expense(
 )
 def get_transactions(
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
     transaction_type: str | None = Query(default=None),
 ):
     return finance_service.get_transactions(
         db=db,
+        organization_id=current_organization.id,
         transaction_type=transaction_type,
     )
 
@@ -87,9 +99,16 @@ def get_transactions(
 def get_transaction(
     transaction_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    transaction = finance_service.get_transaction_by_id(db, transaction_id)
+    transaction = finance_service.get_transaction_by_id(
+        db,
+        current_organization.id,
+        transaction_id,
+    )
 
     if transaction is None:
         raise HTTPException(
@@ -108,9 +127,16 @@ def update_transaction(
     transaction_id: int,
     transaction_data: FinancialTransactionUpdate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    transaction = finance_service.get_transaction_by_id(db, transaction_id)
+    transaction = finance_service.get_transaction_by_id(
+        db,
+        current_organization.id,
+        transaction_id,
+    )
 
     if transaction is None:
         raise HTTPException(
@@ -121,6 +147,7 @@ def update_transaction(
     if transaction_data.expense_category_id is not None:
         category_exists = finance_service.expense_category_exists(
             db,
+            current_organization.id,
             transaction_data.expense_category_id,
         )
 
@@ -144,9 +171,16 @@ def update_transaction(
 def delete_transaction(
     transaction_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    transaction = finance_service.get_transaction_by_id(db, transaction_id)
+    transaction = finance_service.get_transaction_by_id(
+        db,
+        current_organization.id,
+        transaction_id,
+    )
 
     if transaction is None:
         raise HTTPException(
@@ -163,6 +197,12 @@ def delete_transaction(
 )
 def get_financial_summary(
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_organization: Annotated[
+        CurrentOrganization,
+        Depends(get_current_organization),
+    ],
 ):
-    return finance_service.get_financial_summary(db)
+    return finance_service.get_financial_summary(
+        db,
+        current_organization.id,
+    )

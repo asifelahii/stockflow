@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -9,16 +9,23 @@ from app.models.stock_movement import StockMovement
 from app.models.supplier import Supplier
 
 
-def get_dashboard_summary(db: Session) -> dict:
+def get_dashboard_summary(
+    db: Session,
+    organization_id: int,
+) -> dict:
     total_products = (
         db.query(Product)
-        .filter(Product.is_active.is_(True))
+        .filter(
+            Product.organization_id == organization_id,
+            Product.is_active.is_(True),
+        )
         .count()
     )
 
     low_stock_products = (
         db.query(Product)
         .filter(
+            Product.organization_id == organization_id,
             Product.is_active.is_(True),
             Product.current_stock <= Product.low_stock_threshold,
         )
@@ -27,19 +34,28 @@ def get_dashboard_summary(db: Session) -> dict:
 
     total_suppliers = (
         db.query(Supplier)
-        .filter(Supplier.is_active.is_(True))
+        .filter(
+            Supplier.organization_id == organization_id,
+            Supplier.is_active.is_(True),
+        )
         .count()
     )
 
     total_income = (
         db.query(func.coalesce(func.sum(FinancialTransaction.amount), 0))
-        .filter(FinancialTransaction.transaction_type == "income")
+        .filter(
+            FinancialTransaction.organization_id == organization_id,
+            FinancialTransaction.transaction_type == "income",
+        )
         .scalar()
     )
 
     total_expense = (
         db.query(func.coalesce(func.sum(FinancialTransaction.amount), 0))
-        .filter(FinancialTransaction.transaction_type == "expense")
+        .filter(
+            FinancialTransaction.organization_id == organization_id,
+            FinancialTransaction.transaction_type == "expense",
+        )
         .scalar()
     )
 
@@ -57,9 +73,14 @@ def get_dashboard_summary(db: Session) -> dict:
     }
 
 
-def get_recent_activity(db: Session, limit: int = 5) -> dict:
+def get_recent_activity(
+    db: Session,
+    organization_id: int,
+    limit: int = 5,
+) -> dict:
     recent_stock_movements = (
         db.query(StockMovement)
+        .filter(StockMovement.organization_id == organization_id)
         .order_by(StockMovement.id.desc())
         .limit(limit)
         .all()
@@ -67,6 +88,7 @@ def get_recent_activity(db: Session, limit: int = 5) -> dict:
 
     recent_financial_transactions = (
         db.query(FinancialTransaction)
+        .filter(FinancialTransaction.organization_id == organization_id)
         .order_by(FinancialTransaction.id.desc())
         .limit(limit)
         .all()
