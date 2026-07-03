@@ -1,13 +1,15 @@
-﻿<div class="sidebar" [class.collapsed]="collapsed">
+<div class="sidebar" [class.collapsed]="collapsed">
   <div class="sidebar-brand">
-    <div class="brand-mark" aria-hidden="true">
-      <img src="stockflow-icon.svg" alt="" class="brand-logo" />
-    </div>
+    <a class="brand-link" routerLink="/app/dashboard" aria-label="Go to StockFlow dashboard">
+      <div class="brand-mark" aria-hidden="true">
+        <img src="stockflow-icon.svg" alt="" class="brand-logo" />
+      </div>
 
-    <div class="brand-copy">
-      <h1>StockFlow</h1>
-      <p>Inventory & Finance Workspace</p>
-    </div>
+      <div class="brand-copy">
+        <h1>StockFlow</h1>
+        <p>Inventory intelligence</p>
+      </div>
+    </a>
 
     <button
       class="sidebar-collapse-button"
@@ -28,7 +30,7 @@
 
   <nav class="sidebar-nav" aria-label="Main navigation">
     @for (section of sections; track section.title) {
-      <div class="nav-section">
+      <section class="nav-section">
         <p class="nav-section-title">{{ section.title }}</p>
 
         <div class="nav-links">
@@ -45,7 +47,7 @@
                   class="nav-link-icon-svg"
                   [img]="link.icon"
                   [size]="18"
-                  [strokeWidth]="2.25"
+                  [strokeWidth]="2.2"
                 />
               </span>
 
@@ -53,7 +55,24 @@
             </a>
           }
         </div>
-      </div>
+      </section>
     }
   </nav>
+
+  <section class="workspace-card" [title]="collapsed ? workspaceName : ''">
+    <span class="workspace-avatar">{{ workspaceInitial }}</span>
+
+    <div class="workspace-copy">
+      <p>Current workspace</p>
+      <strong>{{ workspaceName }}</strong>
+    </div>
+
+    <i-lucide
+      class="workspace-icon"
+      [img]="workspaceIcon"
+      [size]="17"
+      [strokeWidth]="2.2"
+      aria-hidden="true"
+    />
+  </section>
 </div>

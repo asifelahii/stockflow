@@ -1,81 +1,188 @@
-﻿<section class="stock-form-page">
+<section class="stock-operation-page stock-adjustment-page">
   <app-page-header
+    eyebrow="Stock Control"
     title="Stock Adjustment"
-    description="Correct product stock after physical count, mismatch, or manual verification."
-  />
+    description="Correct a product’s stock count after a physical count, reconciliation, loss, or inventory correction."
+  >
+    <div page-actions class="stock-operation-actions">
+      <a class="stock-operation-action" routerLink="/app/stock/in">Stock in</a>
+      <a class="stock-operation-action" routerLink="/app/stock/out">Stock out</a>
 
-  <section class="notice-card">
-    <strong>Adjustment note:</strong>
-    Use stock adjustment only when the actual physical stock does not match the system stock.
-  </section>
+      <a class="stock-operation-action active" routerLink="/app/stock/adjustment">
+        <i-lucide [img]="adjustmentIcon" [size]="16" [strokeWidth]="2.3" />
+        Adjust
+      </a>
 
-  @if (errorMessage) {
-    <section class="form-alert form-alert-error">
-      {{ errorMessage }}
+      <a class="stock-operation-action" routerLink="/app/stock/movements">
+        <i-lucide [img]="movementsIcon" [size]="16" [strokeWidth]="2.3" />
+        History
+      </a>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <app-loading-state message="Loading active products..." />
+  } @else if (errorMessage && !products.length) {
+    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+  } @else {
+    <section class="stock-operation-layout">
+      <article class="stock-operation-card card">
+        <header class="stock-operation-card-header">
+          <span class="stock-operation-card-icon">
+            <i-lucide [img]="adjustmentIcon" [size]="21" [strokeWidth]="2.3" />
+          </span>
+
+          <div>
+            <h2>Set corrected stock</h2>
+            <p>Enter the verified physical quantity. StockFlow calculates and records the adjustment difference.</p>
+          </div>
+        </header>
+
+        @if (errorMessage) {
+          <div class="stock-operation-alert error">
+            <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="stock-operation-alert success">
+            <i-lucide [img]="checkIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+
+        <form class="stock-operation-form" (ngSubmit)="handleSubmit()">
+          <div class="form-group full-width">
+            <label class="form-label" for="adjustmentProduct">Product</label>
+            <select
+              id="adjustmentProduct"
+              class="form-control"
+              name="adjustmentProduct"
+              [(ngModel)]="productId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a product</option>
+
+              @for (product of products; track product.id) {
+                <option [value]="product.id">
+                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="currentSystemStock">Current system stock</label>
+            <input
+              id="currentSystemStock"
+              class="form-control"
+              type="number"
+              [value]="selectedProduct?.current_stock ?? ''"
+              placeholder="Select a product"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="newStock">Verified stock count</label>
+            <input
+              id="newStock"
+              class="form-control"
+              type="number"
+              min="0"
+              name="newStock"
+              placeholder="Example: 15"
+              [(ngModel)]="newStock"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="adjustmentReason">Reason for adjustment</label>
+            <textarea
+              id="adjustmentReason"
+              class="form-control"
+              rows="4"
+              name="adjustmentReason"
+              placeholder="Example: Physical count correction, damaged items, reconciliation"
+              [(ngModel)]="reason"
+              [disabled]="isSubmitting"
+            ></textarea>
+          </div>
+
+          <div class="full-width">
+            <button class="stock-operation-submit" type="submit" [disabled]="isSubmitting">
+              <i-lucide [img]="adjustmentIcon" [size]="18" [strokeWidth]="2.4" />
+              {{ isSubmitting ? 'Saving...' : 'Save adjustment' }}
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <aside class="stock-operation-side-card card">
+        <div>
+          <h2>Adjustment summary</h2>
+          <p>Review the stock difference before saving an inventory correction.</p>
+        </div>
+
+        @if (selectedProduct; as product) {
+          <div class="stock-selected-product">
+            <div class="stock-selected-product-header">
+              <span class="stock-selected-product-icon">
+                <i-lucide [img]="productIcon" [size]="18" [strokeWidth]="2.2" />
+              </span>
+
+              <div>
+                <strong>{{ product.name }}</strong>
+                <small>{{ product.sku }}</small>
+              </div>
+            </div>
+
+            <div class="stock-product-metrics">
+              <div>
+                <span>System stock</span>
+                <strong>{{ product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Verified stock</span>
+                <strong>{{ newStock ?? product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Difference</span>
+                <strong>{{ differenceLabel }}</strong>
+              </div>
+
+              <div>
+                <span>Alert threshold</span>
+                <strong>{{ product.low_stock_threshold }}</strong>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="stock-selected-product empty">
+            Select a product to compare current system stock with the verified stock count.
+          </div>
+        }
+
+        <div class="stock-operation-note">
+          <i-lucide [img]="infoIcon" [size]="18" [strokeWidth]="2.25" />
+          <span>Adjustments should be supported by a clear reason or physical inventory count.</span>
+        </div>
+
+        <ul class="stock-operation-info-list">
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            Adjustment can increase or decrease the recorded stock.
+          </li>
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            The corrected quantity becomes the new stock value.
+          </li>
+        </ul>
+      </aside>
     </section>
   }
-
-  @if (successMessage) {
-    <section class="form-alert form-alert-success">
-      {{ successMessage }}
-    </section>
-  }
-
-  <section class="stock-form-card card">
-    <form class="stock-form" (ngSubmit)="handleSubmit()">
-      <div class="form-group">
-        <label class="form-label" for="product">Product</label>
-        <select
-          id="product"
-          class="form-control"
-          name="productId"
-          [(ngModel)]="productId"
-          [disabled]="isLoading || isSubmitting"
-        >
-          <option value="">{{ isLoading ? 'Loading products...' : 'Select product' }}</option>
-          @for (product of products; track product.id) {
-            <option [value]="product.id">
-              {{ product.name }} — Current stock: {{ product.current_stock }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="newStock">New stock quantity</label>
-        <input
-          id="newStock"
-          class="form-control"
-          type="number"
-          min="0"
-          name="newStock"
-          placeholder="Enter corrected stock"
-          [(ngModel)]="newStock"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label class="form-label" for="reason">Adjustment reason</label>
-        <textarea
-          id="reason"
-          class="form-control"
-          rows="4"
-          name="reason"
-          placeholder="Example: Physical stock count correction"
-          [(ngModel)]="reason"
-          [disabled]="isSubmitting"
-        ></textarea>
-      </div>
-
-      <div class="form-actions full-width">
-        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Saving...' : 'Save Adjustment' }}
-        </button>
-        <button class="btn btn-secondary" type="button" routerLink="/app/stock/movements">
-          Cancel
-        </button>
-      </div>
-    </form>
-  </section>
 </section>

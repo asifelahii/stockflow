@@ -1,7 +1,11 @@
 <div class="topbar">
-  <div>
-    <p class="topbar-kicker">Business workspace</p>
-    <h2>{{ workspaceName }}</h2>
+  <div class="workspace-heading">
+    <span class="workspace-indicator" aria-hidden="true"></span>
+
+    <div>
+      <p class="topbar-kicker">Active workspace</p>
+      <h2>{{ workspaceName }}</h2>
+    </div>
   </div>
 
   <div class="topbar-actions">
@@ -11,7 +15,7 @@
         type="button"
         aria-haspopup="menu"
         [attr.aria-expanded]="isQuickActionsOpen"
-        title="Quick Add"
+        title="Quick create"
         (click)="toggleQuickActions()"
       >
         <span class="quick-action-plus" aria-hidden="true">
@@ -23,14 +27,14 @@
           />
         </span>
 
-        <span class="quick-action-label">Quick Add</span>
+        <span class="quick-action-label">Quick create</span>
       </button>
 
       @if (isQuickActionsOpen) {
         <div class="quick-actions-menu" role="menu">
           <div class="quick-actions-header">
-            <p>Quick Add</p>
-            <small>Create records faster</small>
+            <p>Quick create</p>
+            <small>Start a common StockFlow task</small>
           </div>
 
           @for (action of quickActions; track action.route) {

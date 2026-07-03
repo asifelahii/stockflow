@@ -1,19 +1,66 @@
 <section class="dashboard-page">
-  <app-page-header
-    title="Dashboard"
-    description="Overview of inventory, stock activity, suppliers, income, and expenses."
-  />
+  <header class="dashboard-page-header">
+    <div>
+      <nav class="dashboard-breadcrumb" aria-label="Breadcrumb">
+        <span>Dashboard</span>
+        <span aria-hidden="true">/</span>
+        <strong>Overview</strong>
+      </nav>
 
-  <div class="summary-grid">
+      <h1>Welcome, {{ workspaceName }}</h1>
+      <p>Keep track of inventory movement, supplier coverage, and financial activity.</p>
+    </div>
+
+    <div class="dashboard-page-meta">
+      <span>{{ todayLabel }}</span>
+
+      @if (isLoading) {
+        <small>Refreshing workspace...</small>
+      }
+    </div>
+  </header>
+
+  <section class="dashboard-welcome">
+    <div class="dashboard-welcome-icon" aria-hidden="true">
+      <i-lucide [img]="productsIcon" [size]="27" [strokeWidth]="2.1" />
+    </div>
+
+    <div class="dashboard-welcome-copy">
+      <p>StockFlow workspace</p>
+      <h2>Everything you need, at a glance.</h2>
+      <span>Manage products, stock movement, suppliers, and expenses from one place.</span>
+    </div>
+
+    <div class="dashboard-welcome-actions">
+      <a class="welcome-primary-action" routerLink="/app/products">
+        <i-lucide [img]="plusIcon" [size]="17" [strokeWidth]="2.5" />
+        Add product
+      </a>
+
+      <a class="welcome-secondary-action" routerLink="/app/stock/in">
+        Record stock in
+      </a>
+    </div>
+  </section>
+
+  @if (errorMessage) {
+    <section class="dashboard-message" role="status">
+      <strong>Could not refresh the workspace.</strong>
+      <span>{{ errorMessage }}</span>
+      <button type="button" (click)="refreshDashboard()">Try again</button>
+    </section>
+  }
+
+  <section class="summary-grid" aria-label="Workspace summary">
     <app-stat-card
       label="Total Products"
       [value]="totalProducts"
-      hint="Active inventory items"
+      hint="Inventory records"
       tone="primary"
     >
-      <div stat-icon class="dashboard-stat-icon icon-primary">
-        <i-lucide [img]="productsIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="productsIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
 
     <app-stat-card
@@ -22,161 +69,290 @@
       hint="Needs attention"
       tone="warning"
     >
-      <div stat-icon class="dashboard-stat-icon icon-warning">
-        <i-lucide [img]="lowStockIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="lowStockIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
 
     <app-stat-card
       label="Suppliers"
       [value]="totalSuppliers"
-      hint="Active supplier records"
+      hint="Supplier records"
       tone="neutral"
     >
-      <div stat-icon class="dashboard-stat-icon icon-neutral">
-        <i-lucide [img]="suppliersIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="suppliersIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
 
     <app-stat-card
-      label="Total Income"
+      label="Income"
       [value]="totalIncome"
-      hint="This month"
+      hint="Recorded income"
       tone="success"
     >
-      <div stat-icon class="dashboard-stat-icon icon-success">
-        <i-lucide [img]="incomeIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="incomeIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
 
     <app-stat-card
-      label="Total Expenses"
+      label="Expenses"
       [value]="totalExpense"
-      hint="This month"
+      hint="Recorded expenses"
       tone="danger"
     >
-      <div stat-icon class="dashboard-stat-icon icon-danger">
-        <i-lucide [img]="expenseIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="expenseIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
 
     <app-stat-card
       label="Net Balance"
       [value]="netBalance"
-      hint="Estimated monthly balance"
-      tone="primary"
+      hint="Income minus expense"
+      tone="neutral"
     >
-      <div stat-icon class="dashboard-stat-icon icon-primary">
-        <i-lucide [img]="balanceIcon" [size]="22" [strokeWidth]="2.25" />
-      </div>
+      <span stat-icon>
+        <i-lucide [img]="balanceIcon" [size]="20" [strokeWidth]="2.2" />
+      </span>
     </app-stat-card>
-  </div>
+  </section>
 
-  <div class="dashboard-grid">
-    <section class="dashboard-panel card">
+  <section class="dashboard-overview-grid">
+    <article class="dashboard-panel inventory-panel card">
       <div class="panel-header">
         <div>
-          <h2>Recent Stock Movements</h2>
-          <p>Latest inventory activity</p>
+          <p>Inventory status</p>
+          <h2>{{ stockHealthLabel }}</h2>
         </div>
 
-        <app-badge label="Inventory" tone="info" />
+        <a routerLink="/app/products">
+          View products
+          <i-lucide [img]="chevronRightIcon" [size]="16" [strokeWidth]="2.3" />
+        </a>
+      </div>
+
+      @if (totalProductsNumber > 0) {
+        <div class="inventory-health-layout">
+          <div class="inventory-health-score">
+            <strong>{{ stockHealthScore }}%</strong>
+            <span>Inventory health</span>
+          </div>
+
+          <div class="inventory-health-list">
+            <div>
+              <span>Products tracked</span>
+              <strong>{{ totalProductsNumber }}</strong>
+            </div>
+
+            <div>
+              <span>Low-stock products</span>
+              <strong>{{ lowStockProductsNumber }}</strong>
+            </div>
+
+            <div>
+              <span>Supplier records</span>
+              <strong>{{ totalSuppliers }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="inventory-health-progress" aria-label="Inventory health">
+          <span [style.width.%]="stockHealthScore"></span>
+        </div>
+      } @else {
+        <div class="dashboard-empty-state">
+          <span class="empty-state-icon">
+            <i-lucide [img]="productsIcon" [size]="21" [strokeWidth]="2.2" />
+          </span>
+
+          <div>
+            <strong>Your workspace is ready.</strong>
+            <p>Add a product to begin tracking stock, suppliers, and stock alerts.</p>
+          </div>
+
+          <a routerLink="/app/products">Create product</a>
+        </div>
+      }
+    </article>
+
+    <article class="dashboard-panel quick-actions-panel card">
+      <div class="panel-header">
+        <div>
+          <p>Quick actions</p>
+          <h2>Start a common task</h2>
+        </div>
+      </div>
+
+      <div class="quick-action-list">
+        @for (action of quickActions; track action.route) {
+          <a class="dashboard-quick-action" [routerLink]="action.route">
+            <span class="dashboard-quick-action-icon">
+              <i-lucide [img]="action.icon" [size]="18" [strokeWidth]="2.25" />
+            </span>
+
+            <span class="dashboard-quick-action-copy">
+              <strong>{{ action.label }}</strong>
+              <small>{{ action.description }}</small>
+            </span>
+
+            <span class="dashboard-quick-action-chevron" aria-hidden="true">
+              <i-lucide [img]="chevronRightIcon" [size]="18" [strokeWidth]="2.3" />
+            </span>
+          </a>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="dashboard-activity-grid">
+    <article class="dashboard-panel card">
+      <div class="panel-header">
+        <div>
+          <p>Inventory timeline</p>
+          <h2>Recent stock movements</h2>
+        </div>
+
+        <a routerLink="/app/stock/movements">
+          View all
+          <i-lucide [img]="chevronRightIcon" [size]="16" [strokeWidth]="2.3" />
+        </a>
       </div>
 
       @if (recentStockMovements.length > 0) {
         <div class="activity-list">
           @for (movement of recentStockMovements; track movement.id) {
-            <div class="activity-item">
-              <div>
-                <h3>Product #{{ movement.product_id }}</h3>
-                <p>{{ movement.reason || movement.created_at }}</p>
-              </div>
-
-              <div class="activity-meta">
-                <app-badge
-                  [label]="formatMovementType(movement.movement_type)"
-                  [tone]="getMovementTone(movement.movement_type)"
+            <article class="activity-row">
+              <span class="activity-icon" [class]="getMovementTone(movement.movement_type)">
+                <i-lucide
+                  [img]="getMovementIcon(movement.movement_type)"
+                  [size]="17"
+                  [strokeWidth]="2.35"
                 />
+              </span>
 
-                <strong>{{ movement.quantity }}</strong>
+              <div class="activity-copy">
+                <strong>{{ formatMovementType(movement.movement_type) }}</strong>
+                <span>
+                  Product #{{ movement.product_id }} ·
+                  {{ movement.reason || formatDate(movement.created_at) }}
+                </span>
               </div>
-            </div>
+
+              <div class="activity-value">
+                <strong>{{ formatMovementQuantity(movement.quantity) }}</strong>
+                <small>{{ formatDate(movement.created_at) }}</small>
+              </div>
+            </article>
           }
         </div>
-      }
-      @else {
-        <p class="panel-empty-text">No recent stock movement found.</p>
-      }
-    </section>
+      } @else {
+        <div class="dashboard-empty-state compact">
+          <span class="empty-state-icon">
+            <i-lucide [img]="refreshIcon" [size]="20" [strokeWidth]="2.2" />
+          </span>
 
-    <section class="dashboard-panel card">
+          <div>
+            <strong>No stock movement yet.</strong>
+            <p>Stock in, stock out, and adjustment activity will appear here.</p>
+          </div>
+        </div>
+      }
+    </article>
+
+    <article class="dashboard-panel card">
       <div class="panel-header">
         <div>
-          <h2>Finance Activity</h2>
-          <p>Recent income and expense records</p>
+          <p>Money movement</p>
+          <h2>Finance activity</h2>
         </div>
 
-        <app-badge label="Finance" tone="success" />
+        <a routerLink="/app/finance/income">
+          Open finance
+          <i-lucide [img]="chevronRightIcon" [size]="16" [strokeWidth]="2.3" />
+        </a>
       </div>
 
       @if (recentFinancialTransactions.length > 0) {
         <div class="activity-list">
           @for (transaction of recentFinancialTransactions; track transaction.id) {
-            <div class="activity-item">
-              <div>
-                <h3>{{ transaction.title }}</h3>
-                <p>{{ transaction.transaction_date }}</p>
-              </div>
-
-              <div class="activity-meta">
-                <app-badge
-                  [label]="formatMovementType(transaction.transaction_type)"
-                  [tone]="getTransactionTone(transaction.transaction_type)"
+            <article class="activity-row">
+              <span class="activity-icon" [class]="getTransactionTone(transaction.transaction_type)">
+                <i-lucide
+                  [img]="transaction.transaction_type === 'income' ? incomeIcon : expenseIcon"
+                  [size]="17"
+                  [strokeWidth]="2.35"
                 />
+              </span>
 
-                <strong>{{ formatCurrency(transaction.amount) }}</strong>
+              <div class="activity-copy">
+                <strong>{{ transaction.title }}</strong>
+                <span>{{ formatMovementType(transaction.transaction_type) }}</span>
               </div>
-            </div>
+
+              <div class="activity-value">
+                <strong>{{ formatCurrency(transaction.amount) }}</strong>
+                <small>{{ formatDate(transaction.transaction_date) }}</small>
+              </div>
+            </article>
           }
         </div>
-      }
-      @else {
-        <p class="panel-empty-text">No recent finance activity found.</p>
-      }
-    </section>
-  </div>
+      } @else {
+        <div class="dashboard-empty-state compact">
+          <span class="empty-state-icon success">
+            <i-lucide [img]="financeIcon" [size]="20" [strokeWidth]="2.2" />
+          </span>
 
-  <section class="dashboard-panel card">
+          <div>
+            <strong>No finance activity yet.</strong>
+            <p>Income and expense records will appear here after they are added.</p>
+          </div>
+        </div>
+      }
+    </article>
+  </section>
+
+  <section class="dashboard-panel low-stock-panel card">
     <div class="panel-header">
       <div>
-        <h2>Low Stock Alerts</h2>
-        <p>Products that may need restocking soon</p>
+        <p>Restock awareness</p>
+        <h2>Low-stock alerts</h2>
       </div>
 
-      @if (lowStockAlertProducts.length > 0) {
-        <app-badge label="Needs review" tone="warning" />
-      }
-      @else {
-        <app-badge label="All clear" tone="success" />
-      }
+      <app-badge
+        [label]="lowStockAlertProducts.length > 0 ? 'Needs review' : 'All clear'"
+        [tone]="lowStockAlertProducts.length > 0 ? 'warning' : 'success'"
+      />
     </div>
 
     @if (lowStockAlertProducts.length > 0) {
       <div class="low-stock-grid">
         @for (product of lowStockAlertProducts; track product.id) {
-          <div class="low-stock-item">
+          <article class="low-stock-item">
             <div>
-              <h3>{{ product.name }}</h3>
-              <p>Threshold: {{ product.low_stock_threshold }}</p>
+              <strong>{{ product.name }}</strong>
+              <span>Threshold: {{ product.low_stock_threshold }} units</span>
             </div>
 
-            <strong>{{ product.current_stock }} left</strong>
-          </div>
+            <div class="low-stock-count">
+              <strong>{{ product.current_stock }}</strong>
+              <span>in stock</span>
+            </div>
+          </article>
         }
       </div>
-    }
-    @else {
-      <p class="panel-empty-text">No low-stock products need attention.</p>
+    } @else {
+      <div class="dashboard-empty-state compact">
+        <span class="empty-state-icon success">
+          <i-lucide [img]="lowStockIcon" [size]="20" [strokeWidth]="2.2" />
+        </span>
+
+        <div>
+          <strong>No low-stock products need attention.</strong>
+          <p>Products will appear here when their inventory reaches the alert threshold.</p>
+        </div>
+      </div>
     }
   </section>
 </section>

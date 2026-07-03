@@ -1,7 +1,20 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
+import {
+  ArrowDown,
+  ArrowUp,
+  ClipboardList,
+  LucideAngularModule,
+  Package,
+  RefreshCw,
+  Search,
+  SlidersHorizontal
+} from 'lucide-angular';
 
+import { Product } from '../../../core/models/product.model';
 import { StockMovement } from '../../../core/models/stock.model';
+import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
@@ -10,7 +23,14 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 
 @Component({
   selector: 'app-stock-movements',
-  imports: [BadgeComponent, EmptyStateComponent, FormsModule, LoadingStateComponent, PageHeaderComponent],
+  imports: [
+    BadgeComponent,
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent
+  ],
   templateUrl: './stock-movements.html',
   styleUrl: './stock-movements.scss'
 })
@@ -18,10 +38,22 @@ export class StockMovementsComponent implements OnInit {
   protected searchTerm = '';
   protected typeFilter = 'all';
   protected movements: StockMovement[] = [];
+  protected products: Product[] = [];
   protected isLoading = false;
   protected errorMessage = '';
 
-  constructor(private readonly stockService: StockService) {}
+  protected readonly movementsIcon = ClipboardList;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly stockInIcon = ArrowDown;
+  protected readonly stockOutIcon = ArrowUp;
+  protected readonly adjustmentIcon = RefreshCw;
+  protected readonly productIcon = Package;
+
+  constructor(
+    private readonly stockService: StockService,
+    private readonly productService: ProductService
+  ) {}
 
   ngOnInit(): void {
     this.loadMovements();
@@ -31,31 +63,41 @@ export class StockMovementsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.stockService.getStockMovements().subscribe({
-      next: (movements) => {
+    forkJoin({
+      movements: this.stockService.getStockMovements(),
+      products: this.productService.getProducts()
+    }).subscribe({
+      next: ({ movements, products }) => {
         this.movements = movements;
+        this.products = products;
         this.isLoading = false;
       },
       error: () => {
         this.movements = [];
+        this.products = [];
         this.isLoading = false;
         this.errorMessage = 'Unable to load stock movements.';
       }
     });
   }
 
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.typeFilter = 'all';
+  }
+
   protected get filteredMovements(): StockMovement[] {
     const searchValue = this.searchTerm.trim().toLowerCase();
 
     return this.movements.filter((movement) => {
+      const productName = this.getProductName(movement.product_id).toLowerCase();
       const formattedType = this.formatMovementType(movement.movement_type).toLowerCase();
 
       const matchesSearch =
+        productName.includes(searchValue) ||
         String(movement.product_id).includes(searchValue) ||
         formattedType.includes(searchValue) ||
         String(movement.quantity).includes(searchValue) ||
-        String(movement.previous_stock).includes(searchValue) ||
-        String(movement.new_stock).includes(searchValue) ||
         (movement.reason || '').toLowerCase().includes(searchValue);
 
       const matchesType =
@@ -65,10 +107,71 @@ export class StockMovementsComponent implements OnInit {
     });
   }
 
+  protected get stockInCount(): number {
+    return this.movements.filter((movement) => movement.movement_type === 'stock_in').length;
+  }
+
+  protected get stockOutCount(): number {
+    return this.movements.filter((movement) => movement.movement_type === 'stock_out').length;
+  }
+
+  protected get adjustmentCount(): number {
+    return this.movements.filter((movement) => movement.movement_type === 'adjustment').length;
+  }
+
+  protected getProductName(productId: number): string {
+    return this.products.find((product) => product.id === productId)?.name || `Product #${productId}`;
+  }
+
+  protected getProductSku(productId: number): string {
+    return this.products.find((product) => product.id === productId)?.sku || `ID ${productId}`;
+  }
+
   protected formatMovementType(type: string): string {
     return type
-      .replace('_', ' ')
+      .replaceAll('_', ' ')
       .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  protected formatDate(value: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  protected formatTime(value: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  protected formatQuantity(movement: StockMovement): string {
+    const quantity = Math.abs(movement.quantity);
+
+    if (movement.movement_type === 'stock_out') {
+      return `-${quantity}`;
+    }
+
+    if (movement.movement_type === 'stock_in') {
+      return `+${quantity}`;
+    }
+
+    return String(movement.quantity);
   }
 
   protected getMovementTone(type: string): 'success' | 'danger' | 'info' | 'neutral' {
@@ -85,5 +188,17 @@ export class StockMovementsComponent implements OnInit {
     }
 
     return 'neutral';
+  }
+
+  protected getMovementIcon(type: string): any {
+    if (type === 'stock_in') {
+      return this.stockInIcon;
+    }
+
+    if (type === 'stock_out') {
+      return this.stockOutIcon;
+    }
+
+    return this.adjustmentIcon;
   }
 }

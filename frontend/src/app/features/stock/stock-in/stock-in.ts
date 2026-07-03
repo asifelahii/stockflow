@@ -1,16 +1,34 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import {
+  ArrowDown,
+  CheckCircle2,
+  CircleAlert,
+  ClipboardList,
+  Info,
+  LucideAngularModule,
+  Package
+} from 'lucide-angular';
 
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-stock-in',
-  imports: [FormsModule, PageHeaderComponent, RouterLink],
+  imports: [
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent,
+    RouterLink
+  ],
   templateUrl: './stock-in.html',
   styleUrl: './stock-in.scss'
 })
@@ -23,6 +41,13 @@ export class StockInComponent implements OnInit {
   protected isSubmitting = false;
   protected errorMessage = '';
   protected successMessage = '';
+
+  protected readonly stockInIcon = ArrowDown;
+  protected readonly movementsIcon = ClipboardList;
+  protected readonly productIcon = Package;
+  protected readonly infoIcon = Info;
+  protected readonly checkIcon = CheckCircle2;
+  protected readonly alertIcon = CircleAlert;
 
   constructor(
     private readonly productService: ProductService,
@@ -50,6 +75,18 @@ export class StockInComponent implements OnInit {
         this.errorMessage = 'Unable to load products.';
       }
     });
+  }
+
+  protected get selectedProduct(): Product | null {
+    return this.products.find((product) => product.id === Number(this.productId)) || null;
+  }
+
+  protected get resultingStock(): number | null {
+    if (!this.selectedProduct || !this.quantity || this.quantity <= 0) {
+      return null;
+    }
+
+    return this.selectedProduct.current_stock + this.quantity;
   }
 
   protected handleSubmit(): void {
@@ -84,6 +121,11 @@ export class StockInComponent implements OnInit {
       }
     });
   }
+
+  protected formatCurrency(value: string | number): string {
+    return `\u09F3 ${Number(value).toLocaleString('en-BD', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    })}`;
+  }
 }
-
-

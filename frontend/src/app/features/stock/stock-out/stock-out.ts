@@ -1,16 +1,35 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import {
+  ArrowUp,
+  CheckCircle2,
+  CircleAlert,
+  ClipboardList,
+  Info,
+  LucideAngularModule,
+  Package,
+  TriangleAlert
+} from 'lucide-angular';
 
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-stock-out',
-  imports: [FormsModule, PageHeaderComponent, RouterLink],
+  imports: [
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent,
+    RouterLink
+  ],
   templateUrl: './stock-out.html',
   styleUrl: './stock-out.scss'
 })
@@ -23,6 +42,14 @@ export class StockOutComponent implements OnInit {
   protected isSubmitting = false;
   protected errorMessage = '';
   protected successMessage = '';
+
+  protected readonly stockOutIcon = ArrowUp;
+  protected readonly movementsIcon = ClipboardList;
+  protected readonly productIcon = Package;
+  protected readonly infoIcon = Info;
+  protected readonly checkIcon = CheckCircle2;
+  protected readonly alertIcon = CircleAlert;
+  protected readonly warningIcon = TriangleAlert;
 
   constructor(
     private readonly productService: ProductService,
@@ -52,12 +79,33 @@ export class StockOutComponent implements OnInit {
     });
   }
 
+  protected get selectedProduct(): Product | null {
+    return this.products.find((product) => product.id === Number(this.productId)) || null;
+  }
+
+  protected get resultingStock(): number | null {
+    if (!this.selectedProduct || !this.quantity || this.quantity <= 0) {
+      return null;
+    }
+
+    return this.selectedProduct.current_stock - this.quantity;
+  }
+
+  protected get exceedsAvailableStock(): boolean {
+    return this.resultingStock !== null && this.resultingStock < 0;
+  }
+
   protected handleSubmit(): void {
     this.errorMessage = '';
     this.successMessage = '';
 
     if (!this.productId || !this.quantity || this.quantity <= 0) {
       this.errorMessage = 'Please select a product and enter a valid quantity.';
+      return;
+    }
+
+    if (this.exceedsAvailableStock) {
+      this.errorMessage = 'The quantity exceeds currently available stock.';
       return;
     }
 
@@ -85,4 +133,3 @@ export class StockOutComponent implements OnInit {
     });
   }
 }
-

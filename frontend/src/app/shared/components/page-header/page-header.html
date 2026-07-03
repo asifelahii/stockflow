@@ -1,15 +1,23 @@
-﻿<div class="page-header">
-  <div>
-    <h1 class="page-title">{{ title }}</h1>
+<header class="page-header">
+  <div class="page-header-copy">
+    @if (eyebrow) {
+      <p class="page-header-eyebrow">{{ eyebrow }}</p>
+    }
+
+    <div class="page-header-title-row">
+      <h1>{{ title }}</h1>
+
+      @if (countLabel) {
+        <span class="page-header-count">{{ countLabel }}</span>
+      }
+    </div>
 
     @if (description) {
-      <p class="page-description">{{ description }}</p>
+      <p class="page-header-description">{{ description }}</p>
     }
   </div>
 
-  @if (actionLabel) {
-    <button class="btn btn-primary" type="button">
-      {{ actionLabel }}
-    </button>
-  }
-</div>
+  <div class="page-header-actions">
+    <ng-content select="[page-actions]" />
+  </div>
+</header>

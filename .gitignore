@@ -84,3 +84,6 @@ desktop.ini
 # Local AI prompt pack - private, not for GitHub
 docs/prompts/
 
+
+# Local-only frontend preview credentials
+/frontend/src/environments/environment.local.ts

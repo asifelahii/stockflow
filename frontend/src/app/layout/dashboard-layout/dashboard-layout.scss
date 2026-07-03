@@ -1,13 +1,13 @@
-﻿.dashboard-layout {
+.dashboard-layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  background: #f8fafc;
+  grid-template-columns: var(--sf-shell-sidebar-width) minmax(0, 1fr);
+  background: var(--sf-page-bg);
   transition: grid-template-columns 0.22s ease;
 }
 
 .dashboard-layout.sidebar-collapsed {
-  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-columns: var(--sf-shell-sidebar-collapsed-width) minmax(0, 1fr);
 }
 
 .sidebar-backdrop {
@@ -20,14 +20,14 @@
   height: 100vh;
   min-height: 0;
   overflow: hidden;
-  background: #0f172a;
-  color: #f8fafc;
-  padding: 0 1.25rem 1.25rem;
+  padding: 0 0.85rem 0.9rem;
+  border-right: 1px solid var(--sf-sidebar-border);
+  background: var(--sf-sidebar-bg);
   transition: padding 0.22s ease;
 }
 
 .dashboard-layout.sidebar-collapsed .dashboard-sidebar {
-  padding: 0 0.75rem 1rem;
+  padding: 0 0.65rem 0.8rem;
 }
 
 .dashboard-main {
@@ -38,17 +38,16 @@
 }
 
 .dashboard-topbar {
+  min-height: var(--sf-shell-header-height);
   position: sticky;
   top: 0;
   z-index: 20;
-  min-height: 92px;
   display: flex;
   align-items: center;
   gap: 0.85rem;
   padding: 0 1.5rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  color: #6b7280;
+  border-bottom: 1px solid var(--sf-border);
+  background: var(--sf-header-bg);
 }
 
 .mobile-menu-button {
@@ -56,9 +55,9 @@
 }
 
 .dashboard-content {
-  flex: 1;
-  min-width: 0;
   width: 100%;
+  min-width: 0;
+  flex: 1;
   padding: 1.5rem;
 }
 
@@ -66,47 +65,21 @@
   width: 100%;
 }
 
-:host-context(.dark-theme) .dashboard-layout {
-  background: #020617;
-}
-
-:host-context(.dark-theme) .dashboard-topbar {
-  background: #0f172a;
-  border-bottom-color: #1f2937;
-}
-
-:host-context(.dark-theme) .mobile-menu-button {
-  background: #111827;
-  border-color: #334155;
-}
-
-:host-context(.dark-theme) .mobile-menu-button span {
-  background: #f8fafc;
-}
-
 @media (max-width: 1100px) {
   .dashboard-layout {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 248px minmax(0, 1fr);
   }
 
   .dashboard-layout.sidebar-collapsed {
-    grid-template-columns: 88px minmax(0, 1fr);
-  }
-
-  .dashboard-sidebar {
-    padding: 0 1rem 1rem;
-  }
-
-  .dashboard-layout.sidebar-collapsed .dashboard-sidebar {
-    padding: 0 0.75rem 1rem;
-  }
-
-  .dashboard-content {
-    padding: 1rem;
+    grid-template-columns: 84px minmax(0, 1fr);
   }
 
   .dashboard-topbar {
-    padding: 0 1rem;
+    padding: 0 1.1rem;
+  }
+
+  .dashboard-content {
+    padding: 1.1rem;
   }
 }
 
@@ -121,13 +94,12 @@
     position: fixed;
     inset: 0 auto 0 0;
     z-index: 60;
-    width: min(84vw, 300px);
+    width: min(84vw, 320px);
     height: 100dvh;
-    max-height: none;
     padding: 0 1rem 1rem;
     transform: translateX(-105%);
+    box-shadow: var(--sf-shadow-float);
     transition: transform 0.22s ease;
-    box-shadow: 20px 0 45px rgba(15, 23, 42, 0.22);
   }
 
   .dashboard-layout.sidebar-open .dashboard-sidebar {
@@ -141,7 +113,7 @@
     display: block;
     border: 0;
     padding: 0;
-    background: rgba(15, 23, 42, 0.42);
+    background: rgba(9, 44, 76, 0.4);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
@@ -152,36 +124,32 @@
     pointer-events: auto;
   }
 
-  .dashboard-main {
-    min-height: 100vh;
-  }
-
   .dashboard-topbar {
-    min-height: 72px;
+    min-height: 68px;
     padding: 0 1rem;
   }
 
   .mobile-menu-button {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     display: inline-flex;
-    flex: 0 0 auto;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 0 0 auto;
+    flex-direction: column;
     gap: 5px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #ffffff;
+    border: 1px solid var(--sf-border);
+    border-radius: var(--sf-radius-sm);
+    background: var(--sf-surface-raised);
     cursor: pointer;
   }
 
   .mobile-menu-button span {
-    width: 18px;
+    width: 17px;
     height: 2px;
     display: block;
     border-radius: 999px;
-    background: #111827;
+    background: var(--sf-text-strong);
   }
 
   .dashboard-content {
@@ -190,11 +158,11 @@
 }
 
 @media (max-width: 640px) {
-  .dashboard-content {
-    padding: 0.85rem;
-  }
-
   .dashboard-topbar {
     padding: 0 0.85rem;
+  }
+
+  .dashboard-content {
+    padding: 0.85rem;
   }
 }

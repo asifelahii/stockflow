@@ -1,81 +1,196 @@
-﻿<section class="stock-form-page">
+<section class="stock-operation-page stock-out-page">
   <app-page-header
+    eyebrow="Stock Control"
     title="Stock Out"
-    description="Record outgoing stock from sales, damage, usage, or manual removal."
-  />
+    description="Record inventory leaving your workspace due to sales, use, damage, or other approved reasons."
+  >
+    <div page-actions class="stock-operation-actions">
+      <a class="stock-operation-action" routerLink="/app/stock/in">Stock in</a>
 
-  <section class="notice-card">
-    <strong>Important:</strong>
-    Stock out will reduce the selected product quantity. Use this carefully to keep inventory records accurate.
-  </section>
+      <a class="stock-operation-action active" routerLink="/app/stock/out">
+        <i-lucide [img]="stockOutIcon" [size]="16" [strokeWidth]="2.3" />
+        Stock out
+      </a>
 
-  @if (errorMessage) {
-    <section class="form-alert form-alert-error">
-      {{ errorMessage }}
+      <a class="stock-operation-action" routerLink="/app/stock/adjustment">Adjust</a>
+
+      <a class="stock-operation-action" routerLink="/app/stock/movements">
+        <i-lucide [img]="movementsIcon" [size]="16" [strokeWidth]="2.3" />
+        History
+      </a>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <app-loading-state message="Loading active products..." />
+  } @else if (errorMessage && !products.length) {
+    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+  } @else {
+    <section class="stock-operation-layout">
+      <article class="stock-operation-card card">
+        <header class="stock-operation-card-header">
+          <span class="stock-operation-card-icon">
+            <i-lucide [img]="stockOutIcon" [size]="21" [strokeWidth]="2.3" />
+          </span>
+
+          <div>
+            <h2>Remove inventory</h2>
+            <p>Record products that were sold, used, damaged, returned, or otherwise removed.</p>
+          </div>
+        </header>
+
+        @if (errorMessage) {
+          <div class="stock-operation-alert error">
+            <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="stock-operation-alert success">
+            <i-lucide [img]="checkIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+
+        <form class="stock-operation-form" (ngSubmit)="handleSubmit()">
+          <div class="form-group full-width">
+            <label class="form-label" for="stockOutProduct">Product</label>
+            <select
+              id="stockOutProduct"
+              class="form-control"
+              name="stockOutProduct"
+              [(ngModel)]="productId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a product</option>
+
+              @for (product of products; track product.id) {
+                <option [value]="product.id">
+                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockOutQuantity">Quantity removed</label>
+            <input
+              id="stockOutQuantity"
+              class="form-control"
+              type="number"
+              min="1"
+              name="stockOutQuantity"
+              placeholder="Example: 2"
+              [(ngModel)]="quantity"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockOutResult">Expected stock after removal</label>
+            <input
+              id="stockOutResult"
+              class="form-control"
+              type="number"
+              [value]="resultingStock ?? ''"
+              placeholder="Auto calculated"
+              disabled
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="stockOutReason">Reason or reference</label>
+            <textarea
+              id="stockOutReason"
+              class="form-control"
+              rows="4"
+              name="stockOutReason"
+              placeholder="Example: Customer order, damaged item, internal use"
+              [(ngModel)]="reason"
+              [disabled]="isSubmitting"
+            ></textarea>
+          </div>
+
+          <div class="full-width">
+            <button class="stock-operation-submit" type="submit" [disabled]="isSubmitting">
+              <i-lucide [img]="stockOutIcon" [size]="18" [strokeWidth]="2.4" />
+              {{ isSubmitting ? 'Recording...' : 'Record stock out' }}
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <aside class="stock-operation-side-card card">
+        <div>
+          <h2>Availability check</h2>
+          <p>Confirm the selected product has enough inventory before recording stock out.</p>
+        </div>
+
+        @if (selectedProduct; as product) {
+          <div class="stock-selected-product">
+            <div class="stock-selected-product-header">
+              <span class="stock-selected-product-icon">
+                <i-lucide [img]="productIcon" [size]="18" [strokeWidth]="2.2" />
+              </span>
+
+              <div>
+                <strong>{{ product.name }}</strong>
+                <small>{{ product.sku }}</small>
+              </div>
+            </div>
+
+            <div class="stock-product-metrics">
+              <div>
+                <span>Current stock</span>
+                <strong>{{ product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Alert threshold</span>
+                <strong>{{ product.low_stock_threshold }}</strong>
+              </div>
+
+              <div>
+                <span>Quantity out</span>
+                <strong>{{ quantity || 0 }}</strong>
+              </div>
+
+              <div>
+                <span>Expected stock</span>
+                <strong>{{ resultingStock ?? product.current_stock }}</strong>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="stock-selected-product empty">
+            Select an active product to check available stock before recording stock out.
+          </div>
+        }
+
+        @if (exceedsAvailableStock) {
+          <div class="stock-operation-alert error">
+            <i-lucide [img]="warningIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>The requested quantity exceeds the available stock.</span>
+          </div>
+        }
+
+        <div class="stock-operation-note">
+          <i-lucide [img]="infoIcon" [size]="18" [strokeWidth]="2.25" />
+          <span>StockFlow prevents a stock-out record when it would result in negative inventory.</span>
+        </div>
+
+        <ul class="stock-operation-info-list">
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            Use a clear reason for sales, damage, or internal use.
+          </li>
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            Review low-stock status after a stock-out is recorded.
+          </li>
+        </ul>
+      </aside>
     </section>
   }
-
-  @if (successMessage) {
-    <section class="form-alert form-alert-success">
-      {{ successMessage }}
-    </section>
-  }
-
-  <section class="stock-form-card card">
-    <form class="stock-form" (ngSubmit)="handleSubmit()">
-      <div class="form-group">
-        <label class="form-label" for="product">Product</label>
-        <select
-          id="product"
-          class="form-control"
-          name="productId"
-          [(ngModel)]="productId"
-          [disabled]="isLoading || isSubmitting"
-        >
-          <option value="">{{ isLoading ? 'Loading products...' : 'Select product' }}</option>
-          @for (product of products; track product.id) {
-            <option [value]="product.id">
-              {{ product.name }} — Current stock: {{ product.current_stock }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="quantity">Quantity to remove</label>
-        <input
-          id="quantity"
-          class="form-control"
-          type="number"
-          min="1"
-          name="quantity"
-          placeholder="Enter quantity"
-          [(ngModel)]="quantity"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label class="form-label" for="reason">Reason / Note</label>
-        <textarea
-          id="reason"
-          class="form-control"
-          rows="4"
-          name="reason"
-          placeholder="Example: Customer sale or damaged item"
-          [(ngModel)]="reason"
-          [disabled]="isSubmitting"
-        ></textarea>
-      </div>
-
-      <div class="form-actions full-width">
-        <button class="btn btn-danger" type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Recording...' : 'Record Stock Out' }}
-        </button>
-        <button class="btn btn-secondary" type="button" routerLink="/app/stock/movements">
-          Cancel
-        </button>
-      </div>
-    </form>
-  </section>
 </section>

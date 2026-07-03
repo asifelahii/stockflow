@@ -1,10 +1,28 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Folder,
+  LucideAngularModule,
+  Pencil,
+  Plus,
+  Power,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Tag
+} from 'lucide-angular';
 
-import { CategoryCreate, CategoryUpdate, ProductCategory } from '../../core/models/category.model';
+import {
+  CategoryCreate,
+  CategoryUpdate,
+  ProductCategory
+} from '../../core/models/category.model';
 import { CategoryService } from '../../core/services/category.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
+import { DrawerComponent } from '../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
@@ -13,9 +31,11 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
   selector: 'app-product-categories',
   imports: [
     BadgeComponent,
+    DrawerComponent,
     EmptyStateComponent,
     FormsModule,
     LoadingStateComponent,
+    LucideAngularModule,
     PageHeaderComponent
   ],
   templateUrl: './product-categories.html',
@@ -23,12 +43,12 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 })
 export class ProductCategoriesComponent implements OnInit {
   protected searchTerm = '';
+  protected statusFilter = 'all';
   protected categories: ProductCategory[] = [];
 
   protected isLoading = false;
   protected isSubmitting = false;
   protected errorMessage = '';
-  protected formMessage = '';
   protected formError = '';
 
   protected isFormOpen = false;
@@ -37,6 +57,17 @@ export class ProductCategoriesComponent implements OnInit {
   protected categoryName = '';
   protected categoryDescription = '';
   protected categoryIsActive = true;
+
+  protected readonly plusIcon = Plus;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly categoryIcon = Tag;
+  protected readonly folderIcon = Folder;
+  protected readonly editIcon = Pencil;
+  protected readonly deactivateIcon = Power;
+  protected readonly restoreIcon = RotateCcw;
+  protected readonly alertIcon = AlertTriangle;
+  protected readonly activeIcon = CheckCircle2;
 
   constructor(
     private readonly categoryService: CategoryService,
@@ -70,7 +101,6 @@ export class ProductCategoriesComponent implements OnInit {
     this.categoryName = '';
     this.categoryDescription = '';
     this.categoryIsActive = true;
-    this.formMessage = '';
     this.formError = '';
   }
 
@@ -80,7 +110,6 @@ export class ProductCategoriesComponent implements OnInit {
     this.categoryName = category.name;
     this.categoryDescription = category.description || '';
     this.categoryIsActive = category.is_active;
-    this.formMessage = '';
     this.formError = '';
   }
 
@@ -90,13 +119,16 @@ export class ProductCategoriesComponent implements OnInit {
     this.categoryName = '';
     this.categoryDescription = '';
     this.categoryIsActive = true;
-    this.formMessage = '';
     this.formError = '';
+  }
+
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
   }
 
   protected handleSubmit(): void {
     this.formError = '';
-    this.formMessage = '';
 
     if (!this.categoryName.trim()) {
       this.formError = 'Category name is required.';
@@ -115,7 +147,6 @@ export class ProductCategoriesComponent implements OnInit {
       this.categoryService.updateProductCategory(this.editingCategory.id, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
-          this.formMessage = 'Category updated successfully.';
           this.toastService.success('Category updated', 'Product category was updated successfully.');
           this.closeForm();
           this.loadCategories();
@@ -138,7 +169,6 @@ export class ProductCategoriesComponent implements OnInit {
     this.categoryService.createProductCategory(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.formMessage = 'Category created successfully.';
         this.toastService.success('Category created', 'New product category was added successfully.');
         this.closeForm();
         this.loadCategories();
@@ -193,14 +223,25 @@ export class ProductCategoriesComponent implements OnInit {
     const searchValue = this.searchTerm.trim().toLowerCase();
 
     return this.categories.filter((category) => {
-      const status = category.is_active ? 'active' : 'inactive';
-
-      return (
+      const matchesSearch =
         category.name.toLowerCase().includes(searchValue) ||
-        (category.description || '').toLowerCase().includes(searchValue) ||
-        status.includes(searchValue)
-      );
+        (category.description || '').toLowerCase().includes(searchValue);
+
+      const matchesStatus =
+        this.statusFilter === 'all' ||
+        (this.statusFilter === 'active' && category.is_active) ||
+        (this.statusFilter === 'inactive' && !category.is_active);
+
+      return matchesSearch && matchesStatus;
     });
+  }
+
+  protected get activeCategoryCount(): number {
+    return this.categories.filter((category) => category.is_active).length;
+  }
+
+  protected get inactiveCategoryCount(): number {
+    return this.categories.filter((category) => !category.is_active).length;
   }
 
   protected getCategoryStatus(category: ProductCategory): string {
@@ -209,5 +250,9 @@ export class ProductCategoriesComponent implements OnInit {
 
   protected getCategoryTone(category: ProductCategory): 'success' | 'neutral' {
     return category.is_active ? 'success' : 'neutral';
+  }
+
+  protected getCategoryInitial(name: string): string {
+    return name.trim().charAt(0).toUpperCase() || 'C';
   }
 }

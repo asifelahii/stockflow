@@ -1,185 +1,305 @@
-﻿<section class="suppliers-page">
+<section class="entity-page suppliers-page">
   <app-page-header
+    eyebrow="Inventory"
     title="Suppliers"
-    description="Manage supplier contacts and supplier-related inventory records."
-  />
+    description="Maintain supplier contacts, communication details, and availability for your inventory workflow."
+    [countLabel]="activeSupplierCount + ' active'"
+  >
+    <div page-actions>
+      <button class="entity-primary-action" type="button" (click)="openCreateForm()">
+        <i-lucide [img]="plusIcon" [size]="18" [strokeWidth]="2.5" />
+        Add supplier
+      </button>
+    </div>
+  </app-page-header>
 
-  <section class="toolbar card">
-    <div>
-      <label class="form-label" for="supplierSearch">Search suppliers</label>
-      <input
-        id="supplierSearch"
-        class="form-control"
-        type="text"
-        placeholder="Search by supplier name, contact, phone, email, address, or status"
-        [(ngModel)]="searchTerm"
-      />
+  <section class="entity-toolbar card">
+    <div class="entity-toolbar-summary">
+      <span class="entity-toolbar-icon">
+        <i-lucide [img]="supplierIcon" [size]="20" [strokeWidth]="2.25" />
+      </span>
+
+      <div>
+        <strong>{{ filteredSuppliers.length }} suppliers shown</strong>
+        <small>{{ activeSupplierCount }} active · {{ inactiveSupplierCount }} inactive</small>
+      </div>
     </div>
 
-    <button class="btn btn-primary" type="button" (click)="openCreateForm()">
-      + Add Supplier
-    </button>
+    <div class="entity-toolbar-filters">
+      <label class="entity-search-field" for="supplierSearch">
+        <i-lucide [img]="searchIcon" [size]="18" [strokeWidth]="2.2" />
+        <input
+          id="supplierSearch"
+          type="search"
+          placeholder="Search supplier, contact, email, or location"
+          [(ngModel)]="searchTerm"
+        />
+      </label>
+
+      <label class="entity-select-field" for="supplierStatus">
+        <i-lucide [img]="filterIcon" [size]="17" [strokeWidth]="2.2" />
+        <select id="supplierStatus" [(ngModel)]="statusFilter">
+          <option value="all">All suppliers</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </label>
+
+      <button
+        class="entity-clear-filter"
+        type="button"
+        [disabled]="!searchTerm && statusFilter === 'all'"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
   </section>
-
-  @if (isFormOpen) {
-    <section class="supplier-form-card card">
-      <div class="form-header">
-        <div>
-          <h2>{{ editingSupplier ? 'Edit Supplier' : 'Add Supplier' }}</h2>
-          <p>{{ editingSupplier ? 'Update supplier contact details.' : 'Create a new supplier record.' }}</p>
-        </div>
-
-        <button class="close-button" type="button" (click)="closeForm()">Close</button>
-      </div>
-
-      @if (formError) {
-        <div class="form-alert form-alert-error">{{ formError }}</div>
-      }
-
-      <form class="supplier-form" (ngSubmit)="handleSubmit()">
-        <div class="form-group">
-          <label class="form-label" for="supplierName">Supplier name</label>
-          <input
-            id="supplierName"
-            class="form-control"
-            type="text"
-            name="supplierName"
-            placeholder="Example: ABC Suppliers"
-            [(ngModel)]="supplierName"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="contactPerson">Contact person</label>
-          <input
-            id="contactPerson"
-            class="form-control"
-            type="text"
-            name="contactPerson"
-            placeholder="Example: Mr. Rahim"
-            [(ngModel)]="contactPerson"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="phone">Phone</label>
-          <input
-            id="phone"
-            class="form-control"
-            type="text"
-            name="phone"
-            placeholder="Example: 01700000000"
-            [(ngModel)]="phone"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="email">Email</label>
-          <input
-            id="email"
-            class="form-control"
-            type="email"
-            name="email"
-            placeholder="supplier@example.com"
-            [(ngModel)]="email"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group full-width">
-          <label class="form-label" for="address">Address</label>
-          <input
-            id="address"
-            class="form-control"
-            type="text"
-            name="address"
-            placeholder="Supplier address"
-            [(ngModel)]="address"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        @if (editingSupplier) {
-          <label class="checkbox-field">
-            <input
-              type="checkbox"
-              name="supplierIsActive"
-              [(ngModel)]="supplierIsActive"
-              [disabled]="isSubmitting"
-            />
-            Active supplier
-          </label>
-        }
-
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
-            {{ isSubmitting ? 'Saving...' : editingSupplier ? 'Update Supplier' : 'Create Supplier' }}
-          </button>
-          <button class="btn btn-secondary" type="button" (click)="closeForm()" [disabled]="isSubmitting">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </section>
-  }
 
   @if (isLoading) {
     <app-loading-state message="Loading suppliers..." />
   } @else if (errorMessage) {
-    <app-empty-state
-      title="Suppliers could not be loaded"
-      [message]="errorMessage"
-    />
+    <app-empty-state title="Suppliers could not be loaded" [message]="errorMessage" />
   } @else if (filteredSuppliers.length > 0) {
-    <section class="table-wrapper">
-      <table class="app-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Contact Person</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+    <section class="entity-table-card card">
+      <div class="entity-table-heading">
+        <div>
+          <p>Supplier directory</p>
+          <h2>Vendor network</h2>
+        </div>
 
-        <tbody>
-          @for (supplier of filteredSuppliers; track supplier.id) {
+        <span>{{ filteredSuppliers.length }} records</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="app-table entity-table suppliers-table">
+          <thead>
             <tr>
-              <td><strong>{{ supplier.name }}</strong></td>
-              <td>{{ supplier.contact_person || '—' }}</td>
-              <td>{{ supplier.phone || '—' }}</td>
-              <td>{{ supplier.email || '—' }}</td>
-              <td>
-                <app-badge
-                  [label]="getSupplierStatus(supplier)"
-                  [tone]="getSupplierTone(supplier)"
-                />
-              </td>
-              <td>
-                <div class="table-actions">
-                  <button type="button" (click)="openEditForm(supplier)">Edit</button>
-
-                  @if (supplier.is_active) {
-                    <button class="danger" type="button" (click)="deactivateSupplier(supplier)">Deactivate</button>
-                  } @else {
-                    <button class="restore" type="button" (click)="restoreSupplier(supplier)">Restore</button>
-                  }
-                </div>
-              </td>
+              <th>Supplier</th>
+              <th>Contact person</th>
+              <th>Contact details</th>
+              <th>Location</th>
+              <th>Status</th>
+              <th class="suppliers-actions-column">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @for (supplier of filteredSuppliers; track supplier.id) {
+              <tr>
+                <td data-label="Supplier">
+                  <div class="supplier-cell">
+                    <span class="supplier-avatar" [class.inactive]="!supplier.is_active">
+                      {{ getSupplierInitial(supplier.name) }}
+                    </span>
+
+                    <div>
+                      <strong>{{ supplier.name }}</strong>
+                      <small>Supplier #{{ supplier.id }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Contact person">
+                  <span class="supplier-contact-person">
+                    {{ supplier.contact_person || 'Not assigned' }}
+                  </span>
+                </td>
+
+                <td data-label="Contact details">
+                  <div class="supplier-contact-details">
+                    @if (supplier.phone) {
+                      <span>
+                        <i-lucide [img]="phoneIcon" [size]="14" [strokeWidth]="2.1" />
+                        {{ supplier.phone }}
+                      </span>
+                    }
+
+                    @if (supplier.email) {
+                      <span>
+                        <i-lucide [img]="mailIcon" [size]="14" [strokeWidth]="2.1" />
+                        {{ supplier.email }}
+                      </span>
+                    }
+
+                    @if (!supplier.phone && !supplier.email) {
+                      <span class="supplier-empty-contact">No contact details</span>
+                    }
+                  </div>
+                </td>
+
+                <td data-label="Location">
+                  <span class="supplier-location">
+                    <i-lucide [img]="locationIcon" [size]="15" [strokeWidth]="2.1" />
+                    {{ supplier.address || 'Not specified' }}
+                  </span>
+                </td>
+
+                <td data-label="Status">
+                  <app-badge
+                    [label]="getSupplierStatus(supplier)"
+                    [tone]="getSupplierTone(supplier)"
+                  />
+                </td>
+
+                <td data-label="Actions">
+                  <div class="entity-actions">
+                    <button
+                      class="entity-action-button"
+                      type="button"
+                      title="Edit supplier"
+                      (click)="openEditForm(supplier)"
+                    >
+                      <i-lucide [img]="editIcon" [size]="16" [strokeWidth]="2.25" />
+                      <span>Edit</span>
+                    </button>
+
+                    @if (supplier.is_active) {
+                      <button
+                        class="entity-action-button danger"
+                        type="button"
+                        title="Deactivate supplier"
+                        (click)="deactivateSupplier(supplier)"
+                      >
+                        <i-lucide [img]="deactivateIcon" [size]="16" [strokeWidth]="2.2" />
+                      </button>
+                    } @else {
+                      <button
+                        class="entity-action-button restore"
+                        type="button"
+                        title="Restore supplier"
+                        (click)="restoreSupplier(supplier)"
+                      >
+                        <i-lucide [img]="restoreIcon" [size]="16" [strokeWidth]="2.2" />
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </section>
   } @else {
     <app-empty-state
       title="No suppliers found"
-      message="Try changing the search term or create a new supplier."
+      message="Try changing the search term or status filter."
     />
   }
+
+  <app-drawer
+    [open]="isFormOpen"
+    [title]="editingSupplier ? 'Edit supplier' : 'Add supplier'"
+    [description]="
+      editingSupplier
+        ? 'Update supplier contact details and availability.'
+        : 'Create a supplier record for your inventory workflow.'
+    "
+    (closed)="closeForm()"
+  >
+    @if (formError) {
+      <div class="entity-form-alert">
+        <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.25" />
+        <span>{{ formError }}</span>
+      </div>
+    }
+
+    <form class="entity-form" (ngSubmit)="handleSubmit()">
+      <div class="form-group full-width">
+        <label class="form-label" for="supplierName">Supplier name</label>
+        <input
+          id="supplierName"
+          class="form-control"
+          type="text"
+          name="supplierName"
+          placeholder="Example: TechNova Distribution"
+          [(ngModel)]="supplierName"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="contactPerson">Contact person</label>
+        <input
+          id="contactPerson"
+          class="form-control"
+          type="text"
+          name="contactPerson"
+          placeholder="Example: Tanvir Hasan"
+          [(ngModel)]="contactPerson"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="supplierPhone">Phone</label>
+        <input
+          id="supplierPhone"
+          class="form-control"
+          type="tel"
+          name="supplierPhone"
+          placeholder="Example: +880 1700 000000"
+          [(ngModel)]="phone"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="supplierEmail">Email</label>
+        <input
+          id="supplierEmail"
+          class="form-control"
+          type="email"
+          name="supplierEmail"
+          placeholder="Example: sales@supplier.com"
+          [(ngModel)]="email"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="supplierAddress">Address</label>
+        <textarea
+          id="supplierAddress"
+          class="form-control"
+          rows="4"
+          name="supplierAddress"
+          placeholder="Supplier office or warehouse address"
+          [(ngModel)]="address"
+          [disabled]="isSubmitting"
+        ></textarea>
+      </div>
+
+      @if (editingSupplier) {
+        <label class="entity-active-toggle full-width">
+          <input
+            type="checkbox"
+            name="supplierIsActive"
+            [(ngModel)]="supplierIsActive"
+            [disabled]="isSubmitting"
+          />
+          <span>
+            <strong>Active supplier</strong>
+            <small>Inactive suppliers remain preserved but are excluded from normal selection.</small>
+          </span>
+        </label>
+      }
+
+      <div class="entity-form-actions full-width">
+        <button class="entity-primary-action" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : editingSupplier ? 'Update supplier' : 'Create supplier' }}
+        </button>
+
+        <button
+          class="entity-secondary-action"
+          type="button"
+          [disabled]="isSubmitting"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </app-drawer>
 </section>

@@ -1,37 +1,78 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  AlertTriangle,
+  Building2,
+  CheckCircle2,
+  LucideAngularModule,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  Plus,
+  Power,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Truck
+} from 'lucide-angular';
 
 import { Supplier, SupplierCreate, SupplierUpdate } from '../../core/models/supplier.model';
 import { SupplierService } from '../../core/services/supplier.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
+import { DrawerComponent } from '../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-suppliers',
-  imports: [BadgeComponent, EmptyStateComponent, FormsModule, LoadingStateComponent, PageHeaderComponent],
+  imports: [
+    BadgeComponent,
+    DrawerComponent,
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent
+  ],
   templateUrl: './suppliers.html',
   styleUrl: './suppliers.scss'
 })
 export class SuppliersComponent implements OnInit {
   protected searchTerm = '';
+  protected statusFilter = 'all';
   protected suppliers: Supplier[] = [];
+
   protected isLoading = false;
   protected isSubmitting = false;
   protected errorMessage = '';
-  protected formMessage = '';
   protected formError = '';
 
   protected isFormOpen = false;
   protected editingSupplier: Supplier | null = null;
+
   protected supplierName = '';
   protected contactPerson = '';
   protected phone = '';
   protected email = '';
   protected address = '';
   protected supplierIsActive = true;
+
+  protected readonly plusIcon = Plus;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly supplierIcon = Truck;
+  protected readonly businessIcon = Building2;
+  protected readonly phoneIcon = Phone;
+  protected readonly mailIcon = Mail;
+  protected readonly locationIcon = MapPin;
+  protected readonly editIcon = Pencil;
+  protected readonly deactivateIcon = Power;
+  protected readonly restoreIcon = RotateCcw;
+  protected readonly alertIcon = AlertTriangle;
+  protected readonly activeIcon = CheckCircle2;
 
   constructor(
     private readonly supplierService: SupplierService,
@@ -68,7 +109,6 @@ export class SuppliersComponent implements OnInit {
     this.email = '';
     this.address = '';
     this.supplierIsActive = true;
-    this.formMessage = '';
     this.formError = '';
   }
 
@@ -81,7 +121,6 @@ export class SuppliersComponent implements OnInit {
     this.email = supplier.email || '';
     this.address = supplier.address || '';
     this.supplierIsActive = supplier.is_active;
-    this.formMessage = '';
     this.formError = '';
   }
 
@@ -94,13 +133,16 @@ export class SuppliersComponent implements OnInit {
     this.email = '';
     this.address = '';
     this.supplierIsActive = true;
-    this.formMessage = '';
     this.formError = '';
+  }
+
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
   }
 
   protected handleSubmit(): void {
     this.formError = '';
-    this.formMessage = '';
 
     if (!this.supplierName.trim()) {
       this.formError = 'Supplier name is required.';
@@ -201,17 +243,28 @@ export class SuppliersComponent implements OnInit {
     const searchValue = this.searchTerm.trim().toLowerCase();
 
     return this.suppliers.filter((supplier) => {
-      const status = supplier.is_active ? 'active' : 'inactive';
-
-      return (
+      const matchesSearch =
         supplier.name.toLowerCase().includes(searchValue) ||
         (supplier.contact_person || '').toLowerCase().includes(searchValue) ||
         (supplier.phone || '').toLowerCase().includes(searchValue) ||
         (supplier.email || '').toLowerCase().includes(searchValue) ||
-        (supplier.address || '').toLowerCase().includes(searchValue) ||
-        status.includes(searchValue)
-      );
+        (supplier.address || '').toLowerCase().includes(searchValue);
+
+      const matchesStatus =
+        this.statusFilter === 'all' ||
+        (this.statusFilter === 'active' && supplier.is_active) ||
+        (this.statusFilter === 'inactive' && !supplier.is_active);
+
+      return matchesSearch && matchesStatus;
     });
+  }
+
+  protected get activeSupplierCount(): number {
+    return this.suppliers.filter((supplier) => supplier.is_active).length;
+  }
+
+  protected get inactiveSupplierCount(): number {
+    return this.suppliers.filter((supplier) => !supplier.is_active).length;
   }
 
   protected getSupplierStatus(supplier: Supplier): string {
@@ -221,5 +274,8 @@ export class SuppliersComponent implements OnInit {
   protected getSupplierTone(supplier: Supplier): 'success' | 'neutral' {
     return supplier.is_active ? 'success' : 'neutral';
   }
-}
 
+  protected getSupplierInitial(name: string): string {
+    return name.trim().charAt(0).toUpperCase() || 'S';
+  }
+}

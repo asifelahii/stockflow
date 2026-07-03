@@ -1,76 +1,187 @@
-﻿<section class="stock-form-page">
+<section class="stock-operation-page stock-in-page">
   <app-page-header
+    eyebrow="Stock Control"
     title="Stock In"
-    description="Record incoming stock from purchases, returns, or corrections."
-  />
+    description="Record new inventory received from a supplier, purchase order, or internal replenishment."
+  >
+    <div page-actions class="stock-operation-actions">
+      <a class="stock-operation-action active" routerLink="/app/stock/in">
+        <i-lucide [img]="stockInIcon" [size]="16" [strokeWidth]="2.3" />
+        Stock in
+      </a>
 
-  @if (errorMessage) {
-    <section class="form-alert form-alert-error">
-      {{ errorMessage }}
+      <a class="stock-operation-action" routerLink="/app/stock/out">Stock out</a>
+      <a class="stock-operation-action" routerLink="/app/stock/adjustment">Adjust</a>
+      <a class="stock-operation-action" routerLink="/app/stock/movements">
+        <i-lucide [img]="movementsIcon" [size]="16" [strokeWidth]="2.3" />
+        History
+      </a>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <app-loading-state message="Loading active products..." />
+  } @else if (errorMessage && !products.length) {
+    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+  } @else {
+    <section class="stock-operation-layout">
+      <article class="stock-operation-card card">
+        <header class="stock-operation-card-header">
+          <span class="stock-operation-card-icon">
+            <i-lucide [img]="stockInIcon" [size]="21" [strokeWidth]="2.3" />
+          </span>
+
+          <div>
+            <h2>Receive inventory</h2>
+            <p>Add units to an active product. StockFlow records this as a traceable stock movement.</p>
+          </div>
+        </header>
+
+        @if (errorMessage) {
+          <div class="stock-operation-alert error">
+            <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="stock-operation-alert success">
+            <i-lucide [img]="checkIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+
+        <form class="stock-operation-form" (ngSubmit)="handleSubmit()">
+          <div class="form-group full-width">
+            <label class="form-label" for="stockInProduct">Product</label>
+            <select
+              id="stockInProduct"
+              class="form-control"
+              name="stockInProduct"
+              [(ngModel)]="productId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a product</option>
+
+              @for (product of products; track product.id) {
+                <option [value]="product.id">
+                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockInQuantity">Quantity received</label>
+            <input
+              id="stockInQuantity"
+              class="form-control"
+              type="number"
+              min="1"
+              name="stockInQuantity"
+              placeholder="Example: 12"
+              [(ngModel)]="quantity"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockInResult">Expected stock after receipt</label>
+            <input
+              id="stockInResult"
+              class="form-control"
+              type="number"
+              [value]="resultingStock ?? ''"
+              placeholder="Auto calculated"
+              disabled
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="stockInReason">Reason or reference</label>
+            <textarea
+              id="stockInReason"
+              class="form-control"
+              rows="4"
+              name="stockInReason"
+              placeholder="Example: Supplier delivery, purchase order, restock"
+              [(ngModel)]="reason"
+              [disabled]="isSubmitting"
+            ></textarea>
+          </div>
+
+          <div class="full-width">
+            <button class="stock-operation-submit" type="submit" [disabled]="isSubmitting">
+              <i-lucide [img]="stockInIcon" [size]="18" [strokeWidth]="2.4" />
+              {{ isSubmitting ? 'Recording...' : 'Record stock in' }}
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <aside class="stock-operation-side-card card">
+        <div>
+          <h2>Selected product</h2>
+          <p>Review current inventory before saving this stock receipt.</p>
+        </div>
+
+        @if (selectedProduct; as product) {
+          <div class="stock-selected-product">
+            <div class="stock-selected-product-header">
+              <span class="stock-selected-product-icon">
+                <i-lucide [img]="productIcon" [size]="18" [strokeWidth]="2.2" />
+              </span>
+
+              <div>
+                <strong>{{ product.name }}</strong>
+                <small>{{ product.sku }}</small>
+              </div>
+            </div>
+
+            <div class="stock-product-metrics">
+              <div>
+                <span>Current stock</span>
+                <strong>{{ product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Alert threshold</span>
+                <strong>{{ product.low_stock_threshold }}</strong>
+              </div>
+
+              <div>
+                <span>Purchase price</span>
+                <strong>{{ formatCurrency(product.purchase_price) }}</strong>
+              </div>
+
+              <div>
+                <span>New stock</span>
+                <strong>{{ resultingStock ?? product.current_stock }}</strong>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="stock-selected-product empty">
+            Select an active product to view its current stock and projected quantity.
+          </div>
+        }
+
+        <div class="stock-operation-note">
+          <i-lucide [img]="infoIcon" [size]="18" [strokeWidth]="2.25" />
+          <span>Stock receipts increase inventory and become part of the movement history.</span>
+        </div>
+
+        <ul class="stock-operation-info-list">
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            Product stock is updated only after a successful save.
+          </li>
+          <li>
+            <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
+            Add a reference note for supplier deliveries or restocking.
+          </li>
+        </ul>
+      </aside>
     </section>
   }
-
-  @if (successMessage) {
-    <section class="form-alert form-alert-success">
-      {{ successMessage }}
-    </section>
-  }
-
-  <section class="stock-form-card card">
-    <form class="stock-form" (ngSubmit)="handleSubmit()">
-      <div class="form-group">
-        <label class="form-label" for="product">Product</label>
-        <select
-          id="product"
-          class="form-control"
-          name="productId"
-          [(ngModel)]="productId"
-          [disabled]="isLoading || isSubmitting"
-        >
-          <option value="">{{ isLoading ? 'Loading products...' : 'Select product' }}</option>
-          @for (product of products; track product.id) {
-            <option [value]="product.id">
-              {{ product.name }} — Current stock: {{ product.current_stock }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="quantity">Quantity to add</label>
-        <input
-          id="quantity"
-          class="form-control"
-          type="number"
-          min="1"
-          name="quantity"
-          placeholder="Enter quantity"
-          [(ngModel)]="quantity"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group full-width">
-        <label class="form-label" for="reason">Reason / Note</label>
-        <textarea
-          id="reason"
-          class="form-control"
-          rows="4"
-          name="reason"
-          placeholder="Example: Purchase received from supplier"
-          [(ngModel)]="reason"
-          [disabled]="isSubmitting"
-        ></textarea>
-      </div>
-
-      <div class="form-actions full-width">
-        <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Recording...' : 'Record Stock In' }}
-        </button>
-        <button class="btn btn-secondary" type="button" routerLink="/app/stock/movements">
-          Cancel
-        </button>
-      </div>
-    </form>
-  </section>
 </section>

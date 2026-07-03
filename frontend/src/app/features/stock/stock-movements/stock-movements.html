@@ -1,33 +1,71 @@
-﻿<section class="stock-movements-page">
+<section class="entity-page stock-movements-page">
   <app-page-header
+    eyebrow="Stock Control"
     title="Stock Movements"
-    description="Track stock in, stock out, and adjustment history for inventory control."
-  />
+    description="Review incoming stock, outgoing stock, and inventory corrections across your workspace."
+    [countLabel]="filteredMovements.length + ' records'"
+  >
+    <div page-actions class="stock-operation-actions">
+      <a class="stock-operation-action" routerLink="/app/stock/in">
+        <i-lucide [img]="stockInIcon" [size]="16" [strokeWidth]="2.3" />
+        Stock in
+      </a>
 
-  <section class="toolbar card">
-    <div>
-      <label class="form-label" for="movementSearch">Search movements</label>
-      <input
-        id="movementSearch"
-        class="form-control"
-        type="text"
-        placeholder="Search by product ID, type, quantity, or reason"
-        [(ngModel)]="searchTerm"
-      />
+      <a class="stock-operation-action" routerLink="/app/stock/out">
+        <i-lucide [img]="stockOutIcon" [size]="16" [strokeWidth]="2.3" />
+        Stock out
+      </a>
+
+      <a class="stock-operation-action" routerLink="/app/stock/adjustment">
+        <i-lucide [img]="adjustmentIcon" [size]="16" [strokeWidth]="2.3" />
+        Adjust
+      </a>
+    </div>
+  </app-page-header>
+
+  <section class="entity-toolbar card">
+    <div class="entity-toolbar-summary">
+      <span class="entity-toolbar-icon">
+        <i-lucide [img]="movementsIcon" [size]="20" [strokeWidth]="2.25" />
+      </span>
+
+      <div>
+        <strong>{{ filteredMovements.length }} movements shown</strong>
+        <small>
+          {{ stockInCount }} in · {{ stockOutCount }} out · {{ adjustmentCount }} adjustments
+        </small>
+      </div>
     </div>
 
-    <div>
-      <label class="form-label" for="movementType">Movement type</label>
-      <select
-        id="movementType"
-        class="form-control"
-        [(ngModel)]="typeFilter"
+    <div class="entity-toolbar-filters">
+      <label class="entity-search-field" for="movementSearch">
+        <i-lucide [img]="searchIcon" [size]="18" [strokeWidth]="2.2" />
+        <input
+          id="movementSearch"
+          type="search"
+          placeholder="Search product, type, quantity, or reason"
+          [(ngModel)]="searchTerm"
+        />
+      </label>
+
+      <label class="entity-select-field" for="movementType">
+        <i-lucide [img]="filterIcon" [size]="17" [strokeWidth]="2.2" />
+        <select id="movementType" [(ngModel)]="typeFilter">
+          <option value="all">All movements</option>
+          <option value="stock_in">Stock in</option>
+          <option value="stock_out">Stock out</option>
+          <option value="adjustment">Adjustment</option>
+        </select>
+      </label>
+
+      <button
+        class="entity-clear-filter"
+        type="button"
+        [disabled]="!searchTerm && typeFilter === 'all'"
+        (click)="clearFilters()"
       >
-        <option value="all">All movements</option>
-        <option value="stock_in">Stock In</option>
-        <option value="stock_out">Stock Out</option>
-        <option value="adjustment">Adjustment</option>
-      </select>
+        Clear
+      </button>
     </div>
   </section>
 
@@ -39,39 +77,92 @@
       [message]="errorMessage"
     />
   } @else if (filteredMovements.length > 0) {
-    <section class="table-wrapper">
-      <table class="app-table">
-        <thead>
-          <tr>
-            <th>Product ID</th>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th>Previous</th>
-            <th>New</th>
-            <th>Reason</th>
-            <th>Date</th>
-          </tr>
-        </thead>
+    <section class="entity-table-card card">
+      <div class="entity-table-heading">
+        <div>
+          <p>Movement history</p>
+          <h2>Inventory timeline</h2>
+        </div>
 
-        <tbody>
-          @for (movement of filteredMovements; track movement.id) {
+        <span>{{ filteredMovements.length }} records</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="app-table entity-table stock-movements-table">
+          <thead>
             <tr>
-              <td><strong>#{{ movement.product_id }}</strong></td>
-              <td>
-                <app-badge
-                  [label]="formatMovementType(movement.movement_type)"
-                  [tone]="getMovementTone(movement.movement_type)"
-                />
-              </td>
-              <td>{{ movement.quantity }}</td>
-              <td>{{ movement.previous_stock }}</td>
-              <td>{{ movement.new_stock }}</td>
-              <td>{{ movement.reason || '—' }}</td>
-              <td>{{ movement.created_at }}</td>
+              <th>Product</th>
+              <th>Movement</th>
+              <th>Quantity</th>
+              <th>Stock change</th>
+              <th>Reason</th>
+              <th>Date</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @for (movement of filteredMovements; track movement.id) {
+              <tr>
+                <td data-label="Product">
+                  <div class="movement-product">
+                    <span class="movement-product-icon">
+                      <i-lucide [img]="productIcon" [size]="17" [strokeWidth]="2.2" />
+                    </span>
+
+                    <div>
+                      <strong>{{ getProductName(movement.product_id) }}</strong>
+                      <small>{{ getProductSku(movement.product_id) }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Movement">
+                  <div class="movement-type">
+                    <span class="movement-type-icon" [class]="getMovementTone(movement.movement_type)">
+                      <i-lucide
+                        [img]="getMovementIcon(movement.movement_type)"
+                        [size]="16"
+                        [strokeWidth]="2.35"
+                      />
+                    </span>
+
+                    <app-badge
+                      [label]="formatMovementType(movement.movement_type)"
+                      [tone]="getMovementTone(movement.movement_type)"
+                    />
+                  </div>
+                </td>
+
+                <td data-label="Quantity">
+                  <strong
+                    class="movement-quantity"
+                    [class]="getMovementTone(movement.movement_type)"
+                  >
+                    {{ formatQuantity(movement) }}
+                  </strong>
+                </td>
+
+                <td data-label="Stock change">
+                  <span class="movement-stock-change">
+                    {{ movement.previous_stock }} <span aria-hidden="true">→</span> {{ movement.new_stock }}
+                  </span>
+                </td>
+
+                <td data-label="Reason">
+                  <span class="movement-reason">{{ movement.reason || 'No reason provided' }}</span>
+                </td>
+
+                <td data-label="Date">
+                  <div class="movement-date">
+                    <strong>{{ formatDate(movement.created_at) }}</strong>
+                    <small>{{ formatTime(movement.created_at) }}</small>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </section>
   } @else {
     <app-empty-state

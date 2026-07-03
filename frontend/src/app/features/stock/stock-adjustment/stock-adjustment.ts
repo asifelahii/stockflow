@@ -1,16 +1,34 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import {
+  CheckCircle2,
+  CircleAlert,
+  ClipboardList,
+  Info,
+  LucideAngularModule,
+  Package,
+  RefreshCw
+} from 'lucide-angular';
 
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-stock-adjustment',
-  imports: [FormsModule, PageHeaderComponent, RouterLink],
+  imports: [
+    EmptyStateComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent,
+    RouterLink
+  ],
   templateUrl: './stock-adjustment.html',
   styleUrl: './stock-adjustment.scss'
 })
@@ -23,6 +41,13 @@ export class StockAdjustmentComponent implements OnInit {
   protected isSubmitting = false;
   protected errorMessage = '';
   protected successMessage = '';
+
+  protected readonly adjustmentIcon = RefreshCw;
+  protected readonly movementsIcon = ClipboardList;
+  protected readonly productIcon = Package;
+  protected readonly infoIcon = Info;
+  protected readonly checkIcon = CheckCircle2;
+  protected readonly alertIcon = CircleAlert;
 
   constructor(
     private readonly productService: ProductService,
@@ -50,6 +75,28 @@ export class StockAdjustmentComponent implements OnInit {
         this.errorMessage = 'Unable to load products.';
       }
     });
+  }
+
+  protected get selectedProduct(): Product | null {
+    return this.products.find((product) => product.id === Number(this.productId)) || null;
+  }
+
+  protected get stockDifference(): number | null {
+    if (!this.selectedProduct || this.newStock === null) {
+      return null;
+    }
+
+    return this.newStock - this.selectedProduct.current_stock;
+  }
+
+  protected get differenceLabel(): string {
+    if (this.stockDifference === null) {
+      return '—';
+    }
+
+    return this.stockDifference > 0
+      ? `+${this.stockDifference}`
+      : String(this.stockDifference);
   }
 
   protected handleSubmit(): void {
@@ -85,4 +132,3 @@ export class StockAdjustmentComponent implements OnInit {
     });
   }
 }
-

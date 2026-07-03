@@ -1,33 +1,14 @@
-﻿import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  ArrowDown,
-  ArrowUp,
+  Building2,
   ChevronLeft,
   ChevronRight,
-  DollarSign,
-  FileText,
-  Folder,
-  Home,
-  LucideAngularModule,
-  Package,
-  Receipt,
-  RefreshCw,
-  Settings,
-  Tag,
-  Truck
+  LucideAngularModule
 } from 'lucide-angular';
 
-interface SidebarLink {
-  label: string;
-  route: string;
-  icon: any;
-}
-
-interface SidebarSection {
-  title: string;
-  links: SidebarLink[];
-}
+import { APP_NAVIGATION } from '../../../core/navigation/app-navigation.config';
+import { WorkspaceContextService } from '../../../core/workspace/workspace-context.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -41,46 +22,18 @@ export class SidebarComponent {
 
   protected readonly collapseIcon = ChevronLeft;
   protected readonly expandIcon = ChevronRight;
+  protected readonly workspaceIcon = Building2;
+  protected readonly sections = APP_NAVIGATION;
 
-  protected readonly sections: SidebarSection[] = [
-    {
-      title: 'Main',
-      links: [
-        { label: 'Dashboard', route: '/app/dashboard', icon: Home }
-      ]
-    },
-    {
-      title: 'Inventory',
-      links: [
-        { label: 'Products', route: '/app/products', icon: Package },
-        { label: 'Product Categories', route: '/app/product-categories', icon: Tag },
-        { label: 'Suppliers', route: '/app/suppliers', icon: Truck }
-      ]
-    },
-    {
-      title: 'Stock',
-      links: [
-        { label: 'Stock Movements', route: '/app/stock/movements', icon: RefreshCw },
-        { label: 'Stock In', route: '/app/stock/in', icon: ArrowDown },
-        { label: 'Stock Out', route: '/app/stock/out', icon: ArrowUp },
-        { label: 'Stock Adjustment', route: '/app/stock/adjustment', icon: Settings }
-      ]
-    },
-    {
-      title: 'Finance',
-      links: [
-        { label: 'Income', route: '/app/finance/income', icon: DollarSign },
-        { label: 'Expenses', route: '/app/finance/expenses', icon: Receipt },
-        { label: 'Expense Categories', route: '/app/finance/expense-categories', icon: Folder }
-      ]
-    },
-    {
-      title: 'Reports',
-      links: [
-        { label: 'Reports', route: '/app/reports', icon: FileText }
-      ]
-    }
-  ];
+  constructor(private readonly workspaceContext: WorkspaceContextService) {}
+
+  protected get workspaceName(): string {
+    return this.workspaceContext.workspaceName();
+  }
+
+  protected get workspaceInitial(): string {
+    return this.workspaceContext.workspaceInitial();
+  }
 
   protected toggleCollapse(): void {
     this.collapseToggled.emit();

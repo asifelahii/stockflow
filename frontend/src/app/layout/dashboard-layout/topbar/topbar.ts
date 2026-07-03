@@ -13,9 +13,10 @@ import {
   Truck
 } from 'lucide-angular';
 
-import { OrganizationSummary, UserResponse } from '../../../core/models/auth.model';
+import { UserResponse } from '../../../core/models/auth.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { WorkspaceContextService } from '../../../core/workspace/workspace-context.service';
 
 interface QuickAction {
   label: string;
@@ -32,7 +33,6 @@ interface QuickAction {
 })
 export class TopbarComponent implements OnInit {
   protected currentUser: UserResponse | null = null;
-  protected currentOrganization: OrganizationSummary | null = null;
   protected isDarkMode = false;
   protected isQuickActionsOpen = false;
 
@@ -83,12 +83,12 @@ export class TopbarComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly themeService: ThemeService,
+    private readonly workspaceContext: WorkspaceContextService,
     private readonly elementRef: ElementRef<HTMLElement>
   ) {}
 
   ngOnInit(): void {
     this.isDarkMode = this.themeService.isDarkMode();
-    this.currentOrganization = this.authService.getCurrentOrganization();
 
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
@@ -106,7 +106,7 @@ export class TopbarComponent implements OnInit {
   }
 
   get workspaceName(): string {
-    return this.currentOrganization?.name || 'StockFlow Dashboard';
+    return this.workspaceContext.workspaceName('StockFlow Dashboard');
   }
 
   get themeToggleLabel(): string {

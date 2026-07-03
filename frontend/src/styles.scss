@@ -1,4 +1,7 @@
-﻿@use './app/styles/base';
+@use './app/styles/tokens';
+@use './app/styles/base';
 @use './app/styles/forms';
 @use './app/styles/tables';
+@use './app/styles/entity-list';
+@use './app/styles/stock-operation';
 @use './app/styles/utilities';

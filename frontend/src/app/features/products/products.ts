@@ -1,6 +1,18 @@
-import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  LucideAngularModule,
+  Package,
+  Pencil,
+  Plus,
+  Power,
+  RotateCcw,
+  Search,
+  SlidersHorizontal
+} from 'lucide-angular';
 
 import { ProductCategory } from '../../core/models/category.model';
 import { Product, ProductCreate, ProductUpdate } from '../../core/models/product.model';
@@ -10,6 +22,7 @@ import { ProductService } from '../../core/services/product.service';
 import { SupplierService } from '../../core/services/supplier.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BadgeComponent } from '../../shared/components/badge/badge';
+import { DrawerComponent } from '../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header';
@@ -18,9 +31,11 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
   selector: 'app-products',
   imports: [
     BadgeComponent,
+    DrawerComponent,
     EmptyStateComponent,
     FormsModule,
     LoadingStateComponent,
+    LucideAngularModule,
     PageHeaderComponent
   ],
   templateUrl: './products.html',
@@ -52,6 +67,16 @@ export class ProductsComponent implements OnInit {
   protected currentStock: number | null = 0;
   protected lowStockThreshold: number | null = 0;
   protected productIsActive = true;
+
+  protected readonly plusIcon = Plus;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly productIcon = Package;
+  protected readonly editIcon = Pencil;
+  protected readonly deactivateIcon = Power;
+  protected readonly restoreIcon = RotateCcw;
+  protected readonly alertIcon = AlertTriangle;
+  protected readonly activeIcon = CheckCircle2;
 
   constructor(
     private readonly productService: ProductService,
@@ -125,6 +150,11 @@ export class ProductsComponent implements OnInit {
     this.isFormOpen = false;
     this.editingProduct = null;
     this.formError = '';
+  }
+
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
   }
 
   protected handleSubmit(): void {
@@ -235,7 +265,10 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
-    this.productService.updateProduct(product.id, { version: product.version, is_active: true }).subscribe({
+    this.productService.updateProduct(product.id, {
+      version: product.version,
+      is_active: true
+    }).subscribe({
       next: () => {
         this.toastService.success('Product restored', `${product.name} is active again.`);
         this.loadPageData();
@@ -253,14 +286,6 @@ export class ProductsComponent implements OnInit {
 
   protected get activeSuppliers(): Supplier[] {
     return this.suppliers.filter((supplier) => supplier.is_active);
-  }
-
-  protected getCategoryName(categoryId: number | null): string {
-    return this.categories.find((category) => category.id === categoryId)?.name || '—';
-  }
-
-  protected getSupplierName(supplierId: number | null): string {
-    return this.suppliers.find((supplier) => supplier.id === supplierId)?.name || '—';
   }
 
   protected get filteredProducts(): Product[] {
@@ -285,13 +310,31 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  protected get activeProductCount(): number {
+    return this.products.filter((product) => product.is_active).length;
+  }
+
+  protected get lowStockCount(): number {
+    return this.products.filter(
+      (product) => product.is_active && product.current_stock <= product.low_stock_threshold
+    ).length;
+  }
+
+  protected getCategoryName(categoryId: number | null): string {
+    return this.categories.find((category) => category.id === categoryId)?.name || 'Uncategorized';
+  }
+
+  protected getSupplierName(supplierId: number | null): string {
+    return this.suppliers.find((supplier) => supplier.id === supplierId)?.name || 'No supplier';
+  }
+
   protected getProductStatus(product: Product): string {
     if (!product.is_active) {
       return 'Inactive';
     }
 
     if (product.current_stock <= product.low_stock_threshold) {
-      return 'Low Stock';
+      return 'Low stock';
     }
 
     return 'Active';
@@ -309,14 +352,20 @@ export class ProductsComponent implements OnInit {
     return 'success';
   }
 
+  protected getProductInitial(name: string): string {
+    return name.trim().charAt(0).toUpperCase() || 'P';
+  }
+
+  protected isLowStock(product: Product): boolean {
+    return product.is_active && product.current_stock <= product.low_stock_threshold;
+  }
+
   protected formatCurrency(value: string | number): string {
     const numericValue = Number(value ?? 0);
 
-    return `৳ ${numericValue.toLocaleString('en-BD', {
+    return `\u09F3 ${numericValue.toLocaleString('en-BD', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     })}`;
   }
 }
-
-

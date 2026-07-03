@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -28,7 +28,9 @@ export class ThemeService {
 
   toggleTheme(): ThemeMode {
     const nextTheme: ThemeMode = this.currentTheme === 'dark' ? 'light' : 'dark';
+
     this.setTheme(nextTheme);
+
     return nextTheme;
   }
 
@@ -45,8 +47,7 @@ export class ThemeService {
       return savedTheme;
     }
 
-    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-    return prefersDark ? 'dark' : 'light';
+    return 'light';
   }
 
   private applyTheme(theme: ThemeMode): void {
@@ -58,7 +59,7 @@ export class ThemeService {
     const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
 
     if (themeColor) {
-      themeColor.content = isDark ? '#0f172a' : '#2563eb';
+      themeColor.content = isDark ? '#0f192a' : '#ffffff';
     }
   }
 }
