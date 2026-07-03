@@ -1,10 +1,59 @@
 <div class="topbar">
-  <div class="workspace-heading">
-    <span class="workspace-indicator" aria-hidden="true"></span>
+  <div class="topbar-left">
+    <div class="workspace-heading">
+      <span class="workspace-indicator" aria-hidden="true"></span>
 
-    <div>
-      <p class="topbar-kicker">Active workspace</p>
-      <h2>{{ workspaceName }}</h2>
+      <div>
+        <p class="topbar-kicker">Workspace</p>
+        <h2>{{ workspaceName }}</h2>
+      </div>
+    </div>
+
+    <div class="header-search" [class.open]="isSearchOpen">
+      <i-lucide [img]="searchIcon" [size]="18" [strokeWidth]="2.25" />
+
+      <input
+        type="search"
+        aria-label="Search StockFlow pages and actions"
+        placeholder="Search products, stock, finance, reports..."
+        [(ngModel)]="globalSearchTerm"
+        (focus)="openSearch()"
+        (keydown.enter)="openFirstSearchItem()"
+      />
+
+      @if (globalSearchTerm) {
+        <button
+          class="header-search-clear"
+          type="button"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          <i-lucide [img]="clearIcon" [size]="16" [strokeWidth]="2.25" />
+        </button>
+      }
+
+      @if (isSearchOpen) {
+        <div class="header-search-menu">
+          <p>Navigate StockFlow</p>
+
+          @if (filteredSearchItems.length > 0) {
+            @for (item of filteredSearchItems; track item.route) {
+              <button type="button" (click)="openSearchItem(item)">
+                <span class="header-search-item-icon">
+                  <i-lucide [img]="item.icon" [size]="17" [strokeWidth]="2.25" />
+                </span>
+
+                <span>
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.description }}</small>
+                </span>
+              </button>
+            }
+          } @else {
+            <span class="header-search-empty">No matching StockFlow page found.</span>
+          }
+        </div>
+      }
     </div>
   </div>
 
@@ -27,7 +76,7 @@
           />
         </span>
 
-        <span class="quick-action-label">Quick create</span>
+        <span class="quick-action-label">Add new</span>
       </button>
 
       @if (isQuickActionsOpen) {
@@ -46,7 +95,6 @@
             >
               <span class="quick-action-icon" aria-hidden="true">
                 <i-lucide
-                  class="quick-action-icon-svg"
                   [img]="action.icon"
                   [size]="18"
                   [strokeWidth]="2.25"
@@ -70,14 +118,11 @@
       [title]="themeToggleLabel"
       (click)="toggleTheme()"
     >
-      <span class="theme-icon" aria-hidden="true">
-        <i-lucide
-          class="theme-icon-svg"
-          [img]="isDarkMode ? sunIcon : moonIcon"
-          [size]="18"
-          [strokeWidth]="2.35"
-        />
-      </span>
+      <i-lucide
+        [img]="isDarkMode ? sunIcon : moonIcon"
+        [size]="18"
+        [strokeWidth]="2.35"
+      />
     </button>
 
     <div class="user-pill">

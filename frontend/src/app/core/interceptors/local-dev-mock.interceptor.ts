@@ -306,6 +306,147 @@ const financialSummary = {
   net_balance: '30000'
 };
 
+function getDashboardAnalytics(months: number) {
+  const selectedMonths = [3, 6, 12].includes(months) ? months : 6;
+
+  const financeTrend = [
+    { month: 'Aug', income: '18000', expense: '6400' },
+    { month: 'Sep', income: '22000', expense: '7800' },
+    { month: 'Oct', income: '27000', expense: '9200' },
+    { month: 'Nov', income: '31500', expense: '11000' },
+    { month: 'Dec', income: '34000', expense: '10800' },
+    { month: 'Jan', income: '38000', expense: '12600' },
+    { month: 'Feb', income: '42000', expense: '13200' },
+    { month: 'Mar', income: '46500', expense: '15800' },
+    { month: 'Apr', income: '40000', expense: '14300' },
+    { month: 'May', income: '48500', expense: '17200' },
+    { month: 'Jun', income: '52000', expense: '18500' },
+    { month: 'Jul', income: '38500', expense: '8500' }
+  ].slice(-selectedMonths);
+
+  const stockTrend = [
+    { month: 'Aug', stock_in: 24, stock_out: 16, adjustment: 2 },
+    { month: 'Sep', stock_in: 31, stock_out: 18, adjustment: 1 },
+    { month: 'Oct', stock_in: 38, stock_out: 27, adjustment: 3 },
+    { month: 'Nov', stock_in: 44, stock_out: 29, adjustment: 2 },
+    { month: 'Dec', stock_in: 52, stock_out: 35, adjustment: 4 },
+    { month: 'Jan', stock_in: 41, stock_out: 31, adjustment: 2 },
+    { month: 'Feb', stock_in: 48, stock_out: 39, adjustment: 3 },
+    { month: 'Mar', stock_in: 55, stock_out: 46, adjustment: 2 },
+    { month: 'Apr', stock_in: 46, stock_out: 34, adjustment: 1 },
+    { month: 'May', stock_in: 59, stock_out: 42, adjustment: 4 },
+    { month: 'Jun', stock_in: 63, stock_out: 48, adjustment: 3 },
+    { month: 'Jul', stock_in: 32, stock_out: 19, adjustment: 2 }
+  ].slice(-selectedMonths);
+
+  const periodIncome = financeTrend.reduce(
+    (sum, item) => sum + Number(item.income),
+    0
+  );
+
+  const periodExpense = financeTrend.reduce(
+    (sum, item) => sum + Number(item.expense),
+    0
+  );
+
+  const activeProducts = products.filter((product) => product.is_active);
+
+  const inventoryCostValue = activeProducts.reduce(
+    (sum, product) => sum + Number(product.purchase_price) * product.current_stock,
+    0
+  );
+
+  const inventorySellingValue = activeProducts.reduce(
+    (sum, product) => sum + Number(product.selling_price) * product.current_stock,
+    0
+  );
+
+  return {
+    months: selectedMonths,
+    period_start:
+      selectedMonths === 3
+        ? '2026-05-01'
+        : selectedMonths === 6
+          ? '2026-02-01'
+          : '2025-08-01',
+    period_end: '2026-07-03',
+    inventory_cost_value: String(inventoryCostValue),
+    inventory_selling_value: String(inventorySellingValue),
+    total_stock_units: activeProducts.reduce(
+      (sum, product) => sum + product.current_stock,
+      0
+    ),
+    out_of_stock_products: activeProducts.filter(
+      (product) => product.current_stock <= 0
+    ).length,
+    period_income: String(periodIncome),
+    period_expense: String(periodExpense),
+    period_net_balance: String(periodIncome - periodExpense),
+    finance_trend: financeTrend,
+    stock_trend: stockTrend,
+    expense_breakdown: [
+      {
+        category_id: 2,
+        category_name: 'Operations',
+        amount: '26400'
+      },
+      {
+        category_id: 1,
+        category_name: 'Logistics',
+        amount: '21800'
+      },
+      {
+        category_id: 3,
+        category_name: 'Marketing',
+        amount: '16500'
+      },
+      {
+        category_id: 4,
+        category_name: 'Utilities',
+        amount: '11900'
+      }
+    ],
+    top_moved_products: [
+      {
+        product_id: 1,
+        name: 'Wireless Mechanical Keyboard',
+        sku: 'KB-WL-001',
+        movement_count: 14,
+        units_moved: 64,
+        current_stock: 18,
+        low_stock_threshold: 5
+      },
+      {
+        product_id: 2,
+        name: 'USB-C Hub 7-in-1',
+        sku: 'HUB-7IN1-002',
+        movement_count: 11,
+        units_moved: 51,
+        current_stock: 4,
+        low_stock_threshold: 6
+      },
+      {
+        product_id: 3,
+        name: 'Ergonomic Office Chair',
+        sku: 'CHR-ERG-003',
+        movement_count: 8,
+        units_moved: 27,
+        current_stock: 7,
+        low_stock_threshold: 3
+      },
+      {
+        product_id: 4,
+        name: 'A4 Premium Paper',
+        sku: 'PPR-A4-004',
+        movement_count: 7,
+        units_moved: 22,
+        current_stock: 2,
+        low_stock_threshold: 10
+      }
+    ]
+  };
+}
+
 export const localDevMockInterceptor: HttpInterceptorFn = (request, next) => {
   const account = environment.localMock.account;
 
@@ -341,6 +482,12 @@ export const localDevMockInterceptor: HttpInterceptorFn = (request, next) => {
       token_type: 'bearer',
       organization: account.organization
     });
+  }
+
+  if (request.method === 'GET' && path.endsWith('/dashboard/analytics')) {
+    return success(
+      getDashboardAnalytics(Number(request.params.get('months') || 6))
+    );
   }
 
   if (request.method === 'GET') {

@@ -1,16 +1,21 @@
 import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
   ArrowDown,
   ArrowUp,
+  BarChart3,
   DollarSign,
+  LayoutDashboard,
   LucideAngularModule,
   Moon,
   Package,
   Plus,
   Receipt,
+  Search,
   Sun,
-  Truck
+  Truck,
+  X
 } from 'lucide-angular';
 
 import { UserResponse } from '../../../core/models/auth.model';
@@ -25,9 +30,17 @@ interface QuickAction {
   icon: any;
 }
 
+interface HeaderSearchItem {
+  label: string;
+  description: string;
+  route: string;
+  keywords: string;
+  icon: any;
+}
+
 @Component({
   selector: 'app-topbar',
-  imports: [RouterLink, LucideAngularModule],
+  imports: [FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss'
 })
@@ -35,10 +48,14 @@ export class TopbarComponent implements OnInit {
   protected currentUser: UserResponse | null = null;
   protected isDarkMode = false;
   protected isQuickActionsOpen = false;
+  protected isSearchOpen = false;
+  protected globalSearchTerm = '';
 
   protected readonly plusIcon = Plus;
   protected readonly moonIcon = Moon;
   protected readonly sunIcon = Sun;
+  protected readonly searchIcon = Search;
+  protected readonly clearIcon = X;
 
   protected readonly quickActions: QuickAction[] = [
     {
@@ -79,6 +96,58 @@ export class TopbarComponent implements OnInit {
     }
   ];
 
+  protected readonly headerSearchItems: HeaderSearchItem[] = [
+    {
+      label: 'Dashboard',
+      description: 'Workspace overview and analytics',
+      route: '/app/dashboard',
+      keywords: 'dashboard overview analytics home',
+      icon: LayoutDashboard
+    },
+    {
+      label: 'Products',
+      description: 'Inventory catalogue and stock levels',
+      route: '/app/products',
+      keywords: 'products inventory items sku stock',
+      icon: Package
+    },
+    {
+      label: 'Suppliers',
+      description: 'Supplier contacts and records',
+      route: '/app/suppliers',
+      keywords: 'suppliers vendors contacts',
+      icon: Truck
+    },
+    {
+      label: 'Stock Movements',
+      description: 'Stock in, stock out, and adjustments',
+      route: '/app/stock/movements',
+      keywords: 'stock movements stock in stock out adjustment',
+      icon: ArrowDown
+    },
+    {
+      label: 'Income',
+      description: 'Business income records',
+      route: '/app/finance/income',
+      keywords: 'income finance revenue money',
+      icon: DollarSign
+    },
+    {
+      label: 'Expenses',
+      description: 'Business expense records',
+      route: '/app/finance/expenses',
+      keywords: 'expenses spending finance costs',
+      icon: Receipt
+    },
+    {
+      label: 'Reports',
+      description: 'Exports and business summaries',
+      route: '/app/reports',
+      keywords: 'reports export csv excel pdf analytics',
+      icon: BarChart3
+    }
+  ];
+
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
@@ -101,31 +170,76 @@ export class TopbarComponent implements OnInit {
     });
   }
 
-  get userInitial(): string {
+  protected get userInitial(): string {
     return this.currentUser?.full_name?.charAt(0).toUpperCase() || 'U';
   }
 
-  get workspaceName(): string {
+  protected get workspaceName(): string {
     return this.workspaceContext.workspaceName('StockFlow Dashboard');
   }
 
-  get themeToggleLabel(): string {
+  protected get themeToggleLabel(): string {
     return this.isDarkMode ? 'Switch to light mode' : 'Switch to dark mode';
   }
 
-  toggleQuickActions(): void {
-    this.isQuickActionsOpen = !this.isQuickActionsOpen;
+  protected get filteredSearchItems(): HeaderSearchItem[] {
+    const term = this.globalSearchTerm.trim().toLowerCase();
+
+    if (!term) {
+      return this.headerSearchItems.slice(0, 6);
+    }
+
+    return this.headerSearchItems
+      .filter((item) =>
+        `${item.label} ${item.description} ${item.keywords}`
+          .toLowerCase()
+          .includes(term)
+      )
+      .slice(0, 6);
   }
 
-  closeQuickActions(): void {
+  protected toggleQuickActions(): void {
+    this.isQuickActionsOpen = !this.isQuickActionsOpen;
+    this.isSearchOpen = false;
+  }
+
+  protected closeQuickActions(): void {
     this.isQuickActionsOpen = false;
   }
 
-  toggleTheme(): void {
+  protected openSearch(): void {
+    this.isSearchOpen = true;
+    this.closeQuickActions();
+  }
+
+  protected closeSearch(): void {
+    this.isSearchOpen = false;
+  }
+
+  protected clearSearch(): void {
+    this.globalSearchTerm = '';
+    this.isSearchOpen = true;
+  }
+
+  protected openSearchItem(item: HeaderSearchItem): void {
+    this.router.navigate([item.route]);
+    this.globalSearchTerm = '';
+    this.closeSearch();
+  }
+
+  protected openFirstSearchItem(): void {
+    const firstItem = this.filteredSearchItems[0];
+
+    if (firstItem) {
+      this.openSearchItem(firstItem);
+    }
+  }
+
+  protected toggleTheme(): void {
     this.isDarkMode = this.themeService.toggleTheme() === 'dark';
   }
 
-  logout(): void {
+  protected logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
@@ -136,11 +250,13 @@ export class TopbarComponent implements OnInit {
 
     if (target instanceof Node && !this.elementRef.nativeElement.contains(target)) {
       this.closeQuickActions();
+      this.closeSearch();
     }
   }
 
   @HostListener('document:keydown.escape')
   protected onEscapePress(): void {
     this.closeQuickActions();
+    this.closeSearch();
   }
 }
