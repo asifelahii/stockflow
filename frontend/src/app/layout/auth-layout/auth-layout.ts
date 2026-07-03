@@ -1,22 +1,26 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import {
   Boxes,
   ChartNoAxesCombined,
+  ClipboardList,
   LucideAngularModule,
-  ShieldCheck,
+  Package,
+  TrendingUp,
   WalletCards
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [LucideAngularModule, RouterOutlet],
+  imports: [LucideAngularModule, RouterLink, RouterOutlet],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.scss'
 })
 export class AuthLayoutComponent {
-  protected readonly inventoryIcon = Boxes;
-  protected readonly movementIcon = ChartNoAxesCombined;
+  protected readonly productsIcon = Boxes;
+  protected readonly movementIcon = ClipboardList;
   protected readonly financeIcon = WalletCards;
-  protected readonly secureIcon = ShieldCheck;
+  protected readonly packageIcon = Package;
+  protected readonly trendIcon = TrendingUp;
+  protected readonly chartIcon = ChartNoAxesCombined;
 }

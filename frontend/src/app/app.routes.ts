@@ -1,29 +1,34 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout';
 import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-layout';
+
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
+import { AuthFlowComponent } from './features/auth/auth-flow/auth-flow';
+
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { ProductsComponent } from './features/products/products';
 import { ProductCategoriesComponent } from './features/product-categories/product-categories';
 import { SuppliersComponent } from './features/suppliers/suppliers';
+
 import { StockMovementsComponent } from './features/stock/stock-movements/stock-movements';
 import { StockInComponent } from './features/stock/stock-in/stock-in';
 import { StockOutComponent } from './features/stock/stock-out/stock-out';
 import { StockAdjustmentComponent } from './features/stock/stock-adjustment/stock-adjustment';
+
 import { IncomeComponent } from './features/finance/income/income';
 import { ExpensesComponent } from './features/finance/expenses/expenses';
 import { ExpenseCategoriesComponent } from './features/finance/expense-categories/expense-categories';
-import { PlaceholderPageComponent } from './features/placeholder/placeholder-page';
+
 import { ReportsComponent } from './features/reports/reports';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'auth/login',
+    redirectTo: 'auth/login'
   },
   {
     path: 'auth',
@@ -32,17 +37,47 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'login',
+        redirectTo: 'login'
       },
       {
         path: 'login',
-        component: LoginComponent,
+        component: LoginComponent
       },
       {
         path: 'register',
-        component: RegisterComponent,
+        component: RegisterComponent
       },
-    ],
+      {
+        path: 'forgot-password',
+        component: AuthFlowComponent,
+        data: { authScreen: 'forgot' }
+      },
+      {
+        path: 'verify-email',
+        component: AuthFlowComponent,
+        data: { authScreen: 'verify' }
+      },
+      {
+        path: 'reset-password',
+        component: AuthFlowComponent,
+        data: { authScreen: 'reset' }
+      },
+      {
+        path: 'success',
+        component: AuthFlowComponent,
+        data: { authScreen: 'success' }
+      },
+      {
+        path: 'two-factor',
+        component: AuthFlowComponent,
+        data: { authScreen: 'two-factor' }
+      },
+      {
+        path: 'continue/:provider',
+        component: AuthFlowComponent,
+        data: { authScreen: 'social' }
+      }
+    ]
   },
   {
     path: 'app',
@@ -52,104 +87,104 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'dashboard',
+        redirectTo: 'dashboard'
       },
       {
         path: 'dashboard',
-        component: DashboardComponent,
+        component: DashboardComponent
       },
       {
         path: 'products',
         component: ProductsComponent,
         data: {
           title: 'Products',
-          description: 'Manage inventory products, stock levels, SKUs, and pricing.',
-        },
+          description: 'Manage inventory products, stock levels, SKUs, and pricing.'
+        }
       },
       {
         path: 'product-categories',
         component: ProductCategoriesComponent,
         data: {
           title: 'Product Categories',
-          description: 'Organize products into clear business categories.',
-        },
+          description: 'Organize products into clear business categories.'
+        }
       },
       {
         path: 'suppliers',
         component: SuppliersComponent,
         data: {
           title: 'Suppliers',
-          description: 'Manage supplier contacts and supplier-related product records.',
-        },
+          description: 'Manage supplier contacts and supplier-related product records.'
+        }
       },
       {
         path: 'stock/movements',
         component: StockMovementsComponent,
         data: {
           title: 'Stock Movements',
-          description: 'Track stock in, stock out, and adjustment history.',
-        },
+          description: 'Track stock in, stock out, and adjustment history.'
+        }
       },
       {
         path: 'stock/in',
         component: StockInComponent,
         data: {
           title: 'Stock In',
-          description: 'Record incoming stock from purchase, return, or correction.',
-        },
+          description: 'Record incoming stock from purchase, return, or correction.'
+        }
       },
       {
         path: 'stock/out',
         component: StockOutComponent,
         data: {
           title: 'Stock Out',
-          description: 'Record outgoing stock from sales, damage, or usage.',
-        },
+          description: 'Record outgoing stock from sales, damage, or usage.'
+        }
       },
       {
         path: 'stock/adjustment',
         component: StockAdjustmentComponent,
         data: {
           title: 'Stock Adjustment',
-          description: 'Correct product stock after physical verification.',
-        },
+          description: 'Correct product stock after physical verification.'
+        }
       },
       {
         path: 'finance/income',
         component: IncomeComponent,
         data: {
           title: 'Income',
-          description: 'Track business income and sales-related records.',
-        },
+          description: 'Track business income and sales-related records.'
+        }
       },
       {
         path: 'finance/expenses',
         component: ExpensesComponent,
         data: {
           title: 'Expenses',
-          description: 'Track operational costs and business expenses.',
-        },
+          description: 'Track operational costs and business expenses.'
+        }
       },
       {
         path: 'finance/expense-categories',
         component: ExpenseCategoriesComponent,
         data: {
           title: 'Expense Categories',
-          description: 'Organize expenses into meaningful categories.',
-        },
+          description: 'Organize expenses into meaningful categories.'
+        }
       },
       {
         path: 'reports',
         component: ReportsComponent,
         data: {
           title: 'Reports',
-          description: 'View summaries and export business records.',
-        },
-      },
-    ],
+          description: 'View summaries and export business records.'
+        }
+      }
+    ]
   },
   {
     path: '**',
-    redirectTo: 'auth/login',
-  },
+    redirectTo: 'auth/login'
+  }
 ];

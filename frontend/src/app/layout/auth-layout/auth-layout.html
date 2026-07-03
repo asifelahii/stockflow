@@ -1,46 +1,86 @@
 <div class="auth-layout">
-  <section class="auth-brand-panel" aria-label="StockFlow introduction">
-    <div class="auth-brand-content">
-      <div class="auth-brand-mark">
-        <img src="stockflow-icon.svg" alt="StockFlow" />
-      </div>
+  <section class="auth-content-panel">
+    <div class="auth-content-shell">
+      <a class="auth-wordmark" routerLink="/auth/login">
+        <span class="auth-wordmark-icon">
+          <img src="stockflow-icon.svg" alt="" />
+        </span>
 
-      <p class="auth-brand-label">StockFlow · Inventory intelligence</p>
+        <span>
+          <strong>StockFlow</strong>
+          <small>Inventory intelligence</small>
+        </span>
+      </a>
 
-      <h1>Run products, stock, and finance from one calm workspace.</h1>
+      <router-outlet />
 
-      <p class="auth-brand-description">
-        A modern operational system for small businesses that need dependable inventory
-        records, clear stock movement history, and simple financial visibility.
-      </p>
-
-      <ul class="auth-feature-list">
-        <li>
-          <span><i-lucide [img]="inventoryIcon" [size]="17" [strokeWidth]="2.2" /></span>
-          Product and supplier control
-        </li>
-
-        <li>
-          <span><i-lucide [img]="movementIcon" [size]="17" [strokeWidth]="2.2" /></span>
-          Traceable stock activity
-        </li>
-
-        <li>
-          <span><i-lucide [img]="financeIcon" [size]="17" [strokeWidth]="2.2" /></span>
-          Income and expense visibility
-        </li>
-
-        <li>
-          <span><i-lucide [img]="secureIcon" [size]="17" [strokeWidth]="2.2" /></span>
-          Secure business workspace
-        </li>
-      </ul>
-
-      <p class="auth-brand-footer">Built for everyday inventory operations.</p>
+      <p class="auth-copyright">© 2026 StockFlow. Built for everyday business operations.</p>
     </div>
   </section>
 
-  <section class="auth-content-panel">
-    <router-outlet />
+  <section class="auth-brand-panel" aria-label="StockFlow workspace overview">
+    <div class="auth-visual-content">
+      <p class="auth-visual-eyebrow">One operational workspace</p>
+      <h1>Know what is in stock, what moved, and what the business earned.</h1>
+      <p>
+        StockFlow brings inventory, suppliers, stock movements, expenses, and reports into one calm workspace.
+      </p>
+
+      <div class="auth-visual-stage">
+        <div class="auth-stage-orbit orbit-one"></div>
+        <div class="auth-stage-orbit orbit-two"></div>
+
+        <article class="auth-visual-device">
+          <div class="auth-device-topbar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="auth-device-content">
+            <div class="auth-device-metric">
+              <i-lucide [img]="productsIcon" [size]="19" [strokeWidth]="2.2" />
+              <div>
+                <small>Products</small>
+                <strong>Inventory</strong>
+              </div>
+            </div>
+
+            <div class="auth-device-chart">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+            <div class="auth-device-row">
+              <i-lucide [img]="movementIcon" [size]="17" [strokeWidth]="2.2" />
+              <span>Stock movement history</span>
+            </div>
+
+            <div class="auth-device-row">
+              <i-lucide [img]="financeIcon" [size]="17" [strokeWidth]="2.2" />
+              <span>Income and expenses</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="auth-floating-card inventory">
+          <i-lucide [img]="packageIcon" [size]="19" [strokeWidth]="2.2" />
+          <span>Inventory ready</span>
+        </div>
+
+        <div class="auth-floating-card growth">
+          <i-lucide [img]="trendIcon" [size]="19" [strokeWidth]="2.2" />
+          <span>Finance visible</span>
+        </div>
+
+        <div class="auth-floating-card reports">
+          <i-lucide [img]="chartIcon" [size]="19" [strokeWidth]="2.2" />
+          <span>Reports prepared</span>
+        </div>
+      </div>
+    </div>
   </section>
 </div>

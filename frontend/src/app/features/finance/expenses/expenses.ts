@@ -26,7 +26,6 @@ import {
 import { CategoryService } from '../../../core/services/category.service';
 import { FinanceService } from '../../../core/services/finance.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { DrawerComponent } from '../../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { FinanceSummaryComponent } from '../../../shared/components/finance-summary/finance-summary';
@@ -36,7 +35,6 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 @Component({
   selector: 'app-expenses',
   imports: [
-    BadgeComponent,
     DrawerComponent,
     EmptyStateComponent,
     FinanceSummaryComponent,
