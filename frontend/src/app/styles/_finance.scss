@@ -1,0 +1,129 @@
+.finance-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.finance-toolbar-filters {
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) auto;
+}
+
+.expenses-page .finance-toolbar-filters {
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) minmax(150px, 190px) auto;
+}
+
+.transaction-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.transaction-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--sf-radius-sm);
+}
+
+.transaction-icon.income {
+  background: var(--sf-success-soft);
+  color: var(--sf-success);
+}
+
+.transaction-icon.expense {
+  background: var(--sf-danger-soft);
+  color: var(--sf-danger);
+}
+
+.transaction-cell small,
+.transaction-date small,
+.transaction-category small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--sf-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.transaction-description {
+  display: block;
+  max-width: 360px;
+  color: var(--sf-muted);
+  font-size: 0.73rem;
+  font-weight: 600;
+  line-height: 1.42;
+}
+
+.transaction-date strong {
+  display: block;
+  color: var(--sf-text-strong);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.transaction-amount {
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.transaction-amount.income {
+  color: var(--sf-success);
+}
+
+.transaction-amount.expense {
+  color: var(--sf-danger);
+}
+
+.transaction-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--sf-text);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.transaction-category-icon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--sf-radius-xs);
+  background: var(--sf-secondary-soft);
+  color: var(--sf-secondary);
+}
+
+.finance-form-help {
+  margin: 0.32rem 0 0;
+  color: var(--sf-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .expenses-page .finance-toolbar-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .finance-toolbar-filters,
+  .expenses-page .finance-toolbar-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-cell,
+  .transaction-category {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .transaction-description {
+    max-width: 58%;
+    text-align: right;
+  }
+}

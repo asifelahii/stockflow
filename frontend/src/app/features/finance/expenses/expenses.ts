@@ -1,10 +1,25 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import {
+  AlertTriangle,
+  Calendar,
+  DollarSign,
+  LucideAngularModule,
+  Pencil,
+  Plus,
+  Receipt,
+  Search,
+  SlidersHorizontal,
+  Tags,
+  Trash2,
+  TrendingDown
+} from 'lucide-angular';
 
 import { ExpenseCategory } from '../../../core/models/category.model';
 import {
   ExpenseCreate,
+  FinancialSummary,
   FinancialTransaction,
   FinancialTransactionUpdate
 } from '../../../core/models/finance.model';
@@ -12,20 +27,34 @@ import { CategoryService } from '../../../core/services/category.service';
 import { FinanceService } from '../../../core/services/finance.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
+import { DrawerComponent } from '../../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
+import { FinanceSummaryComponent } from '../../../shared/components/finance-summary/finance-summary';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
 
 @Component({
   selector: 'app-expenses',
-  imports: [BadgeComponent, EmptyStateComponent, FormsModule, LoadingStateComponent, PageHeaderComponent],
+  imports: [
+    BadgeComponent,
+    DrawerComponent,
+    EmptyStateComponent,
+    FinanceSummaryComponent,
+    FormsModule,
+    LoadingStateComponent,
+    LucideAngularModule,
+    PageHeaderComponent
+  ],
   templateUrl: './expenses.html',
   styleUrl: './expenses.scss'
 })
 export class ExpensesComponent implements OnInit {
   protected searchTerm = '';
+  protected categoryFilter = '';
+  protected dateFilter = '';
   protected expenseRecords: FinancialTransaction[] = [];
   protected expenseCategories: ExpenseCategory[] = [];
+  protected financialSummary: FinancialSummary | null = null;
 
   protected isLoading = false;
   protected isSubmitting = false;
@@ -40,6 +69,18 @@ export class ExpensesComponent implements OnInit {
   protected transactionDate = '';
   protected expenseCategoryId = '';
   protected description = '';
+
+  protected readonly plusIcon = Plus;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly calendarIcon = Calendar;
+  protected readonly expenseIcon = TrendingDown;
+  protected readonly receiptIcon = Receipt;
+  protected readonly categoryIcon = Tags;
+  protected readonly moneyIcon = DollarSign;
+  protected readonly editIcon = Pencil;
+  protected readonly deleteIcon = Trash2;
+  protected readonly alertIcon = AlertTriangle;
 
   constructor(
     private readonly financeService: FinanceService,
@@ -57,16 +98,19 @@ export class ExpensesComponent implements OnInit {
 
     forkJoin({
       expenses: this.financeService.getTransactions('expense'),
-      categories: this.categoryService.getExpenseCategories()
+      categories: this.categoryService.getExpenseCategories(),
+      summary: this.financeService.getSummary()
     }).subscribe({
-      next: ({ expenses, categories }) => {
+      next: ({ expenses, categories, summary }) => {
         this.expenseRecords = expenses;
         this.expenseCategories = categories;
+        this.financialSummary = summary;
         this.isLoading = false;
       },
       error: () => {
         this.expenseRecords = [];
         this.expenseCategories = [];
+        this.financialSummary = null;
         this.isLoading = false;
         this.errorMessage = 'Unable to load expense records.';
       }
@@ -78,7 +122,7 @@ export class ExpensesComponent implements OnInit {
     this.editingRecord = null;
     this.title = '';
     this.amount = null;
-    this.transactionDate = '';
+    this.transactionDate = this.getTodayIso();
     this.expenseCategoryId = '';
     this.description = '';
     this.formError = '';
@@ -90,7 +134,9 @@ export class ExpensesComponent implements OnInit {
     this.title = record.title;
     this.amount = Number(record.amount);
     this.transactionDate = record.transaction_date;
-    this.expenseCategoryId = record.expense_category_id ? String(record.expense_category_id) : '';
+    this.expenseCategoryId = record.expense_category_id
+      ? String(record.expense_category_id)
+      : '';
     this.description = record.description || '';
     this.formError = '';
   }
@@ -104,6 +150,12 @@ export class ExpensesComponent implements OnInit {
     this.expenseCategoryId = '';
     this.description = '';
     this.formError = '';
+  }
+
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.categoryFilter = '';
+    this.dateFilter = '';
   }
 
   protected handleSubmit(): void {
@@ -126,19 +178,23 @@ export class ExpensesComponent implements OnInit {
         title: this.title.trim(),
         amount: this.amount,
         transaction_date: this.transactionDate || null,
-        expense_category_id: this.expenseCategoryId ? Number(this.expenseCategoryId) : null,
+        expense_category_id: this.expenseCategoryId
+          ? Number(this.expenseCategoryId)
+          : null,
         description: this.description.trim() || null
       };
 
       this.financeService.updateTransaction(this.editingRecord.id, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.toastService.success('Expense updated', 'Expense record was updated successfully.');
           this.closeForm();
           this.loadPageData();
         },
         error: (error) => {
           this.isSubmitting = false;
           this.formError = error?.error?.detail || 'Unable to update expense record.';
+          this.toastService.error('Update failed', this.formError);
         }
       });
 
@@ -149,19 +205,23 @@ export class ExpensesComponent implements OnInit {
       title: this.title.trim(),
       amount: this.amount,
       transaction_date: this.transactionDate || null,
-      expense_category_id: this.expenseCategoryId ? Number(this.expenseCategoryId) : null,
+      expense_category_id: this.expenseCategoryId
+        ? Number(this.expenseCategoryId)
+        : null,
       description: this.description.trim() || null
     };
 
     this.financeService.createExpense(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
+        this.toastService.success('Expense recorded', 'New expense record was created successfully.');
         this.closeForm();
         this.loadPageData();
       },
       error: (error) => {
         this.isSubmitting = false;
         this.formError = error?.error?.detail || 'Unable to create expense record.';
+        this.toastService.error('Create failed', this.formError);
       }
     });
   }
@@ -175,10 +235,12 @@ export class ExpensesComponent implements OnInit {
 
     this.financeService.deleteTransaction(record.id).subscribe({
       next: () => {
+        this.toastService.success('Expense deleted', 'Expense record was deleted successfully.');
         this.loadPageData();
       },
       error: (error) => {
         this.errorMessage = error?.error?.detail || 'Unable to delete expense record.';
+        this.toastService.error('Delete failed', this.errorMessage);
       }
     });
   }
@@ -187,38 +249,69 @@ export class ExpensesComponent implements OnInit {
     return this.expenseCategories.filter((category) => category.is_active);
   }
 
-  protected getExpenseCategoryName(categoryId: number | null): string {
-    return this.expenseCategories.find((category) => category.id === categoryId)?.name || '—';
-  }
-
   protected get filteredExpenseRecords(): FinancialTransaction[] {
     const searchValue = this.searchTerm.trim().toLowerCase();
 
     return this.expenseRecords.filter((record) => {
-      return (
+      const categoryName = this.getExpenseCategoryName(record.expense_category_id).toLowerCase();
+
+      const matchesSearch =
         record.title.toLowerCase().includes(searchValue) ||
-        String(record.amount).toLowerCase().includes(searchValue) ||
-        record.transaction_date.toLowerCase().includes(searchValue) ||
-        this.getExpenseCategoryName(record.expense_category_id).toLowerCase().includes(searchValue) ||
-        (record.description || '').toLowerCase().includes(searchValue) ||
-        record.transaction_type.toLowerCase().includes(searchValue)
-      );
+        String(record.amount).includes(searchValue) ||
+        categoryName.includes(searchValue) ||
+        (record.description || '').toLowerCase().includes(searchValue);
+
+      const matchesCategory =
+        !this.categoryFilter ||
+        String(record.expense_category_id || '') === this.categoryFilter;
+
+      const matchesDate = !this.dateFilter || record.transaction_date === this.dateFilter;
+
+      return matchesSearch && matchesCategory && matchesDate;
     });
   }
 
-  protected formatCurrency(value: string | number): string {
-    const numericValue = Number(value ?? 0);
+  protected get totalVisibleExpense(): number {
+    return this.filteredExpenseRecords.reduce(
+      (sum, record) => sum + Number(record.amount),
+      0
+    );
+  }
 
-    return `৳ ${numericValue.toLocaleString('en-BD', {
+  protected getExpenseCategoryName(categoryId: number | null): string {
+    return (
+      this.expenseCategories.find((category) => category.id === categoryId)?.name ||
+      'Uncategorized'
+    );
+  }
+
+  protected formatCurrency(value: string | number): string {
+    return `\u09F3 ${Number(value ?? 0).toLocaleString('en-BD', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     })}`;
   }
 
-  protected formatTransactionType(type: string): string {
-    return type
-      .replace('_', ' ')
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  protected formatDate(value: string): string {
+    const [year, month, day] = value.split('-').map(Number);
+
+    if (!year || !month || !day) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(year, month - 1, day));
+  }
+
+  private getTodayIso(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }
-

@@ -35,6 +35,41 @@ const productCategories = [
   }
 ];
 
+const expenseCategories = [
+  {
+    id: 1,
+    name: 'Logistics',
+    description: 'Delivery, courier, and transport costs',
+    is_active: true,
+    created_at: MOCK_DATE,
+    updated_at: MOCK_DATE
+  },
+  {
+    id: 2,
+    name: 'Operations',
+    description: 'Office and day-to-day business costs',
+    is_active: true,
+    created_at: MOCK_DATE,
+    updated_at: MOCK_DATE
+  },
+  {
+    id: 3,
+    name: 'Marketing',
+    description: 'Campaign, content, and promotional spending',
+    is_active: true,
+    created_at: MOCK_DATE,
+    updated_at: MOCK_DATE
+  },
+  {
+    id: 4,
+    name: 'Utilities',
+    description: 'Internet, electricity, and service expenses',
+    is_active: false,
+    created_at: MOCK_DATE,
+    updated_at: MOCK_DATE
+  }
+];
+
 const suppliers = [
   {
     id: 1,
@@ -154,7 +189,7 @@ const products = [
   }
 ];
 
-const recentStockMovements = [
+const stockMovements = [
   {
     id: 1,
     product_id: 1,
@@ -163,6 +198,7 @@ const recentStockMovements = [
     previous_stock: 6,
     new_stock: 18,
     reason: 'Supplier delivery',
+    created_by_id: 9001,
     created_at: '2026-07-03T08:10:00.000Z'
   },
   {
@@ -173,28 +209,102 @@ const recentStockMovements = [
     previous_stock: 6,
     new_stock: 4,
     reason: 'Customer order',
+    created_by_id: 9001,
     created_at: '2026-07-02T16:30:00.000Z'
+  },
+  {
+    id: 3,
+    product_id: 4,
+    movement_type: 'adjustment',
+    quantity: -3,
+    previous_stock: 5,
+    new_stock: 2,
+    reason: 'Physical count correction',
+    created_by_id: 9001,
+    created_at: '2026-07-01T14:15:00.000Z'
   }
 ];
 
-const recentFinancialTransactions = [
+const financialTransactions = [
   {
-    id: 1,
+    id: 101,
     transaction_type: 'income',
     title: 'Product sales settlement',
     amount: '18500',
     transaction_date: '2026-07-03',
-    description: 'Daily sales settlement'
+    expense_category_id: null,
+    description: 'Daily sales settlement from completed orders',
+    created_by_id: 9001,
+    created_at: '2026-07-03T09:00:00.000Z',
+    updated_at: '2026-07-03T09:00:00.000Z'
   },
   {
-    id: 2,
+    id: 102,
+    transaction_type: 'income',
+    title: 'Corporate keyboard order',
+    amount: '12000',
+    transaction_date: '2026-07-02',
+    expense_category_id: null,
+    description: 'Bulk keyboard order received from a business client',
+    created_by_id: 9001,
+    created_at: '2026-07-02T15:25:00.000Z',
+    updated_at: '2026-07-02T15:25:00.000Z'
+  },
+  {
+    id: 103,
+    transaction_type: 'income',
+    title: 'Office supply invoice',
+    amount: '8000',
+    transaction_date: '2026-07-01',
+    expense_category_id: null,
+    description: 'Invoice payment received for office supply items',
+    created_by_id: 9001,
+    created_at: '2026-07-01T11:10:00.000Z',
+    updated_at: '2026-07-01T11:10:00.000Z'
+  },
+  {
+    id: 201,
     transaction_type: 'expense',
     title: 'Supplier delivery cost',
     amount: '2200',
+    transaction_date: '2026-07-03',
+    expense_category_id: 1,
+    description: 'Courier and delivery charge for incoming inventory',
+    created_by_id: 9001,
+    created_at: '2026-07-03T08:45:00.000Z',
+    updated_at: '2026-07-03T08:45:00.000Z'
+  },
+  {
+    id: 202,
+    transaction_type: 'expense',
+    title: 'Office utilities',
+    amount: '4800',
     transaction_date: '2026-07-02',
-    description: 'Courier and delivery'
+    expense_category_id: 2,
+    description: 'Internet, electricity, and workspace services',
+    created_by_id: 9001,
+    created_at: '2026-07-02T17:05:00.000Z',
+    updated_at: '2026-07-02T17:05:00.000Z'
+  },
+  {
+    id: 203,
+    transaction_type: 'expense',
+    title: 'Social media campaign',
+    amount: '1500',
+    transaction_date: '2026-07-01',
+    expense_category_id: 3,
+    description: 'Paid social promotion for selected product lines',
+    created_by_id: 9001,
+    created_at: '2026-07-01T13:40:00.000Z',
+    updated_at: '2026-07-01T13:40:00.000Z'
   }
 ];
+
+const financialSummary = {
+  total_income: '38500',
+  total_expense: '8500',
+  net_balance: '30000'
+};
 
 export const localDevMockInterceptor: HttpInterceptorFn = (request, next) => {
   const account = environment.localMock.account;
@@ -234,7 +344,13 @@ export const localDevMockInterceptor: HttpInterceptorFn = (request, next) => {
   }
 
   if (request.method === 'GET') {
-    return success(getReadOnlyMockBody(path, account));
+    return success(
+      getReadOnlyMockBody(
+        path,
+        account,
+        request.params.get('transaction_type')
+      )
+    );
   }
 
   return throwError(
@@ -259,7 +375,11 @@ function success(body: unknown) {
   );
 }
 
-function getReadOnlyMockBody(path: string, account: LocalMockAccount): unknown {
+function getReadOnlyMockBody(
+  path: string,
+  account: LocalMockAccount,
+  transactionType: string | null
+): unknown {
   if (path.endsWith('/auth/me')) {
     return {
       id: account.userId,
@@ -279,16 +399,16 @@ function getReadOnlyMockBody(path: string, account: LocalMockAccount): unknown {
         (product) => product.is_active && product.current_stock <= product.low_stock_threshold
       ).length,
       total_suppliers: suppliers.filter((supplier) => supplier.is_active).length,
-      total_income: '18500',
-      total_expense: '2200',
-      net_balance: '16300'
+      total_income: financialSummary.total_income,
+      total_expense: financialSummary.total_expense,
+      net_balance: financialSummary.net_balance
     };
   }
 
   if (path.endsWith('/dashboard/recent-activity')) {
     return {
-      recent_stock_movements: recentStockMovements,
-      recent_financial_transactions: recentFinancialTransactions
+      recent_stock_movements: stockMovements,
+      recent_financial_transactions: financialTransactions.slice(0, 5)
     };
   }
 
@@ -307,7 +427,7 @@ function getReadOnlyMockBody(path: string, account: LocalMockAccount): unknown {
   }
 
   if (path.endsWith('/expense-categories')) {
-    return [];
+    return expenseCategories;
   }
 
   if (path.endsWith('/suppliers')) {
@@ -315,19 +435,19 @@ function getReadOnlyMockBody(path: string, account: LocalMockAccount): unknown {
   }
 
   if (path.endsWith('/stock/movements')) {
-    return recentStockMovements;
+    return stockMovements;
   }
 
   if (path.endsWith('/finance/transactions')) {
-    return recentFinancialTransactions;
+    return transactionType
+      ? financialTransactions.filter(
+          (transaction) => transaction.transaction_type === transactionType
+        )
+      : financialTransactions;
   }
 
   if (path.endsWith('/finance/summary')) {
-    return {
-      total_income: '18500',
-      total_expense: '2200',
-      net_balance: '16300'
-    };
+    return financialSummary;
   }
 
   return [];

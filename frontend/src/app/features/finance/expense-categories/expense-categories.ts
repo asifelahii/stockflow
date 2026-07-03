@@ -1,10 +1,27 @@
-﻿import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  AlertTriangle,
+  Folder,
+  LucideAngularModule,
+  Pencil,
+  Plus,
+  Power,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  Tags
+} from 'lucide-angular';
 
-import { CategoryCreate, CategoryUpdate, ExpenseCategory } from '../../../core/models/category.model';
+import {
+  CategoryCreate,
+  CategoryUpdate,
+  ExpenseCategory
+} from '../../../core/models/category.model';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
+import { DrawerComponent } from '../../../shared/components/drawer/drawer';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
@@ -13,9 +30,11 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
   selector: 'app-expense-categories',
   imports: [
     BadgeComponent,
+    DrawerComponent,
     EmptyStateComponent,
     FormsModule,
     LoadingStateComponent,
+    LucideAngularModule,
     PageHeaderComponent
   ],
   templateUrl: './expense-categories.html',
@@ -23,6 +42,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 })
 export class ExpenseCategoriesComponent implements OnInit {
   protected searchTerm = '';
+  protected statusFilter = 'all';
   protected categories: ExpenseCategory[] = [];
 
   protected isLoading = false;
@@ -36,6 +56,16 @@ export class ExpenseCategoriesComponent implements OnInit {
   protected categoryName = '';
   protected categoryDescription = '';
   protected categoryIsActive = true;
+
+  protected readonly plusIcon = Plus;
+  protected readonly searchIcon = Search;
+  protected readonly filterIcon = SlidersHorizontal;
+  protected readonly categoryIcon = Tags;
+  protected readonly folderIcon = Folder;
+  protected readonly editIcon = Pencil;
+  protected readonly deactivateIcon = Power;
+  protected readonly restoreIcon = RotateCcw;
+  protected readonly alertIcon = AlertTriangle;
 
   constructor(
     private readonly categoryService: CategoryService,
@@ -90,6 +120,11 @@ export class ExpenseCategoriesComponent implements OnInit {
     this.formError = '';
   }
 
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.statusFilter = 'all';
+  }
+
   protected handleSubmit(): void {
     this.formError = '';
 
@@ -132,7 +167,10 @@ export class ExpenseCategoriesComponent implements OnInit {
     this.categoryService.createExpenseCategory(payload).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.toastService.success('Expense category created', 'New expense category was added successfully.');
+        this.toastService.success(
+          'Expense category created',
+          'New expense category was added successfully.'
+        );
         this.closeForm();
         this.loadCategories();
       },
@@ -186,14 +224,25 @@ export class ExpenseCategoriesComponent implements OnInit {
     const searchValue = this.searchTerm.trim().toLowerCase();
 
     return this.categories.filter((category) => {
-      const status = category.is_active ? 'active' : 'inactive';
-
-      return (
+      const matchesSearch =
         category.name.toLowerCase().includes(searchValue) ||
-        (category.description || '').toLowerCase().includes(searchValue) ||
-        status.includes(searchValue)
-      );
+        (category.description || '').toLowerCase().includes(searchValue);
+
+      const matchesStatus =
+        this.statusFilter === 'all' ||
+        (this.statusFilter === 'active' && category.is_active) ||
+        (this.statusFilter === 'inactive' && !category.is_active);
+
+      return matchesSearch && matchesStatus;
     });
+  }
+
+  protected get activeCategoryCount(): number {
+    return this.categories.filter((category) => category.is_active).length;
+  }
+
+  protected get inactiveCategoryCount(): number {
+    return this.categories.filter((category) => !category.is_active).length;
   }
 
   protected getCategoryStatus(category: ExpenseCategory): string {
@@ -202,5 +251,9 @@ export class ExpenseCategoriesComponent implements OnInit {
 
   protected getCategoryTone(category: ExpenseCategory): 'success' | 'neutral' {
     return category.is_active ? 'success' : 'neutral';
+  }
+
+  protected getCategoryInitial(name: string): string {
+    return name.trim().charAt(0).toUpperCase() || 'E';
   }
 }

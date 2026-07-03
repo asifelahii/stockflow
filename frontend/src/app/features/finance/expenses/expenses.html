@@ -1,173 +1,282 @@
-﻿<section class="finance-page">
+<section class="entity-page finance-page expenses-page">
   <app-page-header
+    eyebrow="Finance"
     title="Expenses"
-    description="Track operational costs, supplier payments, rent, bills, and business expenses."
-  />
+    description="Track operating costs, categorize spending, and maintain a clear record of business expenses."
+    [countLabel]="filteredExpenseRecords.length + ' records'"
+  >
+    <div page-actions>
+      <button class="entity-primary-action" type="button" (click)="openCreateForm()">
+        <i-lucide [img]="plusIcon" [size]="18" [strokeWidth]="2.5" />
+        Add expense
+      </button>
+    </div>
+  </app-page-header>
 
-  <section class="toolbar card">
-    <div>
-      <label class="form-label" for="expenseSearch">Search expenses</label>
-      <input
-        id="expenseSearch"
-        class="form-control"
-        type="text"
-        placeholder="Search by title, amount, category, date, description, or type"
-        [(ngModel)]="searchTerm"
-      />
+  <app-finance-summary [summary]="financialSummary" />
+
+  <section class="entity-toolbar card">
+    <div class="entity-toolbar-summary">
+      <span class="entity-toolbar-icon">
+        <i-lucide [img]="expenseIcon" [size]="20" [strokeWidth]="2.25" />
+      </span>
+
+      <div>
+        <strong>{{ filteredExpenseRecords.length }} expenses shown</strong>
+        <small>{{ formatCurrency(totalVisibleExpense) }} across current results</small>
+      </div>
     </div>
 
-    <button class="btn btn-primary" type="button" (click)="openCreateForm()">
-      + Add Expense
-    </button>
+    <div class="entity-toolbar-filters finance-toolbar-filters">
+      <label class="entity-search-field" for="expenseSearch">
+        <i-lucide [img]="searchIcon" [size]="18" [strokeWidth]="2.2" />
+        <input
+          id="expenseSearch"
+          type="search"
+          placeholder="Search expense, amount, category, or note"
+          [(ngModel)]="searchTerm"
+        />
+      </label>
+
+      <label class="entity-select-field" for="expenseCategoryFilter">
+        <i-lucide [img]="filterIcon" [size]="17" [strokeWidth]="2.2" />
+        <select id="expenseCategoryFilter" [(ngModel)]="categoryFilter">
+          <option value="">All categories</option>
+
+          @for (category of activeExpenseCategories; track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="entity-select-field" for="expenseDate">
+        <i-lucide [img]="calendarIcon" [size]="17" [strokeWidth]="2.2" />
+        <input id="expenseDate" type="date" [(ngModel)]="dateFilter" />
+      </label>
+
+      <button
+        class="entity-clear-filter"
+        type="button"
+        [disabled]="!searchTerm && !categoryFilter && !dateFilter"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
   </section>
-
-  @if (isFormOpen) {
-    <section class="finance-form-card card">
-      <div class="form-header">
-        <div>
-          <h2>{{ editingRecord ? 'Edit Expense' : 'Add Expense' }}</h2>
-          <p>{{ editingRecord ? 'Update expense record details.' : 'Create a new expense record.' }}</p>
-        </div>
-
-        <button class="close-button" type="button" (click)="closeForm()">Close</button>
-      </div>
-
-      @if (formError) {
-        <div class="form-alert form-alert-error">{{ formError }}</div>
-      }
-
-      <form class="finance-form" (ngSubmit)="handleSubmit()">
-        <div class="form-group">
-          <label class="form-label" for="title">Title</label>
-          <input
-            id="title"
-            class="form-control"
-            type="text"
-            name="title"
-            placeholder="Example: Shop rent"
-            [(ngModel)]="title"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="amount">Amount</label>
-          <input
-            id="amount"
-            class="form-control"
-            type="number"
-            min="1"
-            name="amount"
-            placeholder="Enter amount"
-            [(ngModel)]="amount"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="expenseCategoryId">Expense Category</label>
-          <select
-            id="expenseCategoryId"
-            class="form-control"
-            name="expenseCategoryId"
-            [(ngModel)]="expenseCategoryId"
-            [disabled]="isSubmitting"
-          >
-            <option value="">No category</option>
-            @for (category of activeExpenseCategories; track category.id) {
-              <option [value]="category.id">{{ category.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="transactionDate">Date</label>
-          <input
-            id="transactionDate"
-            class="form-control"
-            type="date"
-            name="transactionDate"
-            [(ngModel)]="transactionDate"
-            [disabled]="isSubmitting"
-          />
-        </div>
-
-        <div class="form-group full-width">
-          <label class="form-label" for="description">Description</label>
-          <textarea
-            id="description"
-            class="form-control"
-            rows="3"
-            name="description"
-            placeholder="Short expense note"
-            [(ngModel)]="description"
-            [disabled]="isSubmitting"
-          ></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
-            {{ isSubmitting ? 'Saving...' : editingRecord ? 'Update Expense' : 'Create Expense' }}
-          </button>
-          <button class="btn btn-secondary" type="button" (click)="closeForm()" [disabled]="isSubmitting">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </section>
-  }
 
   @if (isLoading) {
     <app-loading-state message="Loading expense records..." />
   } @else if (errorMessage) {
-    <app-empty-state
-      title="Expense records could not be loaded"
-      [message]="errorMessage"
-    />
+    <app-empty-state title="Expense records could not be loaded" [message]="errorMessage" />
   } @else if (filteredExpenseRecords.length > 0) {
-    <section class="table-wrapper">
-      <table class="app-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+    <section class="entity-table-card card">
+      <div class="entity-table-heading">
+        <div>
+          <p>Expense register</p>
+          <h2>Money spent</h2>
+        </div>
 
-        <tbody>
-          @for (record of filteredExpenseRecords; track record.id) {
+        <span>{{ filteredExpenseRecords.length }} records</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="app-table entity-table expenses-table">
+          <thead>
             <tr>
-              <td><strong>{{ record.title }}</strong></td>
-              <td>{{ formatCurrency(record.amount) }}</td>
-              <td>{{ getExpenseCategoryName(record.expense_category_id) }}</td>
-              <td>{{ record.transaction_date }}</td>
-              <td>{{ record.description || '—' }}</td>
-              <td>
-                <app-badge
-                  [label]="formatTransactionType(record.transaction_type)"
-                  tone="danger"
-                />
-              </td>
-              <td>
-                <div class="table-actions">
-                  <button type="button" (click)="openEditForm(record)">Edit</button>
-                  <button class="danger" type="button" (click)="deleteExpense(record)">Delete</button>
-                </div>
-              </td>
+              <th>Expense record</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th class="expenses-actions-column">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            @for (record of filteredExpenseRecords; track record.id) {
+              <tr>
+                <td data-label="Expense record">
+                  <div class="transaction-cell">
+                    <span class="transaction-icon expense">
+                      <i-lucide [img]="receiptIcon" [size]="17" [strokeWidth]="2.25" />
+                    </span>
+
+                    <div>
+                      <strong>{{ record.title }}</strong>
+                      <small>Expense #{{ record.id }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Category">
+                  <span class="transaction-category">
+                    <span class="transaction-category-icon">
+                      <i-lucide [img]="categoryIcon" [size]="14" [strokeWidth]="2.25" />
+                    </span>
+                    {{ getExpenseCategoryName(record.expense_category_id) }}
+                  </span>
+                </td>
+
+                <td data-label="Description">
+                  <span class="transaction-description">
+                    {{ record.description || 'No description added.' }}
+                  </span>
+                </td>
+
+                <td data-label="Date">
+                  <div class="transaction-date">
+                    <strong>{{ formatDate(record.transaction_date) }}</strong>
+                    <small>Recorded expense</small>
+                  </div>
+                </td>
+
+                <td data-label="Amount">
+                  <strong class="transaction-amount expense">
+                    {{ formatCurrency(record.amount) }}
+                  </strong>
+                </td>
+
+                <td data-label="Actions">
+                  <div class="entity-actions">
+                    <button
+                      class="entity-action-button"
+                      type="button"
+                      title="Edit expense"
+                      (click)="openEditForm(record)"
+                    >
+                      <i-lucide [img]="editIcon" [size]="16" [strokeWidth]="2.25" />
+                      <span>Edit</span>
+                    </button>
+
+                    <button
+                      class="entity-action-button danger"
+                      type="button"
+                      title="Delete expense"
+                      (click)="deleteExpense(record)"
+                    >
+                      <i-lucide [img]="deleteIcon" [size]="16" [strokeWidth]="2.2" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </section>
   } @else {
     <app-empty-state
       title="No expense records found"
-      message="Try changing the search term or create a new expense record."
+      message="Try changing the search, category, or selected date."
     />
   }
+
+  <app-drawer
+    [open]="isFormOpen"
+    [title]="editingRecord ? 'Edit expense' : 'Add expense'"
+    [description]="
+      editingRecord
+        ? 'Update the amount, category, date, and description for this expense.'
+        : 'Record a business expense and assign it to a category.'
+    "
+    (closed)="closeForm()"
+  >
+    @if (formError) {
+      <div class="entity-form-alert">
+        <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.25" />
+        <span>{{ formError }}</span>
+      </div>
+    }
+
+    <form class="entity-form" (ngSubmit)="handleSubmit()">
+      <div class="form-group full-width">
+        <label class="form-label" for="expenseTitle">Expense title</label>
+        <input
+          id="expenseTitle"
+          class="form-control"
+          type="text"
+          name="expenseTitle"
+          placeholder="Example: Supplier delivery cost"
+          [(ngModel)]="title"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="expenseAmount">Amount</label>
+        <input
+          id="expenseAmount"
+          class="form-control"
+          type="number"
+          min="1"
+          name="expenseAmount"
+          placeholder="Example: 2200"
+          [(ngModel)]="amount"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="expenseTransactionDate">Transaction date</label>
+        <input
+          id="expenseTransactionDate"
+          class="form-control"
+          type="date"
+          name="expenseTransactionDate"
+          [(ngModel)]="transactionDate"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="expenseCategory">Expense category</label>
+        <select
+          id="expenseCategory"
+          class="form-control"
+          name="expenseCategory"
+          [(ngModel)]="expenseCategoryId"
+          [disabled]="isSubmitting"
+        >
+          <option value="">Uncategorized</option>
+
+          @for (category of activeExpenseCategories; track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+
+        <p class="finance-form-help">
+          Manage available categories from the Expense Categories page.
+        </p>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="expenseDescription">Description</label>
+        <textarea
+          id="expenseDescription"
+          class="form-control"
+          rows="5"
+          name="expenseDescription"
+          placeholder="Optional note, invoice reference, or reason for the expense"
+          [(ngModel)]="description"
+          [disabled]="isSubmitting"
+        ></textarea>
+      </div>
+
+      <div class="entity-form-actions full-width">
+        <button class="entity-primary-action" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : editingRecord ? 'Update expense' : 'Record expense' }}
+        </button>
+
+        <button
+          class="entity-secondary-action"
+          type="button"
+          [disabled]="isSubmitting"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </app-drawer>
 </section>

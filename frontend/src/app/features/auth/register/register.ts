@@ -1,6 +1,26 @@
-﻿import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import {
+  ArrowRight,
+  Building2,
+  CircleAlert,
+  CircleCheck,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  LucideAngularModule,
+  Mail,
+  ShieldCheck,
+  UserRound
+} from 'lucide-angular';
 
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -18,7 +38,7 @@ const TURNSTILE_SITE_KEY = '0x4AAAAAADkqiUhClc-qUzaE';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, LucideAngularModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
@@ -32,9 +52,21 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
   protected password = '';
   protected turnstileToken = '';
   protected isTurnstileReady = false;
+  protected isPasswordVisible = false;
   protected isLoading = false;
   protected errorMessage = '';
   protected successMessage = '';
+
+  protected readonly nameIcon = UserRound;
+  protected readonly businessIcon = Building2;
+  protected readonly emailIcon = Mail;
+  protected readonly passwordIcon = LockKeyhole;
+  protected readonly visibleIcon = Eye;
+  protected readonly hiddenIcon = EyeOff;
+  protected readonly alertIcon = CircleAlert;
+  protected readonly successIcon = CircleCheck;
+  protected readonly secureIcon = ShieldCheck;
+  protected readonly submitIcon = ArrowRight;
 
   private turnstileWidgetId?: string;
 
@@ -60,7 +92,11 @@ export class RegisterComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  handleRegister(): void {
+  protected togglePasswordVisibility(): void {
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
+
+  protected handleRegister(): void {
     this.errorMessage = '';
     this.successMessage = '';
 

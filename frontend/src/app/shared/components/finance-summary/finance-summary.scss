@@ -1,0 +1,88 @@
+:host {
+  display: block;
+}
+
+.finance-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.finance-summary-card {
+  min-height: 108px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.72rem;
+  padding: 0.92rem;
+  border: 1px solid var(--sf-border);
+  border-radius: var(--sf-radius-md);
+  background: var(--sf-surface-raised);
+  box-shadow: var(--sf-shadow-card);
+}
+
+.finance-summary-card.income {
+  border-color: color-mix(in srgb, var(--sf-success) 34%, var(--sf-border));
+}
+
+.finance-summary-card.expense {
+  border-color: color-mix(in srgb, var(--sf-danger) 28%, var(--sf-border));
+}
+
+.finance-summary-card.balance {
+  border-color: color-mix(in srgb, var(--sf-primary) 34%, var(--sf-border));
+}
+
+.finance-summary-icon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--sf-radius-sm);
+}
+
+.income .finance-summary-icon {
+  background: var(--sf-success-soft);
+  color: var(--sf-success);
+}
+
+.expense .finance-summary-icon {
+  background: var(--sf-danger-soft);
+  color: var(--sf-danger);
+}
+
+.balance .finance-summary-icon {
+  background: var(--sf-primary-soft);
+  color: var(--sf-primary-strong);
+}
+
+.finance-summary-card p {
+  margin: 0;
+  color: var(--sf-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.finance-summary-card strong {
+  display: block;
+  margin-top: 0.24rem;
+  color: var(--sf-text-strong);
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.finance-summary-card small {
+  display: block;
+  margin-top: 0.23rem;
+  color: var(--sf-muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .finance-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

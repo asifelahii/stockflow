@@ -1,74 +1,115 @@
-﻿<div class="auth-card">
-  <div class="auth-card-header">
-    <p class="auth-kicker">Create account</p>
-    <h2>Start using StockFlow</h2>
-    <p>Create your business workspace to manage products, stock activity, suppliers, and finance.</p>
-  </div>
+<div class="auth-card">
+  <header class="auth-card-header">
+    <p class="auth-kicker">Create workspace</p>
+    <h2>Start with StockFlow</h2>
+    <p>Create a private business workspace for products, stock activity, suppliers, and finance.</p>
+  </header>
 
   @if (errorMessage) {
-    <div class="auth-alert auth-alert-error">
-      {{ errorMessage }}
+    <div class="auth-alert">
+      <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.25" />
+      <span>{{ errorMessage }}</span>
     </div>
   }
 
   @if (successMessage) {
     <div class="auth-alert auth-alert-success">
-      {{ successMessage }}
+      <i-lucide [img]="successIcon" [size]="18" [strokeWidth]="2.25" />
+      <span>{{ successMessage }}</span>
     </div>
   }
 
   <form class="auth-form" (ngSubmit)="handleRegister()">
-    <div class="form-group">
-      <label class="form-label" for="fullName">Your full name</label>
-      <input
-        id="fullName"
-        class="form-control"
-        type="text"
-        name="fullName"
-        placeholder="Admin User"
-        [(ngModel)]="fullName"
-        [disabled]="isLoading"
-      />
+    <div class="auth-form-grid">
+      <div class="form-group">
+        <label class="form-label" for="fullName">Your name</label>
+
+        <div class="auth-input-wrap">
+          <i-lucide [img]="nameIcon" [size]="18" [strokeWidth]="2.2" />
+
+          <input
+            id="fullName"
+            class="form-control"
+            type="text"
+            name="fullName"
+            placeholder="Your full name"
+            autocomplete="name"
+            [(ngModel)]="fullName"
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="businessName">Business name</label>
+
+        <div class="auth-input-wrap">
+          <i-lucide [img]="businessIcon" [size]="18" [strokeWidth]="2.2" />
+
+          <input
+            id="businessName"
+            class="form-control"
+            type="text"
+            name="businessName"
+            placeholder="Your business"
+            [(ngModel)]="businessName"
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="businessName">Business name</label>
-      <input
-        id="businessName"
-        class="form-control"
-        type="text"
-        name="businessName"
-        placeholder="Example: TechNova Electronics"
-        [(ngModel)]="businessName"
-        [disabled]="isLoading"
-      />
-      <p class="form-help">This creates your private StockFlow workspace.</p>
+      <label class="form-label" for="registerEmail">Email address</label>
+
+      <div class="auth-input-wrap">
+        <i-lucide [img]="emailIcon" [size]="18" [strokeWidth]="2.2" />
+
+        <input
+          id="registerEmail"
+          class="form-control"
+          type="email"
+          name="email"
+          placeholder="you@business.com"
+          autocomplete="email"
+          [(ngModel)]="email"
+          [disabled]="isLoading"
+        />
+      </div>
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="email">Email address</label>
-      <input
-        id="email"
-        class="form-control"
-        type="email"
-        name="email"
-        placeholder="admin@example.com"
-        [(ngModel)]="email"
-        [disabled]="isLoading"
-      />
-    </div>
+      <label class="form-label" for="registerPassword">Password</label>
 
-    <div class="form-group">
-      <label class="form-label" for="password">Password</label>
-      <input
-        id="password"
-        class="form-control"
-        type="password"
-        name="password"
-        placeholder="Create a secure password"
-        [(ngModel)]="password"
-        [disabled]="isLoading"
-      />
+      <div class="auth-input-wrap password">
+        <i-lucide [img]="passwordIcon" [size]="18" [strokeWidth]="2.2" />
+
+        <input
+          id="registerPassword"
+          class="form-control"
+          [type]="isPasswordVisible ? 'text' : 'password'"
+          name="password"
+          placeholder="Create a secure password"
+          autocomplete="new-password"
+          [(ngModel)]="password"
+          [disabled]="isLoading"
+        />
+
+        <button
+          class="auth-password-toggle"
+          type="button"
+          [attr.aria-label]="isPasswordVisible ? 'Hide password' : 'Show password'"
+          (click)="togglePasswordVisibility()"
+        >
+          <i-lucide
+            [img]="isPasswordVisible ? hiddenIcon : visibleIcon"
+            [size]="17"
+            [strokeWidth]="2.2"
+          />
+        </button>
+      </div>
+
+      <p class="form-help">Use a strong password to protect your workspace.</p>
     </div>
 
     <div class="turnstile-section">
@@ -81,16 +122,22 @@
     </div>
 
     <button
-      class="btn btn-primary auth-submit"
+      class="auth-submit"
       type="submit"
       [disabled]="isLoading || !turnstileToken"
     >
       {{ isLoading ? 'Creating workspace...' : 'Create workspace' }}
+      <i-lucide [img]="submitIcon" [size]="18" [strokeWidth]="2.4" />
     </button>
   </form>
 
+  <p class="auth-helper-note">
+    <i-lucide [img]="secureIcon" [size]="15" [strokeWidth]="2.25" />
+    Each workspace is logically separated from every other organization.
+  </p>
+
   <p class="auth-switch">
-    Already have an account?
+    Already have a workspace?
     <a routerLink="/auth/login">Sign in</a>
   </p>
 </div>

@@ -1,5 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 
 import { DashboardSummary } from '../../core/models/dashboard.model';
 import { FinancialSummary, FinancialTransaction } from '../../core/models/finance.model';
@@ -67,42 +68,38 @@ export class ReportsComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.dashboardService.getSummary().subscribe({
-      next: (summary) => {
-        this.dashboardSummary = summary;
-      }
-    });
-
-    this.financeService.getSummary().subscribe({
-      next: (summary) => {
-        this.financialSummary = summary;
-      }
-    });
-
-    this.productService.getProducts().subscribe({
-      next: (products) => {
+    forkJoin({
+      dashboardSummary: this.dashboardService.getSummary(),
+      financialSummary: this.financeService.getSummary(),
+      products: this.productService.getProducts(),
+      transactions: this.financeService.getTransactions(),
+      stockMovements: this.stockService.getStockMovements()
+    }).subscribe({
+      next: ({
+        dashboardSummary,
+        financialSummary,
+        products,
+        transactions,
+        stockMovements
+      }) => {
+        this.dashboardSummary = dashboardSummary;
+        this.financialSummary = financialSummary;
         this.products = products;
-      }
-    });
-
-    this.financeService.getTransactions().subscribe({
-      next: (transactions) => {
         this.transactions = transactions;
-      }
-    });
-
-    this.stockService.getStockMovements().subscribe({
-      next: (movements) => {
-        this.stockMovements = movements;
+        this.stockMovements = stockMovements;
         this.isLoading = false;
       },
       error: () => {
+        this.dashboardSummary = null;
+        this.financialSummary = null;
+        this.products = [];
+        this.transactions = [];
+        this.stockMovements = [];
         this.isLoading = false;
         this.errorMessage = 'Unable to load reports.';
       }
     });
   }
-
   protected resetReportFilters(): void {
     this.searchTerm = '';
     this.dateFrom = '';
@@ -292,8 +289,9 @@ export class ReportsComponent implements OnInit {
 
   protected formatCurrency(value: string | number | null | undefined): string {
     const numericValue = Number(value ?? 0);
+    const taka = String.fromCharCode(0x09F3);
 
-    return `৳ ${numericValue.toLocaleString('en-BD', {
+    return `${taka} ${numericValue.toLocaleString('en-BD', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     })}`;
@@ -647,6 +645,21 @@ export class ReportsComponent implements OnInit {
     this.toastService.success('Stock movements exported', 'Filtered stock movements Word report was downloaded successfully.');
   }
 
+
+  protected formatReportDate(value: string): string {
+    const dateOnly = value.slice(0, 10);
+    const [year, month, day] = dateOnly.split('-').map(Number);
+
+    if (!year || !month || !day) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(year, month - 1, day));
+  }
   private isWithinDateRange(dateValue: string): boolean {
     if (!dateValue) {
       return true;
@@ -974,5 +987,3 @@ export class ReportsComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 }
-
-

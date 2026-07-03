@@ -1,48 +1,82 @@
-﻿<div class="auth-card">
-  <div class="auth-card-header">
+<div class="auth-card">
+  <header class="auth-card-header">
     <p class="auth-kicker">Welcome back</p>
     <h2>Sign in to StockFlow</h2>
-    <p>Access your inventory, stock movement, and finance dashboard.</p>
-  </div>
+    <p>Continue to your inventory, stock movement, and business finance workspace.</p>
+  </header>
 
   @if (errorMessage) {
     <div class="auth-alert">
-      {{ errorMessage }}
+      <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.25" />
+      <span>{{ errorMessage }}</span>
     </div>
   }
 
   <form class="auth-form" (ngSubmit)="handleLogin()">
     <div class="form-group">
       <label class="form-label" for="email">Email address</label>
-      <input
-        id="email"
-        class="form-control"
-        type="email"
-        name="email"
-        placeholder="admin@example.com"
-        [(ngModel)]="email"
-      />
+
+      <div class="auth-input-wrap">
+        <i-lucide [img]="emailIcon" [size]="18" [strokeWidth]="2.2" />
+
+        <input
+          id="email"
+          class="form-control"
+          type="email"
+          name="email"
+          placeholder="you@business.com"
+          autocomplete="email"
+          [(ngModel)]="email"
+          [disabled]="isLoading"
+        />
+      </div>
     </div>
 
     <div class="form-group">
       <label class="form-label" for="password">Password</label>
-      <input
-        id="password"
-        class="form-control"
-        type="password"
-        name="password"
-        placeholder="Enter your password"
-        [(ngModel)]="password"
-      />
+
+      <div class="auth-input-wrap password">
+        <i-lucide [img]="passwordIcon" [size]="18" [strokeWidth]="2.2" />
+
+        <input
+          id="password"
+          class="form-control"
+          [type]="isPasswordVisible ? 'text' : 'password'"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          [(ngModel)]="password"
+          [disabled]="isLoading"
+        />
+
+        <button
+          class="auth-password-toggle"
+          type="button"
+          [attr.aria-label]="isPasswordVisible ? 'Hide password' : 'Show password'"
+          (click)="togglePasswordVisibility()"
+        >
+          <i-lucide
+            [img]="isPasswordVisible ? hiddenIcon : visibleIcon"
+            [size]="17"
+            [strokeWidth]="2.2"
+          />
+        </button>
+      </div>
     </div>
 
-    <button class="btn btn-primary auth-submit" type="submit" [disabled]="isLoading">
-      {{ isLoading ? 'Signing in...' : 'Sign in' }}
+    <button class="auth-submit" type="submit" [disabled]="isLoading">
+      {{ isLoading ? 'Signing in...' : 'Sign in to workspace' }}
+      <i-lucide [img]="submitIcon" [size]="18" [strokeWidth]="2.4" />
     </button>
   </form>
 
+  <p class="auth-helper-note">
+    <i-lucide [img]="secureIcon" [size]="15" [strokeWidth]="2.25" />
+    Your workspace data remains separated from other organizations.
+  </p>
+
   <p class="auth-switch">
-    Do not have an account?
-    <a routerLink="/auth/register">Create one</a>
+    New to StockFlow?
+    <a routerLink="/auth/register">Create a workspace</a>
   </p>
 </div>
