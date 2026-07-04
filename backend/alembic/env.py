@@ -16,6 +16,7 @@ from app.models.supplier import Supplier  # noqa: F401
 from app.models.stock_movement import StockMovement  # noqa: F401
 from app.models.financial_transaction import FinancialTransaction  # noqa: F401
 from app.models.organization import Organization, OrganizationMember  # noqa: F401
+from app.models.public_demo_tenant import PublicDemoTenant  # noqa: F401
 
 config = context.config
 

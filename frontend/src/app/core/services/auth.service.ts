@@ -32,6 +32,18 @@ export class AuthService {
     );
   }
 
+  loginPublicDemo(tenantKey: 'tenant_1' | 'tenant_2'): Observable<AuthToken> {
+    return this.http
+      .post<AuthToken>(`${API_BASE_URL}/auth/demo-login`, {
+        tenant_key: tenantKey
+      })
+      .pipe(
+        tap((response) => {
+          this.setToken(response.access_token);
+          this.workspaceContext.setOrganization(response.organization);
+        })
+      );
+  }
   register(payload: RegisterRequest): Observable<UserResponse> {
     return this.http.post<UserResponse>(`${API_BASE_URL}/auth/register`, payload);
   }

@@ -1,0 +1,44 @@
+name: Reset Public Demo Tenants
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  reset-due-demo-tenants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Call protected StockFlow reset endpoint
+        env:
+          STOCKFLOW_DEMO_RESET_URL: ${{ secrets.STOCKFLOW_DEMO_RESET_URL }}
+          STOCKFLOW_DEMO_RESET_SECRET: ${{ secrets.STOCKFLOW_DEMO_RESET_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${STOCKFLOW_DEMO_RESET_URL}" ]; then
+            echo "Missing STOCKFLOW_DEMO_RESET_URL GitHub secret."
+            exit 1
+          fi
+
+          if [ -z "${STOCKFLOW_DEMO_RESET_SECRET}" ]; then
+            echo "Missing STOCKFLOW_DEMO_RESET_SECRET GitHub secret."
+            exit 1
+          fi
+
+          curl \
+            --fail-with-body \
+            --silent \
+            --show-error \
+            --location \
+            --retry 3 \
+            --retry-all-errors \
+            --retry-delay 12 \
+            --connect-timeout 20 \
+            --max-time 120 \
+            --request POST \
+            --header "X-Demo-Reset-Secret: ${STOCKFLOW_DEMO_RESET_SECRET}" \
+            --header "Accept: application/json" \
+            "${STOCKFLOW_DEMO_RESET_URL}"

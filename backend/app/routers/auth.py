@@ -1,9 +1,10 @@
-﻿import json
+import json
 import urllib.parse
 import urllib.request
+import secrets
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -13,6 +14,11 @@ from app.db.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.organization import Organization, OrganizationMember
 from app.models.user import User
+from app.services.public_demo_service import (
+    get_or_reset_public_demo_tenant,
+    reset_due_public_demo_tenants,
+)
+from app.schemas.public_demo import DemoLoginRequest, PublicDemoResetResponse
 from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
 
 
@@ -130,6 +136,111 @@ def register_user(
             detail="Email is already registered",
         )
 
+
+@router.post("/demo-login", response_model=Token)
+def login_public_demo(
+    demo_data: DemoLoginRequest,
+    db: Annotated[Session, Depends(get_db)],
+):
+    if not settings.public_demo_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Public demo access is disabled.",
+        )
+
+    tenant = get_or_reset_public_demo_tenant(
+        db,
+        demo_data.tenant_key,
+    )
+
+    if tenant is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Public demo tenant is unavailable.",
+        )
+
+    user = db.get(User, tenant.user_id)
+    organization = db.get(Organization, tenant.organization_id)
+
+    membership = (
+        db.query(OrganizationMember)
+        .filter(
+            OrganizationMember.organization_id == tenant.organization_id,
+            OrganizationMember.user_id == tenant.user_id,
+            OrganizationMember.is_active.is_(True),
+        )
+        .one_or_none()
+    )
+
+    if (
+        user is None
+        or organization is None
+        or membership is None
+        or not user.is_active
+        or not organization.is_active
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Public demo tenant is not configured correctly.",
+        )
+
+    access_token = create_access_token(
+        subject=user.id,
+        additional_claims={
+            "organization_id": organization.id,
+            "organization_role": membership.role,
+        },
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "organization": {
+            "id": organization.id,
+            "name": organization.name,
+            "role": membership.role,
+        },
+    }
+
+
+@router.post(
+    "/internal/public-demo/reset",
+    response_model=PublicDemoResetResponse,
+)
+def reset_public_demo_sandboxes(
+    x_demo_reset_secret: Annotated[
+        str | None,
+        Header(),
+    ] = None,
+    db: Annotated[Session, Depends(get_db)] = None,
+):
+    if (
+        not settings.public_demo_enabled
+        or not settings.demo_reset_secret
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Public demo reset is disabled.",
+        )
+
+    if (
+        not x_demo_reset_secret
+        or not secrets.compare_digest(
+            x_demo_reset_secret,
+            settings.demo_reset_secret,
+        )
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid demo reset secret.",
+        )
+
+    reset_tenants = reset_due_public_demo_tenants(db)
+
+    return {
+        "reset_count": len(reset_tenants),
+        "reset_tenants": reset_tenants,
+    }
 
 @router.post("/login", response_model=Token)
 def login_user(

@@ -11,10 +11,64 @@
           <small>Inventory intelligence</small>
         </span>
       </a>
-
       <router-outlet />
 
-      <p class="auth-copyright">© 2026 StockFlow. Built for everyday business operations.</p>
+      <section class="auth-demo-access" aria-labelledby="public-demo-title">
+        <div class="auth-demo-access-heading">
+          <div>
+            <p>Explore the real app</p>
+            <h2 id="public-demo-title">Public multi-tenant sandbox</h2>
+          </div>
+
+          <span>Editable · resets every 24h</span>
+        </div>
+
+        @if (demoLoginError) {
+          <div class="auth-demo-error" role="alert">
+            <i-lucide [img]="demoAlertIcon" [size]="16" [strokeWidth]="2.4" />
+            <span>{{ demoLoginError }}</span>
+          </div>
+        }
+
+        <div class="auth-demo-grid">
+          @for (tenant of demoTenants; track tenant.key) {
+            <button
+              class="auth-demo-card"
+              [class.northstar]="tenant.accent === 'northstar'"
+              [class.greenleaf]="tenant.accent === 'greenleaf'"
+              type="button"
+              [disabled]="demoLoginLoading !== null"
+              (click)="enterPublicDemo(tenant.key)"
+            >
+              <span class="auth-demo-card-topline">
+                <small>{{ tenant.label }}</small>
+
+                @if (demoLoginLoading === tenant.key) {
+                  <i-lucide
+                    class="auth-demo-spinner"
+                    [img]="demoLoadingIcon"
+                    [size]="17"
+                    [strokeWidth]="2.4"
+                  />
+                } @else {
+                  <i-lucide
+                    [img]="demoArrowIcon"
+                    [size]="17"
+                    [strokeWidth]="2.4"
+                  />
+                }
+              </span>
+
+              <strong>{{ tenant.name }}</strong>
+              <span class="auth-demo-industry">{{ tenant.industry }}</span>
+              <span class="auth-demo-note">
+                {{ demoLoginLoading === tenant.key ? 'Opening workspace...' : 'Enter editable workspace' }}
+              </span>
+            </button>
+          }
+        </div>
+      </section>
+      <p class="auth-copyright">Â© 2026 StockFlow. Built for everyday business operations.</p>
     </div>
   </section>
 

@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     turnstile_secret_key: str = ""
+    # Public, fully editable multi-tenant sandbox.
+    public_demo_enabled: bool = False
+    demo_reset_interval_hours: int = 24
+    demo_reset_secret: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
