@@ -106,7 +106,8 @@ def get_recent_activity(
 ) -> dict:
     recent_stock_movements = (
         db.query(StockMovement)
-        .filter(StockMovement.organization_id == organization_id)
+        .join(Product, StockMovement.product_id == Product.id)
+        .filter(Product.organization_id == organization_id)
         .order_by(StockMovement.id.desc())
         .limit(limit)
         .all()
@@ -213,12 +214,15 @@ def get_dashboard_analytics(
             expense_totals[transaction.expense_category_id] += amount
 
     period_start_datetime = datetime.combine(period_start, datetime.min.time())
+    period_end_datetime = datetime.combine(period_end, datetime.max.time())
 
     movements = (
         db.query(StockMovement)
+        .join(Product, StockMovement.product_id == Product.id)
         .filter(
-            StockMovement.organization_id == organization_id,
+            Product.organization_id == organization_id,
             StockMovement.created_at >= period_start_datetime,
+            StockMovement.created_at <= period_end_datetime,
         )
         .all()
     )
