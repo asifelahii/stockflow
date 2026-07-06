@@ -1,0 +1,30 @@
+<div class="auth-card">
+  @if (isLoading) {
+    <div class="oauth-callback-status">
+      <div class="oauth-callback-icon">
+        <i-lucide class="oauth-spin" [img]="loadingIcon" [size]="28" [strokeWidth]="2.35" />
+      </div>
+
+      <header class="auth-card-header">
+        <p class="auth-kicker">Almost done</p>
+        <h2>Completing sign in</h2>
+        <p>StockFlow is securely finishing your social authentication.</p>
+      </header>
+    </div>
+  } @else {
+    <div class="auth-alert">
+      <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.25" />
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <header class="auth-card-header">
+      <p class="auth-kicker">Sign in failed</p>
+      <h2>Could not complete social sign in</h2>
+      <p>Please return to the login page and start again.</p>
+    </header>
+
+    <a class="auth-submit" routerLink="/auth/login">
+      Back to login
+    </a>
+  }
+</div>

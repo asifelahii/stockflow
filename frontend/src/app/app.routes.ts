@@ -7,6 +7,7 @@ import { DashboardLayoutComponent } from './layout/dashboard-layout/dashboard-la
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { AuthFlowComponent } from './features/auth/auth-flow/auth-flow';
+import { OAuthCallbackComponent } from './features/auth/oauth-callback/oauth-callback';
 
 import { DashboardComponent } from './features/dashboard/dashboard';
 import { ProductsComponent } from './features/products/products';
@@ -42,6 +43,10 @@ export const routes: Routes = [
       {
         path: 'login',
         component: LoginComponent
+      },
+      {
+        path: 'oauth/callback',
+        component: OAuthCallbackComponent
       },
       {
         path: 'register',

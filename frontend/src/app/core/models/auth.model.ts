@@ -1,4 +1,4 @@
-﻿export interface LoginRequest {
+export interface LoginRequest {
   email: string;
   password: string;
 }
@@ -32,3 +32,12 @@ export interface UserResponse {
   created_at: string;
   updated_at: string;
 }
+
+export type OAuthProvider = 'google' | 'facebook' | 'apple';
+
+export interface OAuthProvidersResponse {
+  google: boolean;
+  facebook: boolean;
+  apple: boolean;
+}
+

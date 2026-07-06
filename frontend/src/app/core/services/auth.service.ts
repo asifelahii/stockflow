@@ -6,6 +6,8 @@ import { API_BASE_URL } from '../config/api.config';
 import {
   AuthToken,
   LoginRequest,
+  OAuthProvider,
+  OAuthProvidersResponse,
   OrganizationSummary,
   RegisterRequest,
   UserResponse
@@ -26,8 +28,7 @@ export class AuthService {
   login(payload: LoginRequest): Observable<AuthToken> {
     return this.http.post<AuthToken>(`${API_BASE_URL}/auth/login`, payload).pipe(
       tap((response) => {
-        this.setToken(response.access_token);
-        this.workspaceContext.setOrganization(response.organization);
+        this.storeAuthenticatedSession(response);
       })
     );
   }
@@ -39,11 +40,29 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          this.setToken(response.access_token);
-          this.workspaceContext.setOrganization(response.organization);
+          this.storeAuthenticatedSession(response);
         })
       );
   }
+
+  getOAuthProviders(): Observable<OAuthProvidersResponse> {
+    return this.http.get<OAuthProvidersResponse>(`${API_BASE_URL}/auth/oauth/providers`);
+  }
+
+  startOAuthLogin(provider: OAuthProvider): void {
+    window.location.assign(`${API_BASE_URL}/auth/oauth/${provider}/start`);
+  }
+
+  exchangeOAuthTicket(ticket: string): Observable<AuthToken> {
+    return this.http
+      .post<AuthToken>(`${API_BASE_URL}/auth/oauth/exchange`, { ticket })
+      .pipe(
+        tap((response) => {
+          this.storeAuthenticatedSession(response);
+        })
+      );
+  }
+
   register(payload: RegisterRequest): Observable<UserResponse> {
     return this.http.post<UserResponse>(`${API_BASE_URL}/auth/register`, payload);
   }
@@ -75,5 +94,10 @@ export class AuthService {
 
   logout(): void {
     this.removeToken();
+  }
+
+  private storeAuthenticatedSession(response: AuthToken): void {
+    this.setToken(response.access_token);
+    this.workspaceContext.setOrganization(response.organization);
   }
 }

@@ -20,6 +20,25 @@ class Settings(BaseSettings):
     demo_reset_interval_hours: int = 24
     demo_reset_secret: str = ""
 
+    # Social OAuth. Provider secrets belong only in local/hosting environment settings.
+    frontend_url: str = "http://localhost:4200"
+    public_api_base_url: str = "http://127.0.0.1:8000"
+
+    oauth_state_ttl_minutes: int = 10
+    oauth_ticket_ttl_minutes: int = 2
+
+    google_oauth_client_id: str = ""
+    google_oauth_client_secret: str = ""
+
+    facebook_oauth_client_id: str = ""
+    facebook_oauth_client_secret: str = ""
+    facebook_graph_api_version: str = "v22.0"
+
+    apple_oauth_client_id: str = ""
+    apple_oauth_team_id: str = ""
+    apple_oauth_key_id: str = ""
+    apple_oauth_private_key: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

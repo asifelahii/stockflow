@@ -1,0 +1,33 @@
+:host {
+  width: min(100%, 455px);
+  display: block;
+}
+
+.oauth-callback-status {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 1.2rem 0 0.2rem;
+  text-align: center;
+}
+
+.oauth-callback-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--sf-primary-border);
+  border-radius: 999px;
+  background: var(--sf-primary-soft);
+  color: var(--sf-primary-strong);
+}
+
+.oauth-spin {
+  animation: oauth-spin 0.9s linear infinite;
+}
+
+@keyframes oauth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -9,3 +9,19 @@
   justify-content: center;
   gap: 0.32rem;
 }
+
+.auth-social-button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.auth-social-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.auth-social-button:disabled:hover {
+  border-color: var(--sf-border);
+  background: var(--sf-surface-raised);
+}
+
