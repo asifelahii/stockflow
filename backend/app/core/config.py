@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     apple_oauth_key_id: str = ""
     apple_oauth_private_key: str = ""
 
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+    product_image_upload_max_mb: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

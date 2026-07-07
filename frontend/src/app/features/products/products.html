@@ -2,7 +2,7 @@
   <app-page-header
     eyebrow="Inventory"
     title="Products"
-    description="Manage inventory products, stock levels, suppliers, and selling prices."
+    description="Manage catalogue details, prices, offers, product images, and stock settings."
     [countLabel]="activeProductCount + ' active'"
   >
     <div page-actions>
@@ -22,7 +22,7 @@
       <div>
         <strong>{{ filteredProducts.length }} products shown</strong>
         <small>
-          {{ lowStockCount }} low-stock · {{ activeProductCount }} active
+          {{ lowStockCount }} low-stock · {{ featuredProductCount }} featured · {{ activeOfferCount }} on offer
         </small>
       </div>
     </div>
@@ -41,17 +41,26 @@
       <label class="products-select-field" for="productStatus">
         <i-lucide [img]="filterIcon" [size]="17" [strokeWidth]="2.2" />
         <select id="productStatus" [(ngModel)]="statusFilter">
-          <option value="all">All products</option>
+          <option value="all">All status</option>
           <option value="active">Active</option>
           <option value="low-stock">Low stock</option>
           <option value="inactive">Inactive</option>
         </select>
       </label>
 
+      <label class="products-select-field" for="productCatalogFilter">
+        <i-lucide [img]="tagIcon" [size]="17" [strokeWidth]="2.2" />
+        <select id="productCatalogFilter" [(ngModel)]="catalogFilter">
+          <option value="all">All catalogue</option>
+          <option value="featured">Featured</option>
+          <option value="on-offer">On offer</option>
+        </select>
+      </label>
+
       <button
         class="products-clear-filter"
         type="button"
-        [disabled]="!searchTerm && statusFilter === 'all'"
+        [disabled]="!searchTerm && statusFilter === 'all' && catalogFilter === 'all'"
         (click)="clearFilters()"
       >
         Clear
@@ -62,10 +71,7 @@
   @if (isLoading) {
     <app-loading-state message="Loading products..." />
   } @else if (errorMessage) {
-    <app-empty-state
-      title="Products could not be loaded"
-      [message]="errorMessage"
-    />
+    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
   } @else if (filteredProducts.length > 0) {
     <section class="products-table-card card">
       <div class="products-table-heading">
@@ -96,17 +102,48 @@
               <tr>
                 <td data-label="Product">
                   <div class="product-cell">
-                    <span
-                      class="product-avatar"
-                      [class.low-stock]="isLowStock(product)"
-                      [class.inactive]="!product.is_active"
-                    >
-                      {{ getProductInitial(product.name) }}
-                    </span>
+                    @if (product.image_url) {
+                      <img
+                        class="product-avatar-image"
+                        [src]="product.image_url"
+                        [alt]="product.name + ' product image'"
+                      />
+                    } @else {
+                      <span
+                        class="product-avatar"
+                        [class.low-stock]="isLowStock(product)"
+                        [class.inactive]="!product.is_active"
+                      >
+                        {{ getProductInitial(product.name) }}
+                      </span>
+                    }
 
-                    <div>
+                    <div class="product-copy">
                       <strong>{{ product.name }}</strong>
                       <small>{{ product.sku }}</small>
+
+                      @if (product.short_description) {
+                        <span class="product-short-description">{{ product.short_description }}</span>
+                      }
+
+                      @if (product.is_featured || isProductOfferActive(product) || getImageCount(product) > 0) {
+                        <div class="product-inline-badges">
+                          @if (product.is_featured) {
+                            <app-badge label="Featured" tone="info" />
+                          }
+
+                          @if (isProductOfferActive(product)) {
+                            <app-badge [label]="getOfferLabel(product)" tone="warning" />
+                          }
+
+                          @if (getImageCount(product) > 0) {
+                            <span class="product-image-count">
+                              <i-lucide [img]="imageIcon" [size]="13" [strokeWidth]="2.2" />
+                              {{ getImageCount(product) }}
+                            </span>
+                          }
+                        </div>
+                      }
                     </div>
                   </div>
                 </td>
@@ -119,23 +156,23 @@
                   <span class="product-stock" [class.low-stock]="isLowStock(product)">
                     {{ product.current_stock }} units
                   </span>
-                  <small class="product-threshold">
-                    Alert at {{ product.low_stock_threshold }}
-                  </small>
+                  <small class="product-threshold">Alert at {{ product.low_stock_threshold }}</small>
                 </td>
 
                 <td data-label="Selling price">
-                  <strong>{{ formatCurrency(product.selling_price) }}</strong>
-                  <small class="product-cost">
-                    Cost {{ formatCurrency(product.purchase_price) }}
-                  </small>
+                  @if (isProductOfferActive(product)) {
+                    <strong class="product-sale-price">{{ formatCurrency(getEffectiveSellingPrice(product)) }}</strong>
+                    <small class="product-cost product-original-price">
+                      <s>{{ formatCurrency(product.selling_price) }}</s> · {{ getOfferLabel(product) }}
+                    </small>
+                  } @else {
+                    <strong>{{ formatCurrency(product.selling_price) }}</strong>
+                    <small class="product-cost">Cost {{ formatCurrency(product.purchase_price) }}</small>
+                  }
                 </td>
 
                 <td data-label="Status">
-                  <app-badge
-                    [label]="getProductStatus(product)"
-                    [tone]="getProductTone(product)"
-                  />
+                  <app-badge [label]="getProductStatus(product)" [tone]="getProductTone(product)" />
                 </td>
 
                 <td data-label="Actions">
@@ -178,10 +215,7 @@
       </div>
     </section>
   } @else {
-    <app-empty-state
-      title="No products found"
-      message="Try changing your search term or status filter."
-    />
+    <app-empty-state title="No products found" message="Try changing your search, status, or catalogue filter." />
   }
 
   <app-drawer
@@ -189,8 +223,8 @@
     [title]="editingProduct ? 'Edit product' : 'Add product'"
     [description]="
       editingProduct
-        ? 'Update product information, supplier association, pricing, and alert threshold.'
-        : 'Create a product and define its initial stock and low-stock alert threshold.'
+        ? 'Update the catalogue, pricing, offer, images, and inventory alert settings.'
+        : 'Create a product with its catalogue details, starting stock, and offer settings.'
     "
     (closed)="closeForm()"
   >
@@ -202,173 +236,602 @@
     }
 
     <form class="product-form" (ngSubmit)="handleSubmit()">
-      <div class="form-group">
-        <label class="form-label" for="productName">Product name</label>
-        <input
-          id="productName"
-          class="form-control"
-          type="text"
-          name="productName"
-          placeholder="Example: Wireless Mouse"
-          [(ngModel)]="productName"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="sku">SKU</label>
-        <input
-          id="sku"
-          class="form-control"
-          type="text"
-          name="sku"
-          placeholder="Example: MOUSE-001"
-          [(ngModel)]="sku"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="categoryId">Category</label>
-        <select
-          id="categoryId"
-          class="form-control"
-          name="categoryId"
-          [(ngModel)]="categoryId"
-          [disabled]="isSubmitting"
-        >
-          <option value="">No category</option>
-
-          @for (category of activeCategories; track category.id) {
-            <option [value]="category.id">{{ category.name }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="supplierId">Supplier</label>
-        <select
-          id="supplierId"
-          class="form-control"
-          name="supplierId"
-          [(ngModel)]="supplierId"
-          [disabled]="isSubmitting"
-        >
-          <option value="">No supplier</option>
-
-          @for (supplier of activeSuppliers; track supplier.id) {
-            <option [value]="supplier.id">{{ supplier.name }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="purchasePrice">Purchase price</label>
-        <input
-          id="purchasePrice"
-          class="form-control"
-          type="number"
-          min="0"
-          name="purchasePrice"
-          [(ngModel)]="purchasePrice"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="sellingPrice">Selling price</label>
-        <input
-          id="sellingPrice"
-          class="form-control"
-          type="number"
-          min="0"
-          name="sellingPrice"
-          [(ngModel)]="sellingPrice"
-          [disabled]="isSubmitting"
-        />
-      </div>
-
-      @if (!editingProduct) {
-        <div class="form-group">
-          <label class="form-label" for="currentStock">Initial stock</label>
-          <input
-            id="currentStock"
-            class="form-control"
-            type="number"
-            min="0"
-            name="currentStock"
-            [(ngModel)]="currentStock"
-            [disabled]="isSubmitting"
-          />
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>01 · Core catalogue</p>
+            <h3>Basic information</h3>
+          </div>
+          <i-lucide [img]="productIcon" [size]="19" [strokeWidth]="2.2" />
         </div>
-      } @else {
-        <div class="form-group">
-          <label class="form-label" for="currentStock">Current stock</label>
-          <input
-            id="currentStock"
-            class="form-control"
-            type="number"
-            [value]="currentStock"
-            disabled
-          />
-          <p class="form-help-text">
-            Use Stock In, Stock Out, or Adjustment to change inventory.
+
+        <div class="product-section-grid">
+          <div class="form-group">
+            <label class="form-label" for="productName">Product name</label>
+            <input
+              id="productName"
+              class="form-control"
+              type="text"
+              name="productName"
+              placeholder="Example: Wireless Mouse"
+              [(ngModel)]="productName"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sku">SKU</label>
+            <input
+              id="sku"
+              class="form-control"
+              type="text"
+              name="sku"
+              placeholder="Example: MOUSE-001"
+              [(ngModel)]="sku"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="shortDescription">Short description</label>
+            <input
+              id="shortDescription"
+              class="form-control"
+              type="text"
+              name="shortDescription"
+              maxlength="300"
+              placeholder="A short customer-friendly summary for product lists."
+              [(ngModel)]="shortDescription"
+              [disabled]="isSubmitting"
+            />
+            <p class="form-help-text">Optional. This is shown in the catalogue table and can be used in reports later.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="categoryId">Category</label>
+            <select
+              id="categoryId"
+              class="form-control"
+              name="categoryId"
+              [(ngModel)]="categoryId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">No category</option>
+              @for (category of activeCategories; track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="supplierId">Supplier</label>
+            <select
+              id="supplierId"
+              class="form-control"
+              name="supplierId"
+              [(ngModel)]="supplierId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">No supplier</option>
+              @for (supplier of activeSuppliers; track supplier.id) {
+                <option [value]="supplier.id">{{ supplier.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="releaseYear">Release year</label>
+            <input
+              id="releaseYear"
+              class="form-control"
+              type="number"
+              min="1900"
+              max="2100"
+              name="releaseYear"
+              placeholder="Example: 2026"
+              [(ngModel)]="releaseYear"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <label class="product-toggle-card form-toggle-card">
+            <input
+              type="checkbox"
+              name="productIsFeatured"
+              [(ngModel)]="productIsFeatured"
+              [disabled]="isSubmitting"
+            />
+            <span class="product-toggle-icon featured">
+              <i-lucide [img]="starIcon" [size]="18" [strokeWidth]="2.3" />
+            </span>
+            <span>
+              <strong>Feature this product</strong>
+              <small>Highlight it in the catalogue and future storefront views.</small>
+            </span>
+          </label>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="description">Full description</label>
+            <textarea
+              id="description"
+              class="form-control"
+              rows="4"
+              name="description"
+              placeholder="Add product details, key benefits, or internal notes."
+              [(ngModel)]="description"
+              [disabled]="isSubmitting"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>02 · Commercial settings</p>
+            <h3>Pricing and offer</h3>
+          </div>
+          <i-lucide [img]="tagIcon" [size]="19" [strokeWidth]="2.2" />
+        </div>
+
+        <div class="product-section-grid">
+          <div class="form-group">
+            <label class="form-label" for="purchasePrice">Purchase price</label>
+            <input
+              id="purchasePrice"
+              class="form-control"
+              type="number"
+              min="0"
+              step="0.01"
+              name="purchasePrice"
+              [(ngModel)]="purchasePrice"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sellingPrice">Selling price</label>
+            <input
+              id="sellingPrice"
+              class="form-control"
+              type="number"
+              min="0"
+              step="0.01"
+              name="sellingPrice"
+              [(ngModel)]="sellingPrice"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="discountType">Offer type</label>
+            <select
+              id="discountType"
+              class="form-control"
+              name="discountType"
+              [(ngModel)]="discountType"
+              [disabled]="isSubmitting"
+              (ngModelChange)="handleDiscountTypeChange()"
+            >
+              <option value="none">No active offer</option>
+              <option value="percentage">Percentage discount</option>
+              <option value="fixed">Fixed amount discount</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="discountValue">
+              {{ discountType === 'percentage' ? 'Discount percentage' : 'Discount value' }}
+            </label>
+            <input
+              id="discountValue"
+              class="form-control"
+              type="number"
+              min="0"
+              [max]="discountType === 'percentage' ? 100 : null"
+              step="0.01"
+              name="discountValue"
+              [(ngModel)]="discountValue"
+              [disabled]="isSubmitting || discountType === 'none'"
+            />
+          </div>
+
+          @if (discountType !== 'none') {
+            <div class="form-group">
+              <label class="form-label" for="offerStartsOn">Offer starts on</label>
+              <input
+                id="offerStartsOn"
+                class="form-control"
+                type="date"
+                name="offerStartsOn"
+                [(ngModel)]="offerStartsOn"
+                [disabled]="isSubmitting"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="offerEndsOn">Offer ends on</label>
+              <input
+                id="offerEndsOn"
+                class="form-control"
+                type="date"
+                name="offerEndsOn"
+                [(ngModel)]="offerEndsOn"
+                [disabled]="isSubmitting"
+              />
+            </div>
+          }
+
+          <div class="form-group">
+            <label class="form-label" for="taxRate">Tax rate (%)</label>
+            <input
+              id="taxRate"
+              class="form-control"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              name="taxRate"
+              [(ngModel)]="taxRate"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="shippingFee">Shipping fee</label>
+            <input
+              id="shippingFee"
+              class="form-control"
+              type="number"
+              min="0"
+              step="0.01"
+              name="shippingFee"
+              [(ngModel)]="shippingFee"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="additionalCost">Additional unit cost</label>
+            <input
+              id="additionalCost"
+              class="form-control"
+              type="number"
+              min="0"
+              step="0.01"
+              name="additionalCost"
+              [(ngModel)]="additionalCost"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          <div class="product-price-preview">
+            <span>Effective selling price</span>
+            <strong>{{ formatCurrency(currentDraftPrice) }}</strong>
+            <small>
+              {{ discountType === 'none' ? 'No offer applied' : 'Before tax and shipping' }}
+            </small>
+          </div>
+
+          <p class="form-help-text full-width">
+            Tax, shipping fee, and additional cost are stored separately so margin and delivery calculations can be added without changing the base product price.
           </p>
         </div>
-      }
+      </section>
 
-      <div class="form-group">
-        <label class="form-label" for="lowStockThreshold">Low stock threshold</label>
-        <input
-          id="lowStockThreshold"
-          class="form-control"
-          type="number"
-          min="0"
-          name="lowStockThreshold"
-          [(ngModel)]="lowStockThreshold"
-          [disabled]="isSubmitting"
-        />
-      </div>
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>03 · Product media</p>
+            <h3>Images</h3>
+          </div>
+          <i-lucide [img]="imageIcon" [size]="19" [strokeWidth]="2.2" />
+        </div>
 
-      <div class="form-group full-width">
-        <label class="form-label" for="description">Description</label>
-        <textarea
-          id="description"
-          class="form-control"
-          rows="4"
-          name="description"
-          placeholder="Short description for this product"
-          [(ngModel)]="description"
-          [disabled]="isSubmitting"
-        ></textarea>
-      </div>
+        <div class="product-section-grid">
+          <div class="product-upload-panel full-width">
+            <div>
+              <strong>Primary product image</strong>
+              <small>Shown first in the catalogue. JPG, PNG, or WebP · maximum 5 MB.</small>
+            </div>
 
-      @if (editingProduct) {
-        <label class="product-active-toggle full-width">
-          <input
-            type="checkbox"
-            name="productIsActive"
-            [(ngModel)]="productIsActive"
+            <input
+              #primaryImageInput
+              class="product-file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              (change)="onPrimaryImageSelected($event)"
+              [disabled]="isSubmitting || isUploadingMedia"
+            />
+
+            <div class="product-upload-actions">
+              <button
+                class="product-secondary-action"
+                type="button"
+                [disabled]="isSubmitting || isUploadingMedia"
+                (click)="primaryImageInput.click()"
+              >
+                <i-lucide [img]="imageIcon" [size]="15" [strokeWidth]="2.4" />
+                {{ primaryImage ? 'Replace image' : 'Choose image' }}
+              </button>
+
+              @if (primaryImage) {
+                <button
+                  class="product-text-action danger"
+                  type="button"
+                  [disabled]="isSubmitting || isUploadingMedia"
+                  (click)="removePrimaryImage()"
+                >
+                  Remove
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (mediaError) {
+            <div class="product-media-error full-width" role="alert">
+              <i-lucide [img]="alertIcon" [size]="17" [strokeWidth]="2.3" />
+              <span>{{ mediaError }}</span>
+            </div>
+          }
+
+          @if (isUploadingMedia) {
+            <div class="product-media-status full-width">
+              <span class="product-media-spinner" aria-hidden="true"></span>
+              Uploading image securely…
+            </div>
+          }
+
+          @if (primaryImage) {
+            <div class="product-primary-preview full-width">
+              <img [src]="primaryImage.url" alt="Primary product preview" />
+              <div>
+                <strong>Primary image ready</strong>
+                <small>Saved securely when you create or update the product.</small>
+              </div>
+            </div>
+          }
+
+          <div class="product-media-list full-width">
+            <div class="product-inline-section-heading">
+              <div>
+                <strong>Gallery images</strong>
+                <small>Optional supporting images. Maximum five.</small>
+              </div>
+
+              <input
+                #galleryImageInput
+                class="product-file-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                (change)="onGalleryImagesSelected($event)"
+                [disabled]="isSubmitting || isUploadingMedia || galleryImages.length >= 5"
+              />
+
+              <button
+                class="product-secondary-action"
+                type="button"
+                [disabled]="isSubmitting || isUploadingMedia || galleryImages.length >= 5"
+                (click)="galleryImageInput.click()"
+              >
+                <i-lucide [img]="plusIcon" [size]="15" [strokeWidth]="2.5" />
+                Upload images
+              </button>
+            </div>
+
+            @if (galleryImages.length > 0) {
+              <div class="product-gallery-grid">
+                @for (galleryImage of galleryImages; track galleryImage.url; let imageIndex = $index) {
+                  <article class="product-gallery-card">
+                    <img [src]="galleryImage.url" [alt]="'Gallery image ' + (imageIndex + 1)" />
+                    <div class="product-gallery-card-footer">
+                      <span>Image {{ imageIndex + 1 }}</span>
+                      <button
+                        class="product-icon-button danger"
+                        type="button"
+                        [disabled]="isSubmitting || isUploadingMedia"
+                        [attr.aria-label]="'Remove gallery image ' + (imageIndex + 1)"
+                        (click)="removeGalleryImage(imageIndex)"
+                      >
+                        <i-lucide [img]="deleteIcon" [size]="16" [strokeWidth]="2.25" />
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="product-empty-inline">No gallery images uploaded yet.</div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>04 · Flexible catalogue fields</p>
+            <h3>Attributes</h3>
+          </div>
+          <i-lucide [img]="tagIcon" [size]="19" [strokeWidth]="2.2" />
+        </div>
+
+        <div class="product-inline-section-heading">
+          <div>
+            <strong>Customer-facing attributes</strong>
+            <small>Examples: Color, Size, Material, Brand, or Warranty.</small>
+          </div>
+          <button class="product-secondary-action" type="button" [disabled]="isSubmitting" (click)="addAttribute()">
+            <i-lucide [img]="plusIcon" [size]="15" [strokeWidth]="2.5" />
+            Add attribute
+          </button>
+        </div>
+
+        <div class="product-key-value-list">
+          @for (attribute of attributes; track $index; let attributeIndex = $index) {
+            <div class="product-key-value-row">
+              <input
+                class="form-control"
+                type="text"
+                [name]="'attributeName-' + attributeIndex"
+                placeholder="Name, e.g. Color"
+                [(ngModel)]="attribute.name"
+                [disabled]="isSubmitting"
+              />
+              <input
+                class="form-control"
+                type="text"
+                [name]="'attributeValue-' + attributeIndex"
+                placeholder="Value, e.g. Midnight blue"
+                [(ngModel)]="attribute.value"
+                [disabled]="isSubmitting"
+              />
+              <button
+                class="product-icon-button danger"
+                type="button"
+                [disabled]="isSubmitting"
+                [attr.aria-label]="'Remove attribute ' + (attributeIndex + 1)"
+                (click)="removeAttribute(attributeIndex)"
+              >
+                <i-lucide [img]="deleteIcon" [size]="16" [strokeWidth]="2.25" />
+              </button>
+            </div>
+          } @empty {
+            <div class="product-empty-inline">No attributes added yet.</div>
+          }
+        </div>
+      </section>
+
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>05 · Technical details</p>
+            <h3>Specifications</h3>
+          </div>
+          <i-lucide [img]="productIcon" [size]="19" [strokeWidth]="2.2" />
+        </div>
+
+        <div class="product-inline-section-heading">
+          <div>
+            <strong>Specification attributes</strong>
+            <small>Examples: Weight, Dimensions, Battery, Processor, or Model number.</small>
+          </div>
+          <button
+            class="product-secondary-action"
+            type="button"
             [disabled]="isSubmitting"
-          />
-          <span>
-            <strong>Active product</strong>
-            <small>Inactive products are preserved but excluded from normal use.</small>
-          </span>
-        </label>
-      }
+            (click)="addSpecification()"
+          >
+            <i-lucide [img]="plusIcon" [size]="15" [strokeWidth]="2.5" />
+            Add specification
+          </button>
+        </div>
 
-      <div class="product-form-actions full-width">
+        <div class="product-key-value-list">
+          @for (specification of specifications; track $index; let specificationIndex = $index) {
+            <div class="product-key-value-row">
+              <input
+                class="form-control"
+                type="text"
+                [name]="'specificationName-' + specificationIndex"
+                placeholder="Name, e.g. Connectivity"
+                [(ngModel)]="specification.name"
+                [disabled]="isSubmitting"
+              />
+              <input
+                class="form-control"
+                type="text"
+                [name]="'specificationValue-' + specificationIndex"
+                placeholder="Value, e.g. Bluetooth 5.3"
+                [(ngModel)]="specification.value"
+                [disabled]="isSubmitting"
+              />
+              <button
+                class="product-icon-button danger"
+                type="button"
+                [disabled]="isSubmitting"
+                [attr.aria-label]="'Remove specification ' + (specificationIndex + 1)"
+                (click)="removeSpecification(specificationIndex)"
+              >
+                <i-lucide [img]="deleteIcon" [size]="16" [strokeWidth]="2.25" />
+              </button>
+            </div>
+          } @empty {
+            <div class="product-empty-inline">No specification fields added yet.</div>
+          }
+        </div>
+      </section>
+
+      <section class="product-form-section">
+        <div class="product-form-section-header">
+          <div>
+            <p>06 · Inventory controls</p>
+            <h3>Stock settings</h3>
+          </div>
+          <i-lucide [img]="activeIcon" [size]="19" [strokeWidth]="2.2" />
+        </div>
+
+        <div class="product-section-grid">
+          @if (!editingProduct) {
+            <div class="form-group">
+              <label class="form-label" for="currentStock">Initial stock</label>
+              <input
+                id="currentStock"
+                class="form-control"
+                type="number"
+                min="0"
+                name="currentStock"
+                [(ngModel)]="currentStock"
+                [disabled]="isSubmitting"
+              />
+            </div>
+          } @else {
+            <div class="form-group">
+              <label class="form-label" for="currentStock">Current stock</label>
+              <input id="currentStock" class="form-control" type="number" [value]="currentStock" disabled />
+              <p class="form-help-text">Use Stock In, Stock Out, or Adjustment to change inventory.</p>
+            </div>
+          }
+
+          <div class="form-group">
+            <label class="form-label" for="lowStockThreshold">Low stock threshold</label>
+            <input
+              id="lowStockThreshold"
+              class="form-control"
+              type="number"
+              min="0"
+              name="lowStockThreshold"
+              [(ngModel)]="lowStockThreshold"
+              [disabled]="isSubmitting"
+            />
+          </div>
+
+          @if (editingProduct) {
+            <label class="product-toggle-card full-width">
+              <input
+                type="checkbox"
+                name="productIsActive"
+                [(ngModel)]="productIsActive"
+                [disabled]="isSubmitting"
+              />
+              <span class="product-toggle-icon active">
+                <i-lucide [img]="activeIcon" [size]="18" [strokeWidth]="2.3" />
+              </span>
+              <span>
+                <strong>Active product</strong>
+                <small>Inactive products are retained for history but excluded from normal stock operations.</small>
+              </span>
+            </label>
+          }
+        </div>
+      </section>
+
+      <div class="product-form-actions">
         <button class="products-primary-action" type="submit" [disabled]="isSubmitting">
           {{ isSubmitting ? 'Saving...' : editingProduct ? 'Update product' : 'Create product' }}
         </button>
 
-        <button
-          class="product-cancel-button"
-          type="button"
-          [disabled]="isSubmitting"
-          (click)="closeForm()"
-        >
+        <button class="product-cancel-button" type="button" [disabled]="isSubmitting" (click)="closeForm()">
           Cancel
         </button>
       </div>
