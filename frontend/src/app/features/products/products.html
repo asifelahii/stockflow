@@ -530,7 +530,7 @@
 
         <div class="product-section-grid">
           <div class="product-upload-panel full-width">
-            <div>
+            <div class="product-upload-panel-heading">
               <strong>Primary product image</strong>
               <small>Shown first in the catalogue. JPG, PNG, or WebP · maximum 5 MB.</small>
             </div>
@@ -541,21 +541,32 @@
               type="file"
               accept="image/jpeg,image/png,image/webp"
               (change)="onPrimaryImageSelected($event)"
-              [disabled]="isSubmitting || isUploadingMedia"
+              [disabled]="isMediaDropZoneDisabled('primary')"
             />
 
-            <div class="product-upload-actions">
-              <button
-                class="product-secondary-action"
-                type="button"
-                [disabled]="isSubmitting || isUploadingMedia"
-                (click)="primaryImageInput.click()"
-              >
-                <i-lucide [img]="imageIcon" [size]="15" [strokeWidth]="2.4" />
-                {{ primaryImage ? 'Replace image' : 'Choose image' }}
-              </button>
+            <button
+              class="product-drop-zone"
+              type="button"
+              [class.is-dragging]="activeMediaDropZone === 'primary'"
+              [disabled]="isMediaDropZoneDisabled('primary')"
+              (click)="primaryImageInput.click()"
+              (dragover)="onMediaDragOver($event, 'primary')"
+              (dragleave)="onMediaDragLeave($event, 'primary')"
+              (drop)="onMediaDrop($event, 'primary')"
+            >
+              <span class="product-drop-zone-icon" aria-hidden="true">
+                <i-lucide [img]="imageIcon" [size]="22" [strokeWidth]="2.1" />
+              </span>
 
-              @if (primaryImage) {
+              <span class="product-drop-zone-copy">
+                <strong>{{ primaryImage ? 'Drop a replacement image here' : 'Drop a primary image here' }}</strong>
+                <small>Drag and drop one image, or click to browse from your computer.</small>
+              </span>
+            </button>
+
+            @if (primaryImage) {
+              <div class="product-upload-actions">
+                <span class="product-upload-ready">Current primary image</span>
                 <button
                   class="product-text-action danger"
                   type="button"
@@ -564,8 +575,8 @@
                 >
                   Remove
                 </button>
-              }
-            </div>
+              </div>
+            }
           </div>
 
           @if (mediaError) {
@@ -596,29 +607,45 @@
             <div class="product-inline-section-heading">
               <div>
                 <strong>Gallery images</strong>
-                <small>Optional supporting images. Maximum five.</small>
+                <small>{{ galleryImages.length }}/5 uploaded · Optional supporting images.</small>
               </div>
-
-              <input
-                #galleryImageInput
-                class="product-file-input"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                (change)="onGalleryImagesSelected($event)"
-                [disabled]="isSubmitting || isUploadingMedia || galleryImages.length >= 5"
-              />
-
-              <button
-                class="product-secondary-action"
-                type="button"
-                [disabled]="isSubmitting || isUploadingMedia || galleryImages.length >= 5"
-                (click)="galleryImageInput.click()"
-              >
-                <i-lucide [img]="plusIcon" [size]="15" [strokeWidth]="2.5" />
-                Upload images
-              </button>
             </div>
+
+            <input
+              #galleryImageInput
+              class="product-file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              (change)="onGalleryImagesSelected($event)"
+              [disabled]="isMediaDropZoneDisabled('gallery')"
+            />
+
+            <button
+              class="product-drop-zone product-gallery-drop-zone"
+              type="button"
+              [class.is-dragging]="activeMediaDropZone === 'gallery'"
+              [disabled]="isMediaDropZoneDisabled('gallery')"
+              (click)="galleryImageInput.click()"
+              (dragover)="onMediaDragOver($event, 'gallery')"
+              (dragleave)="onMediaDragLeave($event, 'gallery')"
+              (drop)="onMediaDrop($event, 'gallery')"
+            >
+              <span class="product-drop-zone-icon" aria-hidden="true">
+                <i-lucide [img]="plusIcon" [size]="22" [strokeWidth]="2.25" />
+              </span>
+
+              <span class="product-drop-zone-copy">
+                <strong>{{ galleryImages.length >= 5 ? 'Gallery limit reached' : 'Drop gallery images here' }}</strong>
+                <small>
+                  {{
+                    galleryImages.length >= 5
+                      ? 'Remove an image before adding another.'
+                      : 'Drag and drop one or more images, or click to browse.'
+                  }}
+                </small>
+              </span>
+            </button>
 
             @if (galleryImages.length > 0) {
               <div class="product-gallery-grid">

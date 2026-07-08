@@ -778,39 +778,124 @@
 
 .product-upload-panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.82rem;
-  border: 1px dashed var(--sf-border-strong);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--sf-border);
   border-radius: var(--sf-radius-sm);
   background: var(--sf-surface-raised);
 }
 
-.product-upload-panel strong,
-.product-upload-panel small {
+.product-upload-panel-heading strong,
+.product-upload-panel-heading small {
   display: block;
 }
 
-.product-upload-panel strong {
+.product-upload-panel-heading strong {
   color: var(--sf-text-strong);
   font-size: 0.76rem;
   font-weight: 800;
 }
 
-.product-upload-panel small {
+.product-upload-panel-heading small {
   margin-top: 0.16rem;
   color: var(--sf-muted);
   font-size: 0.67rem;
   font-weight: 600;
 }
 
-.product-upload-actions {
-  display: inline-flex;
+.product-drop-zone {
+  width: 100%;
+  min-height: 136px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 1rem;
+  border: 1.5px dashed var(--sf-border-strong);
+  border-radius: var(--sf-radius-sm);
+  background: var(--sf-surface-soft);
+  color: var(--sf-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.product-drop-zone:hover:not(:disabled) {
+  border-color: var(--sf-primary);
+  background: var(--sf-primary-soft);
+}
+
+.product-drop-zone:focus-visible {
+  outline: 3px solid var(--sf-primary-border);
+  outline-offset: 2px;
+}
+
+.product-drop-zone.is-dragging {
+  border-color: var(--sf-primary);
+  background: var(--sf-primary-soft);
+  box-shadow: 0 0 0 3px var(--sf-primary-border);
+  transform: translateY(-1px);
+}
+
+.product-drop-zone:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.product-drop-zone-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sf-info-soft);
+  color: var(--sf-info);
+}
+
+.product-drop-zone-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  max-width: 30rem;
+}
+
+.product-drop-zone-copy strong {
+  color: var(--sf-text-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.product-drop-zone-copy small {
+  color: var(--sf-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.product-gallery-drop-zone {
+  min-height: 116px;
+}
+
+.product-upload-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.65rem;
-  flex: 0 0 auto;
+  padding-top: 0.1rem;
+}
+
+.product-upload-ready {
+  color: var(--sf-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .product-file-input {
@@ -926,8 +1011,12 @@
 
 @media (max-width: 760px) {
   .product-upload-panel {
-    align-items: flex-start;
-    flex-direction: column;
+    padding: 0.75rem;
+  }
+
+  .product-drop-zone {
+    min-height: 118px;
+    padding: 0.85rem;
   }
 
   .product-upload-actions {
