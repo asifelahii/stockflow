@@ -27,7 +27,10 @@
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
 .entity-primary-action {
@@ -137,7 +140,10 @@
   padding: 0.9rem;
   text-align: left;
   cursor: pointer;
-  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .warehouse-list-item:hover,
@@ -301,68 +307,95 @@
   gap: 0.75rem;
 }
 
-.warehouses-page .entity-primary-action,
-.warehouses-page .entity-secondary-action,
-.warehouses-page .entity-danger-action {
-  min-height: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.75rem;
-  padding: 0 1rem;
-  font-size: 0.92rem;
+.warehouses-page .entity-primary-action {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--sf-primary);
+  border-radius: var(--sf-radius-sm);
+  background: var(--sf-primary);
+  color: var(--sf-on-primary);
+  cursor: pointer;
+  font-size: 0.78rem;
   font-weight: 800;
-  line-height: 1;
   white-space: nowrap;
   box-shadow: none;
   transform: none;
-}
-
-.warehouses-page .entity-primary-action {
-  background: #fb923c;
-  color: #ffffff;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .warehouses-page .entity-primary-action:hover {
-  background: #f97316;
+  background: var(--sf-primary-hover, #f97316);
+  border-color: var(--sf-primary-hover, #f97316);
+  color: var(--sf-on-primary);
   box-shadow: 0 10px 22px rgba(249, 115, 22, 0.18);
+  transform: translateY(-1px);
+}
+
+.warehouses-page .entity-secondary-action,
+.warehouses-page .entity-danger-action {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.9rem;
+  border-radius: var(--sf-radius-sm);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: none;
   transform: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .warehouses-page .entity-secondary-action {
-  background: #f1f5f9;
-  color: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(248, 250, 252, 0.92);
+  color: var(--sf-text);
 }
 
 .warehouses-page .entity-secondary-action:hover {
-  background: #e2e8f0;
+  background: rgba(241, 245, 249, 0.98);
+  border-color: rgba(148, 163, 184, 0.55);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-  transform: none;
+  transform: translateY(-1px);
 }
 
 .warehouses-page .entity-danger-action {
-  background: #fee2e2;
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  background: rgba(254, 226, 226, 0.9);
   color: #b91c1c;
 }
 
 .warehouses-page .entity-danger-action:hover {
-  background: #fecaca;
+  background: rgba(254, 202, 202, 0.95);
+  border-color: rgba(239, 68, 68, 0.35);
   box-shadow: 0 8px 18px rgba(185, 28, 28, 0.1);
-  transform: none;
+  transform: translateY(-1px);
 }
 
 .warehouses-page .entity-primary-action:active,
 .warehouses-page .entity-secondary-action:active,
 .warehouses-page .entity-danger-action:active {
-  transform: none;
+  transform: translateY(0);
   box-shadow: none;
 }
 
 .warehouses-page .warehouse-form-actions {
   justify-content: flex-start;
-}
-
-.warehouses-page .warehouse-form-actions .entity-primary-action {
-  width: auto;
-  min-width: 10.75rem;
 }
 
 .warehouses-page .warehouse-detail-actions {
