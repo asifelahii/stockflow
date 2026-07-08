@@ -34,7 +34,8 @@ export const APP_NAVIGATION: readonly AppNavigationSection[] = [
     links: [
       { label: 'Products', route: '/app/products', icon: Package },
       { label: 'Categories', route: '/app/product-categories', icon: Tag },
-      { label: 'Suppliers', route: '/app/suppliers', icon: Truck }
+      { label: 'Suppliers', route: '/app/suppliers', icon: Truck },
+      { label: 'Warehouses', route: '/app/warehouses', icon: Package },
     ]
   },
   {

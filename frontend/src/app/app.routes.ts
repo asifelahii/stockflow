@@ -13,6 +13,7 @@ import { DashboardComponent } from './features/dashboard/dashboard';
 import { ProductsComponent } from './features/products/products';
 import { ProductCategoriesComponent } from './features/product-categories/product-categories';
 import { SuppliersComponent } from './features/suppliers/suppliers';
+import { WarehousesComponent } from './features/warehouses/warehouses';
 
 import { StockMovementsComponent } from './features/stock/stock-movements/stock-movements';
 import { StockInComponent } from './features/stock/stock-in/stock-in';
@@ -120,6 +121,14 @@ export const routes: Routes = [
         data: {
           title: 'Suppliers',
           description: 'Manage supplier contacts and supplier-related product records.'
+        }
+      },
+      {
+        path: 'warehouses',
+        component: WarehousesComponent,
+        data: {
+          title: 'Warehouses',
+          description: 'Manage warehouse locations and warehouse-wise inventory.'
         }
       },
       {
