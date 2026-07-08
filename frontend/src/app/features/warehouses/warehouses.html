@@ -1,0 +1,259 @@
+<section class="entity-page warehouses-page">
+  <app-page-header
+    eyebrow="Inventory Locations"
+    title="Warehouses"
+    description="Create storage locations, manage active warehouses, and review warehouse-wise inventory."
+    [countLabel]="activeWarehouseCount + ' active'"
+  >
+    <div page-actions class="warehouse-header-actions">
+      <button class="entity-primary-action" type="button" (click)="startCreate()">
+        <i-lucide [img]="addIcon" [size]="17" [strokeWidth]="2.35" />
+        New warehouse
+      </button>
+
+      <button class="entity-secondary-action" type="button" (click)="loadPageData()">
+        <i-lucide [img]="refreshIcon" [size]="17" [strokeWidth]="2.35" />
+        Refresh
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <app-loading-state message="Loading warehouses..." />
+  } @else {
+    <section class="warehouse-layout">
+      <article class="warehouse-list-card card">
+        <div class="warehouse-card-heading">
+          <div>
+            <p>Warehouse directory</p>
+            <h2>{{ filteredWarehouses.length }} locations</h2>
+          </div>
+
+          <label class="warehouse-status-toggle">
+            <input type="checkbox" [(ngModel)]="includeInactive" (change)="loadPageData()" />
+            <span>Show inactive</span>
+          </label>
+        </div>
+
+        <label class="entity-search-field warehouse-search" for="warehouseSearch">
+          <i-lucide [img]="searchIcon" [size]="18" [strokeWidth]="2.2" />
+          <input
+            id="warehouseSearch"
+            type="search"
+            placeholder="Search by name, code, or address"
+            [(ngModel)]="searchTerm"
+          />
+        </label>
+
+        @if (errorMessage) {
+          <div class="stock-operation-alert error">
+            <i-lucide [img]="alertIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ errorMessage }}</span>
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="stock-operation-alert success">
+            <i-lucide [img]="checkIcon" [size]="18" [strokeWidth]="2.2" />
+            <span>{{ successMessage }}</span>
+          </div>
+        }
+
+        @if (filteredWarehouses.length > 0) {
+          <div class="warehouse-list">
+            @for (warehouse of filteredWarehouses; track warehouse.id) {
+              <button
+                class="warehouse-list-item"
+                type="button"
+                [class.active]="warehouse.id === selectedWarehouseId"
+                (click)="selectWarehouse(warehouse)"
+              >
+                <span class="warehouse-list-icon">
+                  <i-lucide [img]="warehouseIcon" [size]="19" [strokeWidth]="2.25" />
+                </span>
+
+                <span class="warehouse-list-content">
+                  <strong>{{ warehouse.name }}</strong>
+                  <small>
+                    <i-lucide [img]="hashIcon" [size]="13" [strokeWidth]="2.3" />
+                    {{ warehouse.code }}
+                  </small>
+
+                  @if (warehouse.address) {
+                    <small>
+                      <i-lucide [img]="addressIcon" [size]="13" [strokeWidth]="2.3" />
+                      {{ warehouse.address }}
+                    </small>
+                  }
+                </span>
+
+                <app-badge
+                  [label]="warehouse.is_active ? 'Active' : 'Inactive'"
+                  [tone]="warehouse.is_active ? 'success' : 'neutral'"
+                />
+              </button>
+            }
+          </div>
+        } @else {
+          <app-empty-state
+            title="No warehouses found"
+            message="Create a warehouse or change the search filters."
+          />
+        }
+      </article>
+
+      <article class="warehouse-form-card card">
+        <div class="warehouse-card-heading">
+          <div>
+            <p>{{ editingWarehouseId ? 'Edit warehouse' : 'Create warehouse' }}</p>
+            <h2>{{ editingWarehouseId ? 'Update location' : 'New location' }}</h2>
+          </div>
+        </div>
+
+        <form class="warehouse-form" (ngSubmit)="saveWarehouse()">
+          <div class="form-group">
+            <label class="form-label" for="warehouseName">Warehouse name</label>
+            <input
+              id="warehouseName"
+              class="form-control"
+              type="text"
+              name="warehouseName"
+              placeholder="Example: Main Warehouse"
+              [(ngModel)]="form.name"
+              [disabled]="isSaving"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="warehouseCode">Code</label>
+            <input
+              id="warehouseCode"
+              class="form-control"
+              type="text"
+              name="warehouseCode"
+              placeholder="Example: MAIN"
+              [(ngModel)]="form.code"
+              [disabled]="isSaving"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="warehouseAddress">Address or note</label>
+            <textarea
+              id="warehouseAddress"
+              class="form-control"
+              rows="4"
+              name="warehouseAddress"
+              placeholder="Example: Ground floor storage area"
+              [(ngModel)]="form.address"
+              [disabled]="isSaving"
+            ></textarea>
+          </div>
+
+          <label class="warehouse-active-checkbox full-width">
+            <input type="checkbox" name="warehouseActive" [(ngModel)]="form.is_active" />
+            <span>Warehouse is active</span>
+          </label>
+
+          <div class="warehouse-form-actions full-width">
+            <button class="entity-primary-action" type="submit" [disabled]="isSaving">
+              <i-lucide [img]="editingWarehouseId ? editIcon : addIcon" [size]="17" [strokeWidth]="2.35" />
+              {{ isSaving ? 'Saving...' : editingWarehouseId ? 'Update warehouse' : 'Create warehouse' }}
+            </button>
+
+            @if (editingWarehouseId) {
+              <button class="entity-secondary-action" type="button" (click)="cancelEdit()" [disabled]="isSaving">
+                Cancel
+              </button>
+            }
+          </div>
+        </form>
+      </article>
+
+      <article class="warehouse-detail-card card">
+        @if (selectedWarehouse; as warehouse) {
+          <div class="warehouse-detail-header">
+            <div>
+              <p>Selected warehouse</p>
+              <h2>{{ warehouse.name }}</h2>
+              <span>{{ warehouse.code }}</span>
+            </div>
+
+            <app-badge
+              [label]="warehouse.is_active ? 'Active' : 'Inactive'"
+              [tone]="warehouse.is_active ? 'success' : 'neutral'"
+            />
+          </div>
+
+          <div class="warehouse-detail-actions">
+            <button class="entity-secondary-action" type="button" (click)="startEdit(warehouse)">
+              <i-lucide [img]="editIcon" [size]="16" [strokeWidth]="2.3" />
+              Edit
+            </button>
+
+            @if (warehouse.code !== 'MAIN' && warehouse.is_active) {
+              <button class="entity-danger-action" type="button" (click)="deactivateWarehouse(warehouse)">
+                <i-lucide [img]="deleteIcon" [size]="16" [strokeWidth]="2.3" />
+                Deactivate
+              </button>
+            }
+          </div>
+
+          <div class="warehouse-metrics">
+            <div>
+              <span>Total units</span>
+              <strong>{{ totalInventoryQuantity }}</strong>
+            </div>
+
+            <div>
+              <span>Product rows</span>
+              <strong>{{ selectedInventory.length }}</strong>
+            </div>
+
+            <div>
+              <span>Address</span>
+              <strong>{{ warehouse.address || 'Not added' }}</strong>
+            </div>
+          </div>
+
+          <div class="warehouse-inventory-heading">
+            <div>
+              <p>Inventory preview</p>
+              <h3>Warehouse stock</h3>
+            </div>
+          </div>
+
+          @if (isLoadingInventory) {
+            <app-loading-state message="Loading warehouse inventory..." />
+          } @else if (selectedInventory.length > 0) {
+            <div class="warehouse-inventory-list">
+              @for (item of selectedInventory; track item.id) {
+                <div class="warehouse-inventory-item">
+                  <div>
+                    <strong>{{ getProductName(item.product_id) }}</strong>
+                    <small>{{ getProductSku(item.product_id) }}</small>
+                  </div>
+
+                  <div class="warehouse-inventory-quantity">
+                    <strong>{{ item.quantity_on_hand }}</strong>
+                    <app-badge [label]="getStockTone(item)" [tone]="getStockTone(item)" />
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <app-empty-state
+              title="No inventory rows yet"
+              message="Stock movements will create inventory rows for this warehouse."
+            />
+          }
+        } @else {
+          <app-empty-state
+            title="No warehouse selected"
+            message="Select a warehouse to view inventory details."
+          />
+        }
+      </article>
+    </section>
+  }
+</section>
