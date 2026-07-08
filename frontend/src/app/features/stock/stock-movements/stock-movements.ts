@@ -14,8 +14,10 @@ import {
 
 import { Product } from '../../../core/models/product.model';
 import { StockMovement } from '../../../core/models/stock.model';
+import { Warehouse } from '../../../core/models/warehouse.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
+import { WarehouseService } from '../../../core/services/warehouse.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
@@ -37,8 +39,10 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 export class StockMovementsComponent implements OnInit {
   protected searchTerm = '';
   protected typeFilter = 'all';
+  protected warehouseFilter = 'all';
   protected movements: StockMovement[] = [];
   protected products: Product[] = [];
+  protected warehouses: Warehouse[] = [];
   protected isLoading = false;
   protected errorMessage = '';
 
@@ -52,7 +56,8 @@ export class StockMovementsComponent implements OnInit {
 
   constructor(
     private readonly stockService: StockService,
-    private readonly productService: ProductService
+    private readonly productService: ProductService,
+    private readonly warehouseService: WarehouseService
   ) {}
 
   ngOnInit(): void {
@@ -65,16 +70,19 @@ export class StockMovementsComponent implements OnInit {
 
     forkJoin({
       movements: this.stockService.getStockMovements(),
-      products: this.productService.getProducts()
+      products: this.productService.getProducts(),
+      warehouses: this.warehouseService.getWarehouses()
     }).subscribe({
-      next: ({ movements, products }) => {
+      next: ({ movements, products, warehouses }) => {
         this.movements = movements;
         this.products = products;
+        this.warehouses = warehouses;
         this.isLoading = false;
       },
       error: () => {
         this.movements = [];
         this.products = [];
+        this.warehouses = [];
         this.isLoading = false;
         this.errorMessage = 'Unable to load stock movements.';
       }
@@ -84,6 +92,7 @@ export class StockMovementsComponent implements OnInit {
   protected clearFilters(): void {
     this.searchTerm = '';
     this.typeFilter = 'all';
+    this.warehouseFilter = 'all';
   }
 
   protected get filteredMovements(): StockMovement[] {
@@ -92,9 +101,13 @@ export class StockMovementsComponent implements OnInit {
     return this.movements.filter((movement) => {
       const productName = this.getProductName(movement.product_id).toLowerCase();
       const formattedType = this.formatMovementType(movement.movement_type).toLowerCase();
+      const warehouseName = this.getWarehouseName(movement.warehouse_id).toLowerCase();
+      const warehouseCode = this.getWarehouseCode(movement.warehouse_id).toLowerCase();
 
       const matchesSearch =
         productName.includes(searchValue) ||
+        warehouseName.includes(searchValue) ||
+        warehouseCode.includes(searchValue) ||
         String(movement.product_id).includes(searchValue) ||
         formattedType.includes(searchValue) ||
         String(movement.quantity).includes(searchValue) ||
@@ -103,7 +116,10 @@ export class StockMovementsComponent implements OnInit {
       const matchesType =
         this.typeFilter === 'all' || movement.movement_type === this.typeFilter;
 
-      return matchesSearch && matchesType;
+      const matchesWarehouse =
+        this.warehouseFilter === 'all' || movement.warehouse_id === Number(this.warehouseFilter);
+
+      return matchesSearch && matchesType && matchesWarehouse;
     });
   }
 
@@ -125,6 +141,14 @@ export class StockMovementsComponent implements OnInit {
 
   protected getProductSku(productId: number): string {
     return this.products.find((product) => product.id === productId)?.sku || `ID ${productId}`;
+  }
+
+  protected getWarehouseName(warehouseId: number): string {
+    return this.warehouses.find((warehouse) => warehouse.id === warehouseId)?.name || `Warehouse #${warehouseId}`;
+  }
+
+  protected getWarehouseCode(warehouseId: number): string {
+    return this.warehouses.find((warehouse) => warehouse.id === warehouseId)?.code || `ID ${warehouseId}`;
   }
 
   protected formatMovementType(type: string): string {

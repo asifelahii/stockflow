@@ -20,9 +20,9 @@
   </app-page-header>
 
   @if (isLoading) {
-    <app-loading-state message="Loading active products..." />
-  } @else if (errorMessage && !products.length) {
-    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+    <app-loading-state message="Loading active products and warehouses..." />
+  } @else if (errorMessage && (!products.length || !warehouses.length)) {
+    <app-empty-state title="Stock form data could not be loaded" [message]="errorMessage" />
   } @else {
     <section class="stock-operation-layout">
       <article class="stock-operation-card card">
@@ -33,7 +33,7 @@
 
           <div>
             <h2>Receive inventory</h2>
-            <p>Add units to an active product. StockFlow records this as a traceable stock movement.</p>
+            <p>Add units to a selected warehouse. StockFlow records this as a traceable stock movement.</p>
           </div>
         </header>
 
@@ -65,7 +65,26 @@
 
               @for (product of products; track product.id) {
                 <option [value]="product.id">
-                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                  {{ product.name }} - {{ product.sku }} - {{ product.current_stock }} in stock
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockInWarehouse">Warehouse</label>
+            <select
+              id="stockInWarehouse"
+              class="form-control"
+              name="stockInWarehouse"
+              [(ngModel)]="warehouseId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a warehouse</option>
+
+              @for (warehouse of warehouses; track warehouse.id) {
+                <option [value]="warehouse.id">
+                  {{ warehouse.name }} - {{ warehouse.code }}
                 </option>
               }
             </select>
@@ -86,7 +105,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="stockInResult">Expected stock after receipt</label>
+            <label class="form-label" for="stockInResult">Expected total stock after receipt</label>
             <input
               id="stockInResult"
               class="form-control"
@@ -122,7 +141,7 @@
       <aside class="stock-operation-side-card card">
         <div>
           <h2>Selected product</h2>
-          <p>Review current inventory before saving this stock receipt.</p>
+          <p>Review current inventory before saving this warehouse stock receipt.</p>
         </div>
 
         @if (selectedProduct; as product) {
@@ -140,8 +159,13 @@
 
             <div class="stock-product-metrics">
               <div>
-                <span>Current stock</span>
+                <span>Total stock</span>
                 <strong>{{ product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Warehouse</span>
+                <strong>{{ selectedWarehouse?.code || '?' }}</strong>
               </div>
 
               <div>
@@ -155,7 +179,7 @@
               </div>
 
               <div>
-                <span>New stock</span>
+                <span>New total stock</span>
                 <strong>{{ resultingStock ?? product.current_stock }}</strong>
               </div>
             </div>
@@ -168,7 +192,7 @@
 
         <div class="stock-operation-note">
           <i-lucide [img]="infoIcon" [size]="18" [strokeWidth]="2.25" />
-          <span>Stock receipts increase inventory and become part of the movement history.</span>
+          <span>Stock receipts increase the selected warehouse and become part of the movement history.</span>
         </div>
 
         <ul class="stock-operation-info-list">

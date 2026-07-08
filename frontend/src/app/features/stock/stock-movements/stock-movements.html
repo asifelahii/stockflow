@@ -2,7 +2,7 @@
   <app-page-header
     eyebrow="Stock Control"
     title="Stock Movements"
-    description="Review incoming stock, outgoing stock, and inventory corrections across your workspace."
+    description="Review incoming stock, outgoing stock, and inventory corrections across your warehouses."
     [countLabel]="filteredMovements.length + ' records'"
   >
     <div page-actions class="stock-operation-actions">
@@ -32,7 +32,7 @@
       <div>
         <strong>{{ filteredMovements.length }} movements shown</strong>
         <small>
-          {{ stockInCount }} in · {{ stockOutCount }} out · {{ adjustmentCount }} adjustments
+          {{ stockInCount }} in - {{ stockOutCount }} out - {{ adjustmentCount }} adjustments
         </small>
       </div>
     </div>
@@ -43,7 +43,7 @@
         <input
           id="movementSearch"
           type="search"
-          placeholder="Search product, type, quantity, or reason"
+          placeholder="Search product, warehouse, type, quantity, or reason"
           [(ngModel)]="searchTerm"
         />
       </label>
@@ -58,10 +58,23 @@
         </select>
       </label>
 
+      <label class="entity-select-field" for="movementWarehouse">
+        <i-lucide [img]="filterIcon" [size]="17" [strokeWidth]="2.2" />
+        <select id="movementWarehouse" [(ngModel)]="warehouseFilter">
+          <option value="all">All warehouses</option>
+
+          @for (warehouse of warehouses; track warehouse.id) {
+            <option [value]="warehouse.id">
+              {{ warehouse.name }} - {{ warehouse.code }}
+            </option>
+          }
+        </select>
+      </label>
+
       <button
         class="entity-clear-filter"
         type="button"
-        [disabled]="!searchTerm && typeFilter === 'all'"
+        [disabled]="!searchTerm && typeFilter === 'all' && warehouseFilter === 'all'"
         (click)="clearFilters()"
       >
         Clear
@@ -92,6 +105,7 @@
           <thead>
             <tr>
               <th>Product</th>
+              <th>Warehouse</th>
               <th>Movement</th>
               <th>Quantity</th>
               <th>Stock change</th>
@@ -112,6 +126,19 @@
                     <div>
                       <strong>{{ getProductName(movement.product_id) }}</strong>
                       <small>{{ getProductSku(movement.product_id) }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Warehouse">
+                  <div class="movement-product">
+                    <span class="movement-product-icon">
+                      <i-lucide [img]="productIcon" [size]="17" [strokeWidth]="2.2" />
+                    </span>
+
+                    <div>
+                      <strong>{{ getWarehouseName(movement.warehouse_id) }}</strong>
+                      <small>{{ getWarehouseCode(movement.warehouse_id) }}</small>
                     </div>
                   </div>
                 </td>
@@ -143,9 +170,19 @@
                 </td>
 
                 <td data-label="Stock change">
-                  <span class="movement-stock-change">
-                    {{ movement.previous_stock }} <span aria-hidden="true">→</span> {{ movement.new_stock }}
-                  </span>
+                  <div class="movement-date">
+                    <strong>
+                      {{ movement.previous_warehouse_stock }}
+                      <span aria-hidden="true">-&gt;</span>
+                      {{ movement.new_warehouse_stock }}
+                    </strong>
+                    <small>
+                      Total:
+                      {{ movement.previous_stock }}
+                      <span aria-hidden="true">-&gt;</span>
+                      {{ movement.new_stock }}
+                    </small>
+                  </div>
                 </td>
 
                 <td data-label="Reason">
@@ -167,7 +204,7 @@
   } @else {
     <app-empty-state
       title="No stock movements found"
-      message="Try changing the search term or movement type filter."
+      message="Try changing the search term, warehouse, or movement type filter."
     />
   }
 </section>
