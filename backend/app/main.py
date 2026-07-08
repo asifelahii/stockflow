@@ -12,6 +12,7 @@ from app.routers import (
     stock,
     suppliers,
     social_auth,
+    warehouses,
 )
 
 
@@ -39,6 +40,7 @@ app.include_router(social_auth.router)
 app.include_router(products.router)
 app.include_router(categories.router)
 app.include_router(suppliers.router)
+app.include_router(warehouses.router)
 app.include_router(stock.router)
 app.include_router(finance.router)
 app.include_router(dashboard.router)

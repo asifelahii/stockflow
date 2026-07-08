@@ -1,9 +1,9 @@
-﻿import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config/api.config';
-import { Product, ProductCreate, ProductUpdate } from '../models/product.model';
+import { Product, ProductCreate, ProductMediaUpload, ProductUpdate } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +39,20 @@ export class ProductService {
 
   updateProduct(productId: number, payload: ProductUpdate): Observable<Product> {
     return this.http.put<Product>(`${API_BASE_URL}/products/${productId}`, payload);
+  }
+
+
+  uploadProductImage(file: File): Observable<ProductMediaUpload> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post<ProductMediaUpload>(`${API_BASE_URL}/products/media/upload`, formData);
+  }
+
+  deleteProductImages(publicIds: string[]): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/products/media`, {
+      body: { public_ids: publicIds }
+    });
   }
 
   deleteProduct(productId: number, version: number): Observable<Product> {

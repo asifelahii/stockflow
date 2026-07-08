@@ -22,9 +22,9 @@
   </app-page-header>
 
   @if (isLoading) {
-    <app-loading-state message="Loading active products..." />
-  } @else if (errorMessage && !products.length) {
-    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+    <app-loading-state message="Loading active products and warehouses..." />
+  } @else if (errorMessage && (!products.length || !warehouses.length)) {
+    <app-empty-state title="Stock form data could not be loaded" [message]="errorMessage" />
   } @else {
     <section class="stock-operation-layout">
       <article class="stock-operation-card card">
@@ -35,7 +35,7 @@
 
           <div>
             <h2>Remove inventory</h2>
-            <p>Record products that were sold, used, damaged, returned, or otherwise removed.</p>
+            <p>Record products that were sold, used, damaged, returned, or otherwise removed from a selected warehouse.</p>
           </div>
         </header>
 
@@ -67,7 +67,26 @@
 
               @for (product of products; track product.id) {
                 <option [value]="product.id">
-                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                  {{ product.name }} - {{ product.sku }} - {{ product.current_stock }} in stock
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="stockOutWarehouse">Warehouse</label>
+            <select
+              id="stockOutWarehouse"
+              class="form-control"
+              name="stockOutWarehouse"
+              [(ngModel)]="warehouseId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a warehouse</option>
+
+              @for (warehouse of warehouses; track warehouse.id) {
+                <option [value]="warehouse.id">
+                  {{ warehouse.name }} - {{ warehouse.code }}
                 </option>
               }
             </select>
@@ -88,7 +107,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="stockOutResult">Expected stock after removal</label>
+            <label class="form-label" for="stockOutResult">Expected total stock after removal</label>
             <input
               id="stockOutResult"
               class="form-control"
@@ -124,7 +143,7 @@
       <aside class="stock-operation-side-card card">
         <div>
           <h2>Availability check</h2>
-          <p>Confirm the selected product has enough inventory before recording stock out.</p>
+          <p>Confirm the selected product and warehouse before recording stock out.</p>
         </div>
 
         @if (selectedProduct; as product) {
@@ -142,13 +161,13 @@
 
             <div class="stock-product-metrics">
               <div>
-                <span>Current stock</span>
+                <span>Total stock</span>
                 <strong>{{ product.current_stock }}</strong>
               </div>
 
               <div>
-                <span>Alert threshold</span>
-                <strong>{{ product.low_stock_threshold }}</strong>
+                <span>Warehouse</span>
+                <strong>{{ selectedWarehouse?.code || '?' }}</strong>
               </div>
 
               <div>
@@ -157,7 +176,7 @@
               </div>
 
               <div>
-                <span>Expected stock</span>
+                <span>Expected total stock</span>
                 <strong>{{ resultingStock ?? product.current_stock }}</strong>
               </div>
             </div>
@@ -177,7 +196,7 @@
 
         <div class="stock-operation-note">
           <i-lucide [img]="infoIcon" [size]="18" [strokeWidth]="2.25" />
-          <span>StockFlow prevents a stock-out record when it would result in negative inventory.</span>
+          <span>StockFlow prevents negative total inventory and validates the selected warehouse on save.</span>
         </div>
 
         <ul class="stock-operation-info-list">

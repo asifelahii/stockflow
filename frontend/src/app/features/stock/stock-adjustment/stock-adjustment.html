@@ -2,7 +2,7 @@
   <app-page-header
     eyebrow="Stock Control"
     title="Stock Adjustment"
-    description="Correct a product’s stock count after a physical count, reconciliation, loss, or inventory correction."
+    description="Correct a product?s stock count after a physical count, reconciliation, loss, or inventory correction."
   >
     <div page-actions class="stock-operation-actions">
       <a class="stock-operation-action" routerLink="/app/stock/in">Stock in</a>
@@ -21,9 +21,9 @@
   </app-page-header>
 
   @if (isLoading) {
-    <app-loading-state message="Loading active products..." />
-  } @else if (errorMessage && !products.length) {
-    <app-empty-state title="Products could not be loaded" [message]="errorMessage" />
+    <app-loading-state message="Loading active products and warehouses..." />
+  } @else if (errorMessage && (!products.length || !warehouses.length)) {
+    <app-empty-state title="Stock form data could not be loaded" [message]="errorMessage" />
   } @else {
     <section class="stock-operation-layout">
       <article class="stock-operation-card card">
@@ -34,7 +34,7 @@
 
           <div>
             <h2>Set corrected stock</h2>
-            <p>Enter the verified physical quantity. StockFlow calculates and records the adjustment difference.</p>
+            <p>Enter the verified physical quantity for a selected warehouse. StockFlow records the adjustment difference.</p>
           </div>
         </header>
 
@@ -66,14 +66,33 @@
 
               @for (product of products; track product.id) {
                 <option [value]="product.id">
-                  {{ product.name }} · {{ product.sku }} · {{ product.current_stock }} in stock
+                  {{ product.name }} - {{ product.sku }} - {{ product.current_stock }} in stock
                 </option>
               }
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="currentSystemStock">Current system stock</label>
+            <label class="form-label" for="adjustmentWarehouse">Warehouse</label>
+            <select
+              id="adjustmentWarehouse"
+              class="form-control"
+              name="adjustmentWarehouse"
+              [(ngModel)]="warehouseId"
+              [disabled]="isSubmitting"
+            >
+              <option value="">Select a warehouse</option>
+
+              @for (warehouse of warehouses; track warehouse.id) {
+                <option [value]="warehouse.id">
+                  {{ warehouse.name }} - {{ warehouse.code }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="currentSystemStock">Current total stock</label>
             <input
               id="currentSystemStock"
               class="form-control"
@@ -85,7 +104,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="newStock">Verified stock count</label>
+            <label class="form-label" for="newStock">Verified warehouse stock count</label>
             <input
               id="newStock"
               class="form-control"
@@ -123,7 +142,7 @@
       <aside class="stock-operation-side-card card">
         <div>
           <h2>Adjustment summary</h2>
-          <p>Review the stock difference before saving an inventory correction.</p>
+          <p>Review the stock difference before saving a warehouse inventory correction.</p>
         </div>
 
         @if (selectedProduct; as product) {
@@ -141,8 +160,13 @@
 
             <div class="stock-product-metrics">
               <div>
-                <span>System stock</span>
+                <span>Total stock</span>
                 <strong>{{ product.current_stock }}</strong>
+              </div>
+
+              <div>
+                <span>Warehouse</span>
+                <strong>{{ selectedWarehouse?.code || '?' }}</strong>
               </div>
 
               <div>
@@ -175,11 +199,11 @@
         <ul class="stock-operation-info-list">
           <li>
             <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
-            Adjustment can increase or decrease the recorded stock.
+            Adjustment can increase or decrease the selected warehouse stock.
           </li>
           <li>
             <i-lucide [img]="checkIcon" [size]="16" [strokeWidth]="2.25" />
-            The corrected quantity becomes the new stock value.
+            The corrected quantity becomes the new warehouse stock value.
           </li>
         </ul>
       </aside>

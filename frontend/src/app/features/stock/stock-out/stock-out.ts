@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import {
   ArrowUp,
   CheckCircle2,
@@ -13,9 +14,11 @@ import {
 } from 'lucide-angular';
 
 import { Product } from '../../../core/models/product.model';
+import { Warehouse } from '../../../core/models/warehouse.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { WarehouseService } from '../../../core/services/warehouse.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
@@ -35,7 +38,9 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 })
 export class StockOutComponent implements OnInit {
   protected products: Product[] = [];
+  protected warehouses: Warehouse[] = [];
   protected productId = '';
+  protected warehouseId = '';
   protected quantity: number | null = null;
   protected reason = '';
   protected isLoading = false;
@@ -54,33 +59,44 @@ export class StockOutComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly stockService: StockService,
+    private readonly warehouseService: WarehouseService,
     private readonly router: Router,
     private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.loadFormData();
   }
 
-  protected loadProducts(): void {
+  protected loadFormData(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.productService.getProducts().subscribe({
-      next: (products) => {
+    forkJoin({
+      products: this.productService.getProducts(),
+      warehouses: this.warehouseService.getWarehouses(false)
+    }).subscribe({
+      next: ({ products, warehouses }) => {
         this.products = products.filter((product) => product.is_active);
+        this.warehouses = warehouses.filter((warehouse) => warehouse.is_active);
+        this.warehouseId = this.getDefaultWarehouseId();
         this.isLoading = false;
       },
       error: () => {
         this.products = [];
+        this.warehouses = [];
         this.isLoading = false;
-        this.errorMessage = 'Unable to load products.';
+        this.errorMessage = 'Unable to load products and warehouses.';
       }
     });
   }
 
   protected get selectedProduct(): Product | null {
     return this.products.find((product) => product.id === Number(this.productId)) || null;
+  }
+
+  protected get selectedWarehouse(): Warehouse | null {
+    return this.warehouses.find((warehouse) => warehouse.id === Number(this.warehouseId)) || null;
   }
 
   protected get resultingStock(): number | null {
@@ -99,8 +115,8 @@ export class StockOutComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.productId || !this.quantity || this.quantity <= 0) {
-      this.errorMessage = 'Please select a product and enter a valid quantity.';
+    if (!this.productId || !this.warehouseId || !this.quantity || this.quantity <= 0) {
+      this.errorMessage = 'Please select a product, warehouse, and valid quantity.';
       return;
     }
 
@@ -113,6 +129,7 @@ export class StockOutComponent implements OnInit {
 
     this.stockService.createStockOut({
       product_id: Number(this.productId),
+      warehouse_id: Number(this.warehouseId),
       quantity: this.quantity,
       reason: this.reason || null
     }).subscribe({
@@ -131,5 +148,12 @@ export class StockOutComponent implements OnInit {
         this.toastService.error('Stock out failed', this.errorMessage);
       }
     });
+  }
+
+  private getDefaultWarehouseId(): string {
+    const mainWarehouse = this.warehouses.find((warehouse) => warehouse.code === 'MAIN');
+    const defaultWarehouse = mainWarehouse || this.warehouses[0];
+
+    return defaultWarehouse ? String(defaultWarehouse.id) : '';
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import {
   CheckCircle2,
   CircleAlert,
@@ -12,9 +13,11 @@ import {
 } from 'lucide-angular';
 
 import { Product } from '../../../core/models/product.model';
+import { Warehouse } from '../../../core/models/warehouse.model';
 import { ProductService } from '../../../core/services/product.service';
 import { StockService } from '../../../core/services/stock.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { WarehouseService } from '../../../core/services/warehouse.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header';
@@ -34,7 +37,9 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 })
 export class StockAdjustmentComponent implements OnInit {
   protected products: Product[] = [];
+  protected warehouses: Warehouse[] = [];
   protected productId = '';
+  protected warehouseId = '';
   protected newStock: number | null = null;
   protected reason = '';
   protected isLoading = false;
@@ -52,33 +57,44 @@ export class StockAdjustmentComponent implements OnInit {
   constructor(
     private readonly productService: ProductService,
     private readonly stockService: StockService,
+    private readonly warehouseService: WarehouseService,
     private readonly router: Router,
     private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.loadFormData();
   }
 
-  protected loadProducts(): void {
+  protected loadFormData(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.productService.getProducts().subscribe({
-      next: (products) => {
+    forkJoin({
+      products: this.productService.getProducts(),
+      warehouses: this.warehouseService.getWarehouses(false)
+    }).subscribe({
+      next: ({ products, warehouses }) => {
         this.products = products.filter((product) => product.is_active);
+        this.warehouses = warehouses.filter((warehouse) => warehouse.is_active);
+        this.warehouseId = this.getDefaultWarehouseId();
         this.isLoading = false;
       },
       error: () => {
         this.products = [];
+        this.warehouses = [];
         this.isLoading = false;
-        this.errorMessage = 'Unable to load products.';
+        this.errorMessage = 'Unable to load products and warehouses.';
       }
     });
   }
 
   protected get selectedProduct(): Product | null {
     return this.products.find((product) => product.id === Number(this.productId)) || null;
+  }
+
+  protected get selectedWarehouse(): Warehouse | null {
+    return this.warehouses.find((warehouse) => warehouse.id === Number(this.warehouseId)) || null;
   }
 
   protected get stockDifference(): number | null {
@@ -91,7 +107,7 @@ export class StockAdjustmentComponent implements OnInit {
 
   protected get differenceLabel(): string {
     if (this.stockDifference === null) {
-      return '—';
+      return '?';
     }
 
     return this.stockDifference > 0
@@ -103,8 +119,8 @@ export class StockAdjustmentComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.productId || this.newStock === null || this.newStock < 0) {
-      this.errorMessage = 'Please select a product and enter a valid stock quantity.';
+    if (!this.productId || !this.warehouseId || this.newStock === null || this.newStock < 0) {
+      this.errorMessage = 'Please select a product, warehouse, and valid stock quantity.';
       return;
     }
 
@@ -112,13 +128,14 @@ export class StockAdjustmentComponent implements OnInit {
 
     this.stockService.createStockAdjustment({
       product_id: Number(this.productId),
+      warehouse_id: Number(this.warehouseId),
       new_stock: this.newStock,
       reason: this.reason || null
     }).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.successMessage = 'Stock adjustment saved successfully.';
-        this.toastService.success('Stock adjusted', 'Product stock was adjusted successfully.');
+        this.toastService.success('Stock adjusted', 'Warehouse stock was adjusted successfully.');
 
         setTimeout(() => {
           this.router.navigate(['/app/stock/movements']);
@@ -130,5 +147,12 @@ export class StockAdjustmentComponent implements OnInit {
         this.toastService.error('Adjustment failed', this.errorMessage);
       }
     });
+  }
+
+  private getDefaultWarehouseId(): string {
+    const mainWarehouse = this.warehouses.find((warehouse) => warehouse.code === 'MAIN');
+    const defaultWarehouse = mainWarehouse || this.warehouses[0];
+
+    return defaultWarehouse ? String(defaultWarehouse.id) : '';
   }
 }
