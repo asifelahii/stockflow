@@ -1,10 +1,13 @@
-﻿export interface StockMovement {
+export interface StockMovement {
   id: number;
   product_id: number;
+  warehouse_id: number;
   movement_type: string;
   quantity: number;
   previous_stock: number;
   new_stock: number;
+  previous_warehouse_stock: number;
+  new_warehouse_stock: number;
   reason: string | null;
   created_by_id: number | null;
   created_at: string;
@@ -12,18 +15,21 @@
 
 export interface StockInCreate {
   product_id: number;
+  warehouse_id?: number | null;
   quantity: number;
   reason?: string | null;
 }
 
 export interface StockOutCreate {
   product_id: number;
+  warehouse_id?: number | null;
   quantity: number;
   reason?: string | null;
 }
 
 export interface StockAdjustmentCreate {
   product_id: number;
+  warehouse_id?: number | null;
   new_stock: number;
   reason?: string | null;
 }

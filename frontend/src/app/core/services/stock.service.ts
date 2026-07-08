@@ -1,4 +1,4 @@
-﻿import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -16,7 +16,11 @@ import {
 export class StockService {
   constructor(private readonly http: HttpClient) {}
 
-  getStockMovements(productId?: number, movementType?: string): Observable<StockMovement[]> {
+  getStockMovements(
+    productId?: number,
+    movementType?: string,
+    warehouseId?: number
+  ): Observable<StockMovement[]> {
     let params = new HttpParams();
 
     if (productId !== undefined) {
@@ -25,6 +29,10 @@ export class StockService {
 
     if (movementType) {
       params = params.set('movement_type', movementType);
+    }
+
+    if (warehouseId !== undefined) {
+      params = params.set('warehouse_id', warehouseId);
     }
 
     return this.http.get<StockMovement[]>(`${API_BASE_URL}/stock/movements`, { params });
