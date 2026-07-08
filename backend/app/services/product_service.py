@@ -10,6 +10,7 @@ from app.models.product import Product
 from app.models.stock_movement import StockMovement
 from app.models.supplier import Supplier
 from app.schemas.product import ProductCreate, ProductUpdate
+from app.services import warehouse_service
 
 
 class ProductSkuConflictError(Exception):
@@ -161,15 +162,33 @@ def create_product(
         db.add(product)
         db.flush()
 
+
+        default_warehouse = warehouse_service.get_or_create_default_warehouse(
+            db,
+            organization_id,
+        )
+        warehouse_inventory = warehouse_service.get_or_create_inventory_record(
+            db=db,
+            organization_id=organization_id,
+            warehouse_id=default_warehouse.id,
+            product_id=product.id,
+            low_stock_threshold=product.low_stock_threshold,
+        )
+        warehouse_inventory.quantity_on_hand = product.current_stock
+        warehouse_inventory.low_stock_threshold = product.low_stock_threshold
+
         if product.current_stock > 0:
             db.add(
                 StockMovement(
                     organization_id=organization_id,
+                    warehouse_id=default_warehouse.id,
                     product_id=product.id,
                     movement_type="initial_stock",
                     quantity=product.current_stock,
                     previous_stock=0,
                     new_stock=product.current_stock,
+                    previous_warehouse_stock=0,
+                    new_warehouse_stock=product.current_stock,
                     reason="Initial stock recorded during product creation",
                     created_by_id=created_by_id,
                 )

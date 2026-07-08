@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -9,10 +9,24 @@ from app.db.base import Base
 class StockMovement(Base):
     __tablename__ = "stock_movements"
 
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["organization_id", "warehouse_id"],
+            ["warehouses.organization_id", "warehouses.id"],
+            name="fk_stock_movements_organization_warehouse",
+        ),
+    )
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
     organization_id: Mapped[int] = mapped_column(
         ForeignKey("organizations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    warehouse_id: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
         index=True,
     )
@@ -38,6 +52,16 @@ class StockMovement(Base):
     )
 
     new_stock: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    previous_warehouse_stock: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    new_warehouse_stock: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
     )
