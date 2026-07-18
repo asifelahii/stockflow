@@ -17,6 +17,9 @@ from app.models.public_demo_tenant import PublicDemoTenant
 from app.models.stock_movement import StockMovement
 from app.models.supplier import Supplier
 from app.models.user import User
+from app.models.warehouse import Warehouse
+from app.models.warehouse_inventory import WarehouseInventory
+from app.services import warehouse_service
 
 
 PUBLIC_DEMO_PROFILES: tuple[dict[str, Any], ...] = (
@@ -359,6 +362,10 @@ def _clear_tenant_business_data(
         StockMovement.organization_id == organization_id
     ).delete(synchronize_session=False)
 
+    db.query(WarehouseInventory).filter(
+        WarehouseInventory.organization_id == organization_id
+    ).delete(synchronize_session=False)
+
     db.query(FinancialTransaction).filter(
         FinancialTransaction.organization_id == organization_id
     ).delete(synchronize_session=False)
@@ -379,6 +386,10 @@ def _clear_tenant_business_data(
         Supplier.organization_id == organization_id
     ).delete(synchronize_session=False)
 
+    db.query(Warehouse).filter(
+        Warehouse.organization_id == organization_id
+    ).delete(synchronize_session=False)
+
     db.flush()
 
 
@@ -393,16 +404,32 @@ def _record_movement(
     created_by_id: int,
     created_at: datetime,
 ) -> None:
+    default_warehouse = warehouse_service.get_or_create_default_warehouse(
+        db,
+        organization_id,
+    )
+    warehouse_inventory = warehouse_service.get_or_create_inventory_record(
+        db=db,
+        organization_id=organization_id,
+        warehouse_id=default_warehouse.id,
+        product_id=product.id,
+        low_stock_threshold=product.low_stock_threshold,
+    )
+
     previous_stock = int(product.current_stock)
+    previous_warehouse_stock = int(warehouse_inventory.quantity_on_hand)
 
     if movement_type == "stock_in":
         new_stock = previous_stock + quantity
+        new_warehouse_stock = previous_warehouse_stock + quantity
     elif movement_type == "stock_out":
         new_stock = previous_stock - quantity
+        new_warehouse_stock = previous_warehouse_stock - quantity
     else:
         new_stock = previous_stock + quantity
+        new_warehouse_stock = previous_warehouse_stock + quantity
 
-    if new_stock < 0:
+    if new_stock < 0 or new_warehouse_stock < 0:
         raise RuntimeError(
             f"Demo profile would make product {product.sku} stock negative."
         )
@@ -410,11 +437,14 @@ def _record_movement(
     db.add(
         StockMovement(
             organization_id=organization_id,
+            warehouse_id=default_warehouse.id,
             product_id=product.id,
             movement_type=movement_type,
             quantity=quantity,
             previous_stock=previous_stock,
             new_stock=new_stock,
+            previous_warehouse_stock=previous_warehouse_stock,
+            new_warehouse_stock=new_warehouse_stock,
             reason=reason,
             created_by_id=created_by_id,
             created_at=created_at,
@@ -423,6 +453,8 @@ def _record_movement(
 
     product.current_stock = new_stock
     product.version += 1
+    warehouse_inventory.quantity_on_hand = new_warehouse_stock
+    warehouse_inventory.low_stock_threshold = product.low_stock_threshold
 
 
 def _seed_tenant_business_data(
